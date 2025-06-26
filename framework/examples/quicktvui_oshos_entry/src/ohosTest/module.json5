@@ -1,0 +1,12 @@
+{
+  "module": {
+    "name": "quicktvui_oshos_entry_test",
+    "type": "feature",
+    "deviceTypes": [
+      "default",
+      "tablet"
+    ],
+    "deliveryWithInstall": true,
+    "installationFree": false
+  }
+}

@@ -39,7 +39,7 @@
         :key="n"
         :style="{ backgroundColor: 4278222848 + 100 * n }"
       >
-        <p>I'm Slide {{ n + 1 }}</p>
+        <p>I'm Slide haha{{ n + 1 }}</p>
       </swiper-slide>
     </swiper>
     <!-- A Demo of dots -->

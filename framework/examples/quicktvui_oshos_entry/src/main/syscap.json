@@ -1,0 +1,17 @@
+{
+  "devices": {
+    "general": [
+      "default",
+      "tablet"
+    ]
+  },
+  "development": {
+    "addedSysCaps": []
+  },
+  "production": {
+    "removedSysCaps": [
+      "SystemCapability.ArkUI.ArkUI.Libuv",
+      "SystemCapability.ArkUi.Graphics3D"
+    ]
+  }
+}
