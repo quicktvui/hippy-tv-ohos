@@ -6,7 +6,8 @@
   "author": "",
   "license": "",
   "dependencies": {
-    "quicktvui": "file:../../ohos_quicktvui/"
+    "quicktvui": "file:../../ohos_quicktvui/",
+    "hippy": "file:../../ohos"
   }
 }
 

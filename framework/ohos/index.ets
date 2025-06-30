@@ -85,3 +85,9 @@ export * from "./src/main/ets/support/annotation/HippyNativeModule"
 export * from "./src/main/ets/support/common/HippyException"
 export * from "./src/main/ets/support/common/HippyException"
 export * from "./src/main/ets/support/common/HippyTypes"
+
+/**
+ * add by quicktvui
+ */
+export * from "./src/main/ets/renderer_native/components/view/HRDivView"
+export { default as HippyRenderBaseView} from "./src/main/ets/renderer_native/components/base/HippyRenderBaseView"
