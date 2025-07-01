@@ -1,7 +1,7 @@
 {
   "app": {
-    "bundleName": "com.tencent.hippydemo",
-    "vendor": "example",
+    "bundleName": "com.extscreen.runtime",
+    "vendor": "runtime",
     "versionCode": 1000000,
     "versionName": "1.0.0",
     "icon": "$media:app_icon",

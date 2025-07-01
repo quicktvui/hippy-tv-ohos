@@ -1,11 +1,13 @@
 {
-  "name": "ohos_quicktvui",
+  "name": "runtime",
   "version": "1.0.0",
   "description": "Please describe the basic information.",
-  "main": "Index.ets",
+  "main": "",
   "author": "",
-  "license": "Apache-2.0",
+  "license": "",
   "dependencies": {
-    "hippy" : "file:../ohos"
+    "quicktvui": "file:../ohos-quicktvui",
+    "hippy": "file:../ohos"
   }
 }
+

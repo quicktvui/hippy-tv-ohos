@@ -1,6 +1,6 @@
 {
   "module": {
-    "name": "ohos_quicktvui",
+    "name": "quicktvui",
     "type": "har",
     "deviceTypes": [
       "default",

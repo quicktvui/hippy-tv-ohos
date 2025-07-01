@@ -25,21 +25,21 @@
         "name": "release"
       }
     ],
-    "signingConfigs": [
-      {
-        "name": "default",
-        "type": "HarmonyOS",
-        "material": {
-          "certpath": "/Users/zhaopeng/.ohos/config/default_Hippy_V8v71S9I61LWOztBrt3VdW6_kOVY0nBzra6PYxSqleE=.cer",
-          "keyAlias": "debugKey",
-          "keyPassword": "0000001BB3DE09AEE9EB043A27B102F3FDA53D0A374F833E046E1D4406425814A48CA82AB90DD9CC26362A",
-          "profile": "/Users/zhaopeng/.ohos/config/default_Hippy_V8v71S9I61LWOztBrt3VdW6_kOVY0nBzra6PYxSqleE=.p7b",
-          "signAlg": "SHA256withECDSA",
-          "storeFile": "/Users/zhaopeng/.ohos/config/default_Hippy_V8v71S9I61LWOztBrt3VdW6_kOVY0nBzra6PYxSqleE=.p12",
-          "storePassword": "0000001B8FB41955289CCE19A233A618155A26A5AB9886304CBDFFD3B90C5D2BD1744C7D10165538D2A17C"
-        }
-      }
-    ]
+//    "signingConfigs": [
+//      {
+//        "name": "default",
+//        "type": "HarmonyOS",
+//        "material": {
+//          "certpath": "/Users/zhaopeng/.ohos/config/default_Hippy_V8v71S9I61LWOztBrt3VdW6_kOVY0nBzra6PYxSqleE=.cer",
+//          "keyAlias": "debugKey",
+//          "keyPassword": "0000001BB3DE09AEE9EB043A27B102F3FDA53D0A374F833E046E1D4406425814A48CA82AB90DD9CC26362A",
+//          "profile": "/Users/zhaopeng/.ohos/config/default_Hippy_V8v71S9I61LWOztBrt3VdW6_kOVY0nBzra6PYxSqleE=.p7b",
+//          "signAlg": "SHA256withECDSA",
+//          "storeFile": "/Users/zhaopeng/.ohos/config/default_Hippy_V8v71S9I61LWOztBrt3VdW6_kOVY0nBzra6PYxSqleE=.p12",
+//          "storePassword": "0000001B8FB41955289CCE19A233A618155A26A5AB9886304CBDFFD3B90C5D2BD1744C7D10165538D2A17C"
+//        }
+//      }
+//    ]
   },
   "modules": [
     {
@@ -83,12 +83,12 @@
       "srcPath": "./framework/ohos"
     },
     {
-      "name": "ohos_quicktvui",
-      "srcPath": "./framework/ohos_quicktvui",
+      "name": "quicktvui",
+      "srcPath": "./framework/ohos-quicktvui",
     },
     {
-      "name": "quicktvui_oshos_entry",
-      "srcPath": "./framework/examples/quicktvui_oshos_entry",
+      "name": "runtime",
+      "srcPath": "./framework/ohos-runtime",
       "targets": [
         {
           "name": "default",

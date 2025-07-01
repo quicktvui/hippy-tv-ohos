@@ -4,7 +4,7 @@ import { window } from '@kit.ArkUI';
 import libHippy from 'libhippy.so'
 const DOMAIN = 0x0000;
 
-export default class Quicktvui_oshos_entryAbility extends UIAbility {
+export default class RuntimeEntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');
 

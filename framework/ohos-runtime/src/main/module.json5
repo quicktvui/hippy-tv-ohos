@@ -1,9 +1,9 @@
 {
   "module": {
-    "name": "quicktvui_oshos_entry",
+    "name": "runtime",
     "type": "feature",
     "description": "$string:module_desc",
-    "mainElement": "Quicktvui_oshos_entryAbility",
+    "mainElement": "RuntimeEntryAbility",
     "deviceTypes": [
       "default",
       "tablet"
@@ -13,8 +13,8 @@
     "pages": "$profile:main_pages",
     "abilities": [
       {
-        "name": "Quicktvui_oshos_entryAbility",
-        "srcEntry": "./ets/quicktvui_oshos_entryability/Quicktvui_oshos_entryAbility.ets",
+        "name": "RuntimeEntryAbility",
+        "srcEntry": "./ets/entryability/RuntimeEntryAbility.ets",
         "description": "demo",
         "icon": "$media:layered_image",
         "label": "$string:EntryAbility_label",
