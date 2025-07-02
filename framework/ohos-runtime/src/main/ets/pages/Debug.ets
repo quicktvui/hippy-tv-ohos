@@ -47,7 +47,11 @@ struct Debug {
   }
 
   onBackPress(): boolean | void {
-    return this.isEngineInitialized;
+    const ret = this.isEngineInitialized;
+    if (this.isEngineInitialized) {
+      this.destroyEngine()
+    }
+    return ret;
   }
 
   onPageShow(): void {
@@ -60,6 +64,23 @@ struct Debug {
 
   initEngine() {
     //
+    this.destroyEngine()
+    //
+    let params = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext())
+    params.coreJSAssetsPath = "vue2/vendor.ohos.js"
+    params.enableArkCApi = true
+    params.debugServerHost = '192.168.40.40:38989'
+    params.debugMode = true
+    params.enableLog = true
+
+    //
+    this.hippyEngine = createHippyEngine(params)
+    let engineListener = new DefaultEngineListener(this.hippyEngine, this.rootViewWrapper)
+    this.hippyEngine.initEngine(engineListener)
+    this.isEngineInitialized = true
+  }
+
+  destroyEngine() {
     let rootView = this.rootViewWrapper?.getRootView()
     if (rootView) {
       this.rootViewWrapper?.resetRootView()
@@ -67,17 +88,7 @@ struct Debug {
         this.hippyEngine?.destroyEngine()
       });
     }
-    //
-    let params = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext())
-    params.coreJSAssetsPath = "vue2/vendor.ohos.js"
-    params.enableArkCApi = true
-    params.debugServerHost = '192.168.40.40:38989'
-    params.debugMode = true
-    //
-    this.hippyEngine = createHippyEngine(params)
-    let engineListener = new DefaultEngineListener(this.hippyEngine, this.rootViewWrapper)
-    this.hippyEngine.initEngine(engineListener)
-    this.isEngineInitialized = true
+    this.isEngineInitialized = false
   }
 
   build() {
