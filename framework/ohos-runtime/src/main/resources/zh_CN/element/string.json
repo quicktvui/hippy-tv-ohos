@@ -11,6 +11,30 @@
     {
       "name": "EntryAbility_label",
       "value": "label"
+    },
+    {
+      "name": "debug_title",
+      "value": "快应用调试V3"
+    },
+    {
+      "name": "debug_runtime_version",
+      "value": "容器版本: v%1$s %2$s"
+    },
+    {
+      "name": "debug_ip_address",
+      "value": "IP地址:%1$s"
+    },
+    {
+      "name": "debug_server_ip_address",
+      "value": "电脑调试地址:%1$s"
+    },
+    {
+      "name": "debug_app_tip",
+      "value": "本App仅用开发调试，点击右侧按钮加载测试代码"
+    },
+    {
+      "name": "debug_start",
+      "value": "加载测试代码"
     }
   ]
 }

@@ -1,0 +1,75 @@
+在鸿蒙应用中确实建议将页面内的可展示文字抽取到资源文件中，方便维护、多语言支持以及统一管理。以下是最新鸿蒙最佳实践与命名规范建议（基于 HarmonyOS Next / ArkTS）：
+
+⸻
+
+✅ 为什么要抽取文字资源？
+	•	易于本地化：支持多语言版本，在 entry/src/main/resources/{base|zh_CN|en_US}/element/string.json 等目录下分别管理。
+	•	统一管理：避免硬编码，增强可读性，便于全局修改。
+	•	运行时更新：使用 "$string:KEY" 可自动切换语言资源。
+
+⸻
+
+🧰 如何定义资源文件？
+
+目录结构示例：
+
+entry/src/main/resources/
+  ├── base/element/string.json
+  ├── zh_CN/element/string.json
+  └── en_US/element/string.json
+
+文件内容示例（base/element/string.json）：
+
+{
+  "string": [
+    { "name": "debug_title", "value": "调试信息页" },
+    { "name": "button_clear_cache", "value": "清空缓存" },
+    { "name": "button_reload", "value": "重载应用" },
+    { "name": "label_env", "value": "当前环境：" }
+  ]
+}
+
+
+⸻
+
+🏷 命名规范建议
+	•	统一前缀：<page>_<component>_<purpose>
+	•	使用小写 + 下划线：更一致且兼容 ArkTS 资源加载
+	•	避免中文命名：统一英文便于国际化
+
+示例：
+
+Key 名称	对应用途
+debugpage_title	页面标题
+debugpage_button_clear	“清空缓存”按钮
+debugpage_button_reload	“重载应用”按钮
+debugpage_label_env	环境标签前缀
+debugpage_label_version	版本号标签前缀
+
+
+⸻
+
+🧬 在 ArkTS 页面中使用资源
+
+Text($r('app.string.debugpage_title'))
+Text($r('app.string.debugpage_label_env') + this.currentEnv)
+Button($r('app.string.button_clear_cache'))
+
+或对不支持 Resource 类型组件使用：
+
+let ctx = getContext(this);
+Text(ctx.resourceManager.getStringSync($r('app.string.debugpage_label_env')).toString())
+
+￼ ￼ ￼
+
+⸻
+
+🧾 总结建议
+	•	✅ 必须将静态文本抽到 string.json 中
+	•	🪧 Key 命名遵循：页面前缀 + 组件 + 功能
+	•	🌐 按国际化标准组织：base 为默认语言，zh_CN、en_US 等目录支持多语言
+	•	💡 在 ArkTS 中统一使用 $r('app.string.key')，并在不支持的组件中 fallback 为原生字符串
+
+⸻
+
+如果你希望我为你的 Debug 页面生成完整的 string.json+ ArkTS 示例代码，可继续提供页面内容，我来帮你生成配置。需要帮忙吗？
