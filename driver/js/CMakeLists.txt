@@ -35,10 +35,13 @@ set(CMAKE_CXX_STANDARD 17)
 # 现在源码集成配置需在app的build-profile.json5里，不方便，所以先放在这里。
 # 后续hippy产物的独立后，放到hippy模块的build-profile.json5里。
 if (OHOS)
-#  set(JS_ENGINE "V8")
   set(V8_COMPONENT "10.6.194")
-  set(JS_ENGINE "JSH")
-endif ()
+  if (ENABLE_INSPECTOR)
+    set(JS_ENGINE "V8")
+  else()
+    set(JS_ENGINE "JSH")
+  endif()
+endif()
 
 # region library
 add_library(${PROJECT_NAME} STATIC)

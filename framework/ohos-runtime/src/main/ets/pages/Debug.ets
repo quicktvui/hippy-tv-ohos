@@ -69,7 +69,7 @@ struct Debug {
     let params = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext())
     params.coreJSAssetsPath = "vue2/vendor.ohos.js"
     params.enableArkCApi = true
-    params.debugServerHost = '192.168.40.40:38989'
+    params.debugServerHost = '192.168.40.77:38989'
     params.debugMode = true
     params.enableLog = true
 
