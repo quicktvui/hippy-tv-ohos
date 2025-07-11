@@ -16,6 +16,7 @@ import {
   HippyRenderBaseView,
 } from 'hippy'
 import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
+import { BackPressHandler } from 'hippy/src/main/ets/hippy_framework/HippyEngine'
 
 const TAG: string = 'RuntimeDebug'
 
@@ -47,11 +48,18 @@ struct Debug {
   }
 
   onBackPress(): boolean | void {
-    const ret = this.isEngineInitialized;
-    if (this.isEngineInitialized) {
-      this.destroyEngine()
-    }
-    return ret;
+    // const backPressHandler: BackPressHandler = {
+    //   handleBackPress(): void {
+    //     // 实现返回逻辑
+    //     console.log('Back button pressed');
+    //   }
+    // } as BackPressHandler;
+    this.hippyEngine?.onBackPressed(new RuntimeDefaultBackHandler())
+    // const ret = this.isEngineInitialized;
+    // if (this.isEngineInitialized) {
+    //   this.destroyEngine()
+    // }
+    return true;
   }
 
   onPageShow(): void {
@@ -166,6 +174,12 @@ struct Debug {
     .height('100%')
     .backgroundColor('#3A4251')
     .expandSafeArea()
+  }
+}
+
+class RuntimeDefaultBackHandler implements BackPressHandler {
+  handleBackPress(): void {
+    console.log('Back button pressed');
   }
 }
 
