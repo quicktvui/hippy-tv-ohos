@@ -10,10 +10,12 @@ import { HippyBridgeManagerImpl } from './bridge/HippyBridgeManagerImpl';
 import { DomManager } from './connector/DomManager';
 import { JsDriver } from './connector/JsDriver';
 import { NativeRenderer } from './connector/NativeRenderer';
-import { EngineInitParams, HippyLayoutEngineType,
+import {
+  EngineInitParams,
+  HippyLayoutEngineType,
   ModuleListener,
   ModuleLoadParams,
-  ModuleLoadStatus} from './HippyEngine';
+} from './HippyEngine';
 import { HippyEngineContext } from './HippyEngineContext';
 import { HippyGlobalConfigs } from './HippyGlobalConfigs';
 import { HippyModuleManagerImpl, HippyNativeModuleCreator } from './modules/HippyModuleManagerImpl';
@@ -63,7 +65,7 @@ export class HippyEngineContextImpl implements HippyEngineContext {
     initStartTime: number,
     monitor: TimeMonitor,
     coreBundleLoader: HippyBundleLoader | null,
-    devSupportManager: DevSupportManager| null,
+    devSupportManager: DevSupportManager | null,
     reloadEngineCallback: Function | null,
   ) {
     this.mEngineInitParams = params;
@@ -73,7 +75,8 @@ export class HippyEngineContextImpl implements HippyEngineContext {
     this.vfsManager = new VfsManager(this.libHippy)
     this.vfsManager.addProcessorAtFirst(new PerformanceProcessor(this))
     this.vfsManager.addProcessorAtLast(new DefaultProcessor(resourceLoader))
-    this.mDomManager = domManager ? domManager : new DomManager(this.libHippy, this.mGlobalConfigs.getDomManagerConcurrentNum());
+    this.mDomManager = domManager ? domManager :
+      new DomManager(this.libHippy, this.mGlobalConfigs.getDomManagerConcurrentNum());
     this.mInitStartTime = initStartTime;
     this.mMonitor = monitor;
     this.mCoreBundleLoader = coreBundleLoader;
@@ -138,9 +141,13 @@ export class HippyEngineContextImpl implements HippyEngineContext {
     let enableArkCApi = globalConfigs.enableArkCApi()
     let isRawfile = globalConfigs.isLoadFromRawfile()
     let resModuleName = globalConfigs.getResModuleName()
-    this.nativeRenderProvider = new NativeRenderProvider(this.libHippy, enableArkCApi, customRenderViewCreatorMap, customMeasureRenderViews)
-    this.nativeRenderer = new NativeRenderer(this.libHippy, enableArkCApi, this.nativeRenderProvider,
-      customRenderViews, customMeasureRenderViews, mappingRenderViews, bundlePath, isRawfile, resModuleName)
+    this.nativeRenderProvider =
+      new NativeRenderProvider(this.libHippy, enableArkCApi, customRenderViewCreatorMap,
+        customMeasureRenderViews)
+    this.nativeRenderer =
+      new NativeRenderer(this.libHippy, enableArkCApi, this.nativeRenderProvider,
+        customRenderViews, customMeasureRenderViews, mappingRenderViews, bundlePath, isRawfile,
+        resModuleName)
     this.nativeRenderer.registerCustomFontPaths(customFontPathMap)
     // DomManager挂载
     this.mDomManager.attachToRenderer(this.nativeRenderer.instanceId)
@@ -197,7 +204,8 @@ export class HippyEngineContextImpl implements HippyEngineContext {
 
   onLoadModuleCompleted(statusCode: number, msg: string): void {
     this.mModuleListener?.onLoadCompleted(statusCode, msg);
-    this.mGlobalConfigs.getEngineMonitorAdapter()?.onLoadModuleCompleted(statusCode, this.getComponentName());
+    this.mGlobalConfigs.getEngineMonitorAdapter()?.onLoadModuleCompleted(statusCode,
+      this.getComponentName());
   }
 
   public setComponentName(component: string) {
@@ -226,7 +234,8 @@ export class HippyEngineContextImpl implements HippyEngineContext {
         const renderInstanceId = this.getNativeRenderProvider()?.getInstanceId()
         let libHippy = this.getLibHippy()
         if (renderInstanceId) {
-          libHippy?.NativeRenderProvider_BindNativeRoot(this.rootView.rootSlot, renderInstanceId, this.rootView.getRootId(), 0)
+          libHippy?.NativeRenderProvider_BindNativeRoot(this.rootView.rootSlot, renderInstanceId,
+            this.rootView.getRootId(), 0)
         }
       }
     }
@@ -244,8 +253,9 @@ export class HippyEngineContextImpl implements HippyEngineContext {
   }
 
   createRootView(loadParams: ModuleLoadParams) {
-    const rootView = this.nativeRenderProvider!.getNativeRenderImpl().createRootView(loadParams.componentName, {},
-      loadParams.wrappedCustomRenderViewBuilder, loadParams.layoutEngineType)
+    const rootView =
+      this.nativeRenderProvider!.getNativeRenderImpl().createRootView(loadParams.componentName, {},
+        loadParams.wrappedCustomRenderViewBuilder, loadParams.layoutEngineType)
     if (rootView != null) {
       this.attachRootView(rootView);
     }
@@ -351,7 +361,8 @@ export class HippyEngineContextImpl implements HippyEngineContext {
         this.mModuleListener?.onJsException(error);
       } else {
         // TODO Native Exception
-        this.mGlobalConfigs.getExceptionHandler()?.handleNativeException(new HippyJsException('', ''), true);
+        this.mGlobalConfigs.getExceptionHandler()?.handleNativeException(new HippyJsException('',
+          ''), true);
       }
     }
   }
@@ -393,4 +404,11 @@ export class HippyEngineContextImpl implements HippyEngineContext {
 
   }
 
+  getAbilityContext(): Context {
+    return this.mEngineInitParams.context
+  }
+
+  getUIContext(): UIContext | null {
+    return this.mEngineInitParams.uiContext
+  }
 }

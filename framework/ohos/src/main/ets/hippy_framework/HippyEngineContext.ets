@@ -84,4 +84,8 @@ export interface HippyEngineContext {
   addEngineLifecycleEventListener(listener: HippyEngineLifecycleEventListener): void;
 
   removeEngineLifecycleEventListener(listener: HippyEngineLifecycleEventListener): void;
+
+  getUIContext(): UIContext | null
+
+  getAbilityContext(): Context
 }

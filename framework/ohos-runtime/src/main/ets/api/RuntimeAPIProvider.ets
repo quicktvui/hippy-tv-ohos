@@ -11,6 +11,7 @@ import {
 } from 'hippy/src/main/ets/hippy_framework/modules/native/HippyNativeModuleBase';
 
 import { ESLogModule } from '../module/ESLogModule'
+import { ESToastModule } from '../module/ESToastModule';
 
 /**
  * 自定义 module 和 component 入口
@@ -19,6 +20,7 @@ export class RuntimeAPIProvider extends HippyAPIProvider {
   getCustomNativeModuleCreatorMap(): Map<string, HippyNativeModuleCreator> | null {
     let registerMap: Map<string, HippyNativeModuleCreator> = new Map()
     registerMap.set(ESLogModule.NAME, (ctx): HippyNativeModuleBase => new ESLogModule(ctx))
+    registerMap.set(ESToastModule.NAME, (ctx): HippyNativeModuleBase => new ESToastModule(ctx))
     return registerMap;
   }
 

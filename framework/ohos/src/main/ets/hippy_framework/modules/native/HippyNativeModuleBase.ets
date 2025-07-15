@@ -30,6 +30,10 @@ export class HippyNativeModuleBase {
     this.ctx = ctx
   }
 
+  getContext(): HippyEngineContext {
+    return this.ctx
+  }
+
   isTurbo() {
     return false;
   }
