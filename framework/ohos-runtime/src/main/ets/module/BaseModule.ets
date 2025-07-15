@@ -3,8 +3,11 @@ import { HippyModulePromise } from 'hippy/src/main/ets/hippy_framework/modules/H
 import {
   HippyNativeModuleBase
 } from 'hippy/src/main/ets/hippy_framework/modules/native/HippyNativeModuleBase';
-import { HippyNativeModule } from 'hippy/src/main/ets/support/annotation/HippyNativeModule';
 import { HippyAny } from 'hippy/src/main/ets/support/common/HippyTypes';
+import {
+  EventDispatcher
+} from 'hippy/src/main/ets/hippy_framework/modules/javascript/EventDispatcher';
+import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
 
 export class BaseModule extends HippyNativeModuleBase {
   public static readonly ES_PROP_INFO_VERSION = "version";
@@ -30,5 +33,20 @@ export class BaseModule extends HippyNativeModuleBase {
         super.call(method, params, promise);
     }
     return null;
+  }
+
+  dispatchEvent(eventName: string, eventParam: HippyAny) {
+    try {
+      if (this.ctx != null && this.ctx.getModuleManager() != null) {
+        const eventModule =
+          this.ctx.getModuleManager().getJavaScriptModule(EventDispatcher.MODULE_NAME);
+        if (eventModule != null) {
+          (eventModule as EventDispatcher).receiveNativeEvent(eventName, eventParam);
+        }
+      }
+    } catch (e) {
+      LogUtils.e('BaseModule',
+        'dispatchEvent: ' + eventName + ' eventParam:' + eventParam + " error!");
+    }
   }
 }

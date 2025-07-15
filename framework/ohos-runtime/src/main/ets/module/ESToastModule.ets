@@ -12,6 +12,9 @@ export class ESToastModule extends BaseModule {
     super(ctx)
   }
 
+  initialize(): void {
+  }
+
   public call(method: string, params: Array<HippyAny>, promise: HippyModulePromise): HippyAny {
     switch (method) {
       case 'showToast':

@@ -151,6 +151,7 @@ export class HippyModuleManagerImpl implements HippyModuleManager {
           LogUtils.e('hippy', name + ' module is not turbo module')
           return null;
         }
+        module.initialize();
         this.cachedNativeModuleMap.set(name, module)
         return module
       } else {
