@@ -49,6 +49,8 @@ framework/examples/voltron-demo/IOSProj/IOSProj.xcworkspace
 framework/examples/voltron-demo/IOSProj/Pods/*
 framework/examples/voltron-demo/IOSProj/Podfile.lock
 
+framework/ohos/.preview/*
+
 driver/js/packages/hippy-vue-loader/remote-debug-profile/*
 
 docs/assets/*.png
