@@ -15,9 +15,9 @@ import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
 /**
  * 自定义网络模块
  */
-@HippyNativeModule({ name: "AndroidNetworkModule" })
+@HippyNativeModule({ name: "ESNetworkModule" })
 export class ESNetworkModule extends BaseModule {
-  public static readonly NAME: string = 'AndroidNetworkModule'
+  public static readonly NAME: string = 'ESNetworkModule'
   conn: connection.NetConnection | null = null
   networkCallback: AsyncCallback<void> = (err: BusinessError, data: void) => {
     LogUtils.i('ESNetworkModule',
