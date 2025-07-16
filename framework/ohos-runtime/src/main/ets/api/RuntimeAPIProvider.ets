@@ -14,6 +14,8 @@ import { ESLogModule } from '../module/ESLogModule'
 import { ESToastModule } from '../module/ESToastModule';
 import { ESNetworkModule } from '../module/ESNetworkModule';
 import { ESBroadcastModule } from '../module/ESBroadcastModule';
+import { ESTestModule } from '../module/ESTestModule';
+import { ESRuntimeDeviceModule } from '../module/ESRuntimeDeviceModule';
 
 /**
  * 自定义 module 和 component 入口
@@ -24,7 +26,11 @@ export class RuntimeAPIProvider extends HippyAPIProvider {
     registerMap.set(ESLogModule.NAME, (ctx): HippyNativeModuleBase => new ESLogModule(ctx))
     registerMap.set(ESToastModule.NAME, (ctx): HippyNativeModuleBase => new ESToastModule(ctx))
     registerMap.set(ESNetworkModule.NAME, (ctx): HippyNativeModuleBase => new ESNetworkModule(ctx))
-    registerMap.set(ESBroadcastModule.NAME, (ctx): HippyNativeModuleBase => new ESBroadcastModule(ctx))
+    registerMap.set(ESBroadcastModule.NAME,
+      (ctx): HippyNativeModuleBase => new ESBroadcastModule(ctx))
+    registerMap.set(ESRuntimeDeviceModule.NAME,
+      (ctx): HippyNativeModuleBase => new ESRuntimeDeviceModule(ctx))
+    registerMap.set(ESTestModule.NAME, (ctx): HippyNativeModuleBase => new ESTestModule(ctx))
     return registerMap;
   }
 

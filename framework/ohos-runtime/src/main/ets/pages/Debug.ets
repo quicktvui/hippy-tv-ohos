@@ -18,8 +18,11 @@ import {
 import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
 import { BackPressHandler } from 'hippy/src/main/ets/hippy_framework/HippyEngine'
 import { RuntimeAPIProvider } from '../api/RuntimeAPIProvider'
+import inputDevice from '@ohos.multimodalInput.inputDevice';
+import keyEvent from '@ohos.multimodalInput.keyEvent';
 
 const TAG: string = 'RuntimeDebug'
+
 
 @Entry
 @Component
@@ -46,6 +49,15 @@ struct Debug {
     // this.versionName = version.name
     // this.versionCode = version.code
     // this.deviceIp = await getDeviceIp()
+
+   // let listenerId = inputDevice.on('key', (event: keyEvent.KeyEventData) => {
+   //    console.info(`按键 code: ${event.keyCode}, action: ${event.keyAction}`);
+   //
+   //    // 例如：方向键
+   //    if (event.keyCode === 19 && event.keyAction === 0) { // KEYCODE_DPAD_UP
+   //      console.log('↑ 向上键按下');
+   //    }
+   //  });
   }
 
   onBackPress(): boolean | void {
