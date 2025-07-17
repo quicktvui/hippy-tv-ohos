@@ -35,6 +35,46 @@
     {
       "name": "debug_start",
       "value": "加载测试代码"
+    },
+    {
+      "name": "reason_location",
+      "value": "用于导航、地图定位和附近服务功能。"
+    },
+    {
+      "name": "reason_camera",
+      "value": "用于拍照、视频录制及视频通话功能。"
+    },
+    {
+      "name": "reason_microphone",
+      "value": "用于语音输入、音视频通话和录音功能。"
+    },
+    {
+      "name": "reason_contacts",
+      "value": "用于联系人选择、展示及相关通信功能。"
+    },
+    {
+      "name": "reason_storage",
+      "value": "用于读取和保存图片、文件等本地数据。"
+    },
+    {
+      "name": "reason_calendar",
+      "value": "用于展示日程、设置提醒及同步日历信息。"
+    },
+    {
+      "name": "reason_health",
+      "value": "用于记录和分析健康数据，例如步数、心率等。"
+    },
+    {
+      "name": "reason_bluetooth",
+      "value": "用于连接和管理蓝牙设备，例如耳机和可穿戴设备。"
+    },
+    {
+      "name": "reason_activity_movement",
+      "value": "用于记录步行、跑步等运动状态以提供健康分析服务。"
+    },
+    {
+      "name": "reason_notifications",
+      "value": "用于接收通知提醒，确保及时获取重要信息。"
     }
   ]
 }

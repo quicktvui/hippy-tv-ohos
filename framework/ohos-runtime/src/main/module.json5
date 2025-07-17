@@ -29,7 +29,37 @@
       },
       {
         "name": "ohos.permission.GET_NETWORK_INFO"
-      }
+      },
+      {
+        "name": "ohos.permission.LOCATION",
+        "reason": "$string:reason_location",
+        "usedScene": {
+          "abilities": [
+            "RuntimeEntryAbility"
+          ],
+          "when": "always"
+        }
+      },
+      {
+        "name": "ohos.permission.APPROXIMATELY_LOCATION",
+        "reason": "$string:reason_location",
+        "usedScene": {
+          "abilities": [
+            "RuntimeEntryAbility"
+          ],
+          "when": "always"
+        }
+      },
+      {
+        "name": "ohos.permission.CAMERA",
+        "reason": "$string:reason_camera",
+        "usedScene": {
+          "abilities": [
+            "RuntimeEntryAbility"
+          ],
+          "when": "always"
+        }
+      },
     ]
   }
 }

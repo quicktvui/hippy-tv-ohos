@@ -35,6 +35,46 @@
     {
       "name": "debug_start",
       "value": "加载测试代码"
+    },
+    {
+      "name": "reason_location",
+      "value": "Used for navigation, map positioning, and nearby service functions."
+    },
+    {
+      "name": "reason_camera",
+      "value": "Used for taking photos, recording videos, and video call functions."
+    },
+    {
+      "name": "reason_microphone",
+      "value": "Used for voice input, audio/video calls, and recording functions."
+    },
+    {
+      "name": "reason_contacts",
+      "value": "Used for contact selection, display, and related communication features."
+    },
+    {
+      "name": "reason_storage",
+      "value": "Used for reading and saving local data such as images and files."
+    },
+    {
+      "name": "reason_calendar",
+      "value": "Used to display schedules, set reminders, and sync calendar information."
+    },
+    {
+      "name": "reason_health",
+      "value": "Used to record and analyze health data, such as steps and heart rate."
+    },
+    {
+      "name": "reason_bluetooth",
+      "value": "Used to connect and manage Bluetooth devices, such as headsets and wearables."
+    },
+    {
+      "name": "reason_activity_movement",
+      "value": "Used to record activities like walking and running for health analysis services."
+    },
+    {
+      "name": "reason_notifications",
+      "value": "Used to receive notifications to ensure timely access to important information."
     }
   ]
 }
