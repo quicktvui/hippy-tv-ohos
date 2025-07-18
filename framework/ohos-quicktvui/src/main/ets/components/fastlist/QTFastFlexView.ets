@@ -1,16 +1,21 @@
-
-import {HippyRenderBaseView,HippyObservedArray,HRDiv,NativeRenderContext,HippyAny,HippyRenderCallback} from 'hippy'
+import {
+  HippyRenderBaseView,
+  HippyObservedArray,
+  HRDiv,
+  NativeRenderContext,
+  HippyAny,
+  HippyRenderCallback
+} from 'hippy'
 
 
 @Observed
-export class QTFastFlexView extends HippyRenderBaseView{
-
+export class QTFastFlexView extends HippyRenderBaseView {
   constructor(ctx: NativeRenderContext) {
     super(ctx)
   }
 
   setProp(propKey: string, propValue: HippyAny): boolean {
-    switch (propKey){
+    switch (propKey) {
       case "cachePool":
 
         return true;
@@ -26,7 +31,7 @@ export class QTFastFlexView extends HippyRenderBaseView{
 
     }
     //不支持或者不处理的key
-    switch (propKey){
+    switch (propKey) {
       case "display":
       case "setData":
       case "suspendUpdateTaskOnPause":
@@ -55,8 +60,8 @@ export class QTFastFlexView extends HippyRenderBaseView{
       case "keyName":
         console.error(`QTFastFlexView : 未实现propKey : ${propKey}`)
         return true;
-        default :
-          console.warn(`QTFastFlexView : 未知的未实现propKey : ${propKey}`)
+      default:
+        console.warn(`QTFastFlexView : 未知的未实现propKey : ${propKey}`)
         break;
     }
     return super.setProp(propKey, propValue)
@@ -64,7 +69,7 @@ export class QTFastFlexView extends HippyRenderBaseView{
 
   call(method: string, params: Array<HippyAny>, callback: HippyRenderCallback | null): void {
 
-    switch (method){
+    switch (method) {
       case 'scrollToPositionWithOffsetInfiniteMode':
       case 'setGroupChildSelectByItemPosition':
       case 'refreshListData':
@@ -89,25 +94,24 @@ export class QTFastFlexView extends HippyRenderBaseView{
         return;
     }
 
-    switch (method){
+    switch (method) {
       case 'updateItem':
 
         break;
     }
   }
-
 }
 
 @Component
-export struct  QTFastFlex {
+export struct QTFastFlex {
   @ObjectLink renderView: QTFastFlexView
   @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
 
   build(): void {
     HRDiv({
       renderView: this.renderView,
-      children:  this.children
-    }).onClick(()=>{
+      children: this.children
+    }).onClick(() => {
 
     })
   }

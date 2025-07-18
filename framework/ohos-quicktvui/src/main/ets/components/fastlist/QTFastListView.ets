@@ -1,17 +1,22 @@
-
-import {HippyRenderBaseView,HippyObservedArray,HRDiv,NativeRenderContext,HippyAny,HippyRenderCallback} from 'hippy'
+import {
+  HippyRenderBaseView,
+  HippyObservedArray,
+  HRDiv,
+  NativeRenderContext,
+  HippyAny,
+  HippyRenderCallback
+} from 'hippy'
 
 
 @Observed
-export class QTFastListView extends HippyRenderBaseView{
-
+export class QTFastListView extends HippyRenderBaseView {
   constructor(ctx: NativeRenderContext) {
     super(ctx)
   }
 
 
   setProp(propKey: string, propValue: HippyAny): boolean {
-    switch (propKey){
+    switch (propKey) {
       case "scrollOffset":
 
         return true;
@@ -155,7 +160,7 @@ export class QTFastListView extends HippyRenderBaseView{
 
     }
     //不支持或者不处理的key
-    switch (propKey){
+    switch (propKey) {
       case "display":
       case "setData":
       case "suspendUpdateTaskOnPause":
@@ -182,7 +187,7 @@ export class QTFastListView extends HippyRenderBaseView{
       case "useLayoutAnimation":
         console.error(`QTFastListView : 未实现propKey : ${propKey}`)
         return true;
-      default :
+      default:
         console.warn(`QTFastFlexView : 未知的未实现propKey : ${propKey}`)
     }
     return super.setProp(propKey, propValue)
@@ -190,7 +195,7 @@ export class QTFastListView extends HippyRenderBaseView{
 
   call(method: string, params: Array<HippyAny>, callback: HippyRenderCallback | null): void {
 
-    switch (method){
+    switch (method) {
       case 'scrollToPositionWithOffsetInfiniteMode':
       case 'setGroupChildSelectByItemPosition':
       case 'refreshListData':
@@ -217,7 +222,7 @@ export class QTFastListView extends HippyRenderBaseView{
         return;
     }
 
-    switch (method){
+    switch (method) {
       case 'scrollToIndex':
 
         break;
@@ -290,19 +295,18 @@ export class QTFastListView extends HippyRenderBaseView{
         break;
     }
   }
-
 }
 
 @Component
-export struct  QTFastList {
+export struct QTFastList {
   @ObjectLink renderView: QTFastListView
   @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
 
   build(): void {
     HRDiv({
       renderView: this.renderView,
-      children:  this.children
-    }).onClick(()=>{
+      children: this.children
+    }).onClick(() => {
 
     })
   }

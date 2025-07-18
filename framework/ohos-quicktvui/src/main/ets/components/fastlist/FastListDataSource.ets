@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {HippyRenderBaseView,HippyObservedArray} from 'hippy'
+import { HippyRenderBaseView, HippyObservedArray } from 'hippy'
 
 export class HRListDataSource implements IDataSource {
   private listeners: DataChangeListener[] = [];

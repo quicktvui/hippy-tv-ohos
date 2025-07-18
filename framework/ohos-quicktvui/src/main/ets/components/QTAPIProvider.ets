@@ -1,18 +1,24 @@
-
 import { HippyAPIProvider } from 'hippy';
 
-import { HippyJSModuleCreator } from 'hippy/src/main/ets/hippy_framework/modules/HippyModuleManagerImpl';
-import { HippyNativeModuleCreator } from 'hippy/src/main/ets/hippy_framework/modules/HippyModuleManagerImpl';
+import {
+  HippyJSModuleCreator
+} from 'hippy/src/main/ets/hippy_framework/modules/HippyModuleManagerImpl';
+import {
+  HippyNativeModuleCreator
+} from 'hippy/src/main/ets/hippy_framework/modules/HippyModuleManagerImpl';
 
-import HippyRenderBaseView from 'hippy/src/main/ets/renderer_native/components/base/HippyRenderBaseView';
-import { HRRenderViewCreator } from 'hippy/src/main/ets/renderer_native/components/HippyRenderRegisterMap';
+import HippyRenderBaseView
+  from 'hippy/src/main/ets/renderer_native/components/base/HippyRenderBaseView';
+import {
+  HRRenderViewCreator
+} from 'hippy/src/main/ets/renderer_native/components/HippyRenderRegisterMap';
 
 import { QTDivView } from './QTDivView';
 import { QTFastListView } from './fastlist/QTFastListView';
 import { QTFastFlexView } from './fastlist/QTFastFlexView';
 import { QTFastItemView } from './fastlist/QTFastItemView';
 
-export class QTAPIProvider extends HippyAPIProvider{
+export class QTAPIProvider extends HippyAPIProvider {
   getCustomNativeModuleCreatorMap(): Map<string, HippyNativeModuleCreator> | null {
     let registerMap: Map<string, HippyNativeModuleCreator> = new Map()
     // registerMap.set(ExampleNativeModule.NAME, (ctx): HippyNativeModuleBase => new ExampleNativeModule(ctx))

@@ -1,16 +1,21 @@
-
-import {HippyRenderBaseView,HippyObservedArray,HRDiv,NativeRenderContext,HippyAny,HippyRenderCallback} from 'hippy'
+import {
+  HippyRenderBaseView,
+  HippyObservedArray,
+  HRDiv,
+  NativeRenderContext,
+  HippyAny,
+  HippyRenderCallback
+} from 'hippy'
 
 
 @Observed
-export class QTFastItemView extends HippyRenderBaseView{
-
+export class QTFastItemView extends HippyRenderBaseView {
   constructor(ctx: NativeRenderContext) {
     super(ctx)
   }
 
   setProp(propKey: string, propValue: HippyAny): boolean {
-    switch (propKey){
+    switch (propKey) {
       case "focusScrollTarget":
 
         return true;
@@ -30,14 +35,14 @@ export class QTFastItemView extends HippyRenderBaseView{
 
   call(method: string, params: Array<HippyAny>, callback: HippyRenderCallback | null): void {
 
-    if(callback){
-      switch (method){
+    if (callback) {
+      switch (method) {
         case 'dispatchItemFunctionWithPromise':
 
           break;
       }
-    }else{
-      switch (method){
+    } else {
+      switch (method) {
         case 'updateInstance':
 
           break;
@@ -57,19 +62,18 @@ export class QTFastItemView extends HippyRenderBaseView{
     }
 
   }
-
 }
 
 @Component
-export struct  QTFastItem {
+export struct QTFastItem {
   @ObjectLink renderView: QTFastItemView
   @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
 
   build(): void {
     HRDiv({
       renderView: this.renderView,
-      children:  this.children
-    }).onClick(()=>{
+      children: this.children
+    }).onClick(() => {
 
     })
   }
