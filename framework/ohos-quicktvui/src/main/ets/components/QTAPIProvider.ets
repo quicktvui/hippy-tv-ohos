@@ -17,6 +17,7 @@ import { QTDivView } from './QTDivView';
 import { QTFastListView } from './fastlist/QTFastListView';
 import { QTFastFlexView } from './fastlist/QTFastFlexView';
 import { QTFastItemView } from './fastlist/QTFastItemView';
+import { QTEventView } from './QTEventComponent';
 
 export class QTAPIProvider extends HippyAPIProvider {
   getCustomNativeModuleCreatorMap(): Map<string, HippyNativeModuleCreator> | null {
@@ -36,6 +37,9 @@ export class QTAPIProvider extends HippyAPIProvider {
     registerMap.set("FastListView", (ctx): HippyRenderBaseView => new QTFastListView(ctx))
     registerMap.set("FastFlexView", (ctx): HippyRenderBaseView => new QTFastFlexView(ctx))
     registerMap.set("FastItemView", (ctx): HippyRenderBaseView => new QTFastItemView(ctx))
+
+    //测试
+    registerMap.set("EsEventComponent", (ctx): HippyRenderBaseView => new QTEventView(ctx))
     // registerMap.set("ExampleViewB", (ctx): HippyRenderBaseView => new ExampleViewB(ctx))
     // registerMap.set("MyScrollView", (ctx): HippyRenderBaseView => new MyScrollView(ctx))
     // registerMap.set("MyTopView", (ctx): HippyRenderBaseView => new MyTopView(ctx))
