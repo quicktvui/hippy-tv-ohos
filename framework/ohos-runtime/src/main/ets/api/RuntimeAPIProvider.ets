@@ -21,11 +21,12 @@ import { ESDeviceModule } from '../module/ESDeviceModule';
 import { ESPluginModule } from '../module/ESPluginModule';
 import { ESWindowModule } from '../module/ESWindowModule';
 import { ESPermissionModule } from '../module/ESPermissionModule';
+import { QTAPIProvider } from 'quicktvui';
 
 /**
  * 自定义 module 和 component 入口
  */
-export class RuntimeAPIProvider extends HippyAPIProvider {
+export class RuntimeAPIProvider extends QTAPIProvider {
   getCustomNativeModuleCreatorMap(): Map<string, HippyNativeModuleCreator> | null {
     //
     let registerMap: Map<string, HippyNativeModuleCreator> = new Map()
@@ -48,21 +49,15 @@ export class RuntimeAPIProvider extends HippyAPIProvider {
   }
 
   getCustomJavaScriptModuleCreatorMap(): Map<string, HippyJSModuleCreator> | null {
-    return null
+    return super.getCustomJavaScriptModuleCreatorMap()
   }
 
   getCustomRenderViewCreatorMap(): Map<string, HRRenderViewCreator> | null {
-    let registerMap: Map<string, HRRenderViewCreator> = new Map()
+    let registerMap = super.getCustomRenderViewCreatorMap();
     // registerMap.set("ExampleViewA", (ctx): HippyRenderBaseView => new ExampleViewA(ctx))
     return registerMap
   }
 
-  getCustomMeasureRenderViews(): Array<string> | null {
-    return null
-  }
 
-  getCustomMappingRenderViewMap(): Map<string, string> | null {
-    return null
-  }
 }
 

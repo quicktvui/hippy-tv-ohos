@@ -1,9 +1,10 @@
 
 import {HippyRenderBaseView,HippyObservedArray,HRDiv,NativeRenderContext,HippyAny,HippyRenderCallback} from 'hippy'
+import QTRenderBaseView from '../QTRenderBaseView';
 
 
 @Observed
-export class QTFastListView extends HippyRenderBaseView{
+export class QTFastListView extends QTRenderBaseView{
 
   constructor(ctx: NativeRenderContext) {
     super(ctx)
@@ -296,7 +297,7 @@ export class QTFastListView extends HippyRenderBaseView{
 @Component
 export struct  QTFastList {
   @ObjectLink renderView: QTFastListView
-  @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
+  @ObjectLink children: HippyObservedArray<QTRenderBaseView>
 
   build(): void {
     HRDiv({

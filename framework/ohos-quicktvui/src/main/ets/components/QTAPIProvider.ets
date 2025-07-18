@@ -11,6 +11,7 @@ import { QTDivView } from './QTDivView';
 import { QTFastListView } from './fastlist/QTFastListView';
 import { QTFastFlexView } from './fastlist/QTFastFlexView';
 import { QTFastItemView } from './fastlist/QTFastItemView';
+import { QUICKTVUI_TAG } from '../Constant';
 
 export class QTAPIProvider extends HippyAPIProvider{
   getCustomNativeModuleCreatorMap(): Map<string, HippyNativeModuleCreator> | null {
@@ -35,6 +36,7 @@ export class QTAPIProvider extends HippyAPIProvider{
     // registerMap.set("MyTopView", (ctx): HippyRenderBaseView => new MyTopView(ctx))
     // registerMap.set("MyTabBarView", (ctx): HippyRenderBaseView => new MyTabBarView(ctx))
     // registerMap.set("MyBottomView", (ctx): HippyRenderBaseView => new MyBottomView(ctx))
+    console.log(QUICKTVUI_TAG,'CustomRenderViewCreatorMap size: '+registerMap.size)
     return registerMap
   }
 
