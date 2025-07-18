@@ -20,6 +20,7 @@ import { BackPressHandler } from 'hippy/src/main/ets/hippy_framework/HippyEngine
 import { RuntimeAPIProvider } from '../api/RuntimeAPIProvider'
 import inputDevice from '@ohos.multimodalInput.inputDevice';
 import keyEvent from '@ohos.multimodalInput.keyEvent';
+import { QTAPIProvider } from 'quicktvui/src/main/ets/components/QTAPIProvider';
 
 const TAG: string = 'RuntimeDebug'
 
@@ -94,7 +95,10 @@ struct Debug {
     params.debugMode = true
     params.enableLog = true
     //自定义 module 和 component 入口
-    params.providers = new Array(new RuntimeAPIProvider())
+    params.providers = [
+      new RuntimeAPIProvider(),
+      new QTAPIProvider()
+    ]
 
     //
     this.hippyEngine = createHippyEngine(params)
