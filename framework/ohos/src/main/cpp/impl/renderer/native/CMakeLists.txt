@@ -108,6 +108,7 @@ set(SOURCE_SET
   src/components/hippy_render_view_creator.cc
   src/components/base_view.cc
   src/components/custom_ts_view.cc
+  src/components/event_view.cc
   src/components/custom_view.cc
   src/components/div_view.cc
   src/components/image_view.cc

@@ -22,6 +22,7 @@
 
 #include "renderer/components/hippy_render_view_creator.h"
 #include "renderer/components/div_view.h"
+#include "renderer/components/event_view.h"
 #include "renderer/components/image_view.h"
 #include "renderer/components/list_item_view.h"
 #include "renderer/components/list_view.h"
@@ -48,7 +49,11 @@ inline namespace native {
 
 std::shared_ptr<BaseView> HippyCreateRenderView(std::string &view_name, bool is_parent_text, bool is_parent_waterfall, std::shared_ptr<NativeRenderContext> &ctx) {
 //  FOOTSTONE_DLOG(INFO)<<__FUNCTION__<<" view_name = "<<view_name;
-  if (view_name == "View") {
+  if (view_name == "EsEventComponent") {
+    auto view = std::make_shared<EventView>(ctx);
+    view->Init();
+    return view;
+  } else if (view_name == "View") {
     auto view = std::make_shared<DivView>(ctx);
     view->Init();
     return view;

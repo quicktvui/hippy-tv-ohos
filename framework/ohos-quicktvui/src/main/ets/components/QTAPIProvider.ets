@@ -39,7 +39,7 @@ export class QTAPIProvider extends HippyAPIProvider {
     registerMap.set("FastItemView", (ctx): HippyRenderBaseView => new QTFastItemView(ctx))
 
     //测试
-    registerMap.set("EsEventComponent", (ctx): HippyRenderBaseView => new QTEventView(ctx))
+    // registerMap.set("EsEventComponent", (ctx): HippyRenderBaseView => new QTEventView(ctx))
     // registerMap.set("ExampleViewB", (ctx): HippyRenderBaseView => new ExampleViewB(ctx))
     // registerMap.set("MyScrollView", (ctx): HippyRenderBaseView => new MyScrollView(ctx))
     // registerMap.set("MyTopView", (ctx): HippyRenderBaseView => new MyTopView(ctx))
