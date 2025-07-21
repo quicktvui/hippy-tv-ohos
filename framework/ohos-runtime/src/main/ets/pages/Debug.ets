@@ -18,9 +18,10 @@ import {
 import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
 import { BackPressHandler } from 'hippy/src/main/ets/hippy_framework/HippyEngine'
 import { RuntimeAPIProvider } from '../api/RuntimeAPIProvider'
-import inputDevice from '@ohos.multimodalInput.inputDevice';
-import keyEvent from '@ohos.multimodalInput.keyEvent';
+// import inputDevice from '@ohos.multimodalInput.inputDevice';
+// import keyEvent from '@ohos.multimodalInput.keyEvent';
 import { QTAPIProvider } from 'quicktvui/src/main/ets/components/QTAPIProvider';
+import { QTLoadingView, QTLoading, QTEventView, QTEvent } from 'quicktvui';
 
 const TAG: string = 'RuntimeDebug'
 
@@ -51,14 +52,14 @@ struct Debug {
     // this.versionCode = version.code
     // this.deviceIp = await getDeviceIp()
 
-   // let listenerId = inputDevice.on('key', (event: keyEvent.KeyEventData) => {
-   //    console.info(`按键 code: ${event.keyCode}, action: ${event.keyAction}`);
-   //
-   //    // 例如：方向键
-   //    if (event.keyCode === 19 && event.keyAction === 0) { // KEYCODE_DPAD_UP
-   //      console.log('↑ 向上键按下');
-   //    }
-   //  });
+    // let listenerId = inputDevice.on('key', (event: keyEvent.KeyEventData) => {
+    //    console.info(`按键 code: ${event.keyCode}, action: ${event.keyAction}`);
+    //
+    //    // 例如：方向键
+    //    if (event.keyCode === 19 && event.keyAction === 0) { // KEYCODE_DPAD_UP
+    //      console.log('↑ 向上键按下');
+    //    }
+    //  });
   }
 
   onBackPress(): boolean | void {
@@ -91,7 +92,7 @@ struct Debug {
     let params = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext())
     params.coreJSAssetsPath = "vue2/vendor.ohos.js"
     params.enableArkCApi = true
-    params.debugServerHost = '192.168.40.22:38989'
+    params.debugServerHost = '192.168.80.113:38989'
     params.debugMode = true
     params.enableLog = true
     //自定义 module 和 component 入口
@@ -99,6 +100,8 @@ struct Debug {
       new RuntimeAPIProvider(),
       new QTAPIProvider()
     ]
+    //TODO
+    params.enableArkCApi = false
 
     //
     this.hippyEngine = createHippyEngine(params)
@@ -203,8 +206,23 @@ class RuntimeDefaultBackHandler implements BackPressHandler {
 }
 
 
+/**
+ * 渲染
+ * @param $$
+ */
 @Builder
 function buildCustomRenderView($$: HippyRenderBaseView) {
+  if ($$ instanceof QTLoadingView) {
+    QTLoading({
+      renderView: $$ as QTLoadingView,
+      children: $$.children,
+    })
+  } else if ($$ instanceof QTEventView) {
+    QTEvent({
+      renderView: $$ as QTEventView,
+      children: $$.children,
+    })
+  }
 }
 
 class DefaultEngineListener implements EngineListener {

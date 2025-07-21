@@ -46,7 +46,7 @@ export class QTEventView extends HippyCustomComponentView {
 }
 
 @Component
-export struct QTEventComponent {
+export struct QTEvent {
   @ObjectLink renderView: QTEventView
   @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
 
