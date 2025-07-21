@@ -21,6 +21,7 @@ import { ESDeviceModule } from '../module/ESDeviceModule';
 import { ESPluginModule } from '../module/ESPluginModule';
 import { ESWindowModule } from '../module/ESWindowModule';
 import { ESPermissionModule } from '../module/ESPermissionModule';
+import { ESModule } from '../module/ESModule';
 
 /**
  * 自定义 module 和 component 入口
@@ -43,6 +44,8 @@ export class RuntimeAPIProvider extends HippyAPIProvider {
     registerMap.set(ESWindowModule.NAME, (ctx): HippyNativeModuleBase => new ESWindowModule(ctx))
     registerMap.set(ESPermissionModule.NAME,
       (ctx): HippyNativeModuleBase => new ESPermissionModule(ctx))
+    registerMap.set(ESModule.NAME,
+      (ctx): HippyNativeModuleBase => new ESModule(ctx))
     //
     return registerMap;
   }

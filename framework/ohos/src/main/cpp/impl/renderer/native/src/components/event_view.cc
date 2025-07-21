@@ -1,6 +1,8 @@
 
 #include "renderer/components/event_view.h"
 #include "renderer/utils/hr_value_utils.h"
+#include "renderer/utils/hr_event_utils.h"
+#include "footstone/logging.h"
 
 namespace hippy {
 inline namespace render {
@@ -46,6 +48,30 @@ void EventView::OnChildRemovedImpl(std::shared_ptr<BaseView> const &childView, i
   BaseView::OnChildRemovedImpl(childView, index);
   stackNode_->RemoveChild(childView->GetLocalRootArkUINode());
 }
+
+void EventView::CallImpl(const std::string &method, const std::vector<HippyValue> params,
+                         std::function<void(const HippyValue &result)> callback) {
+  FOOTSTONE_DLOG(INFO) << "EventView call: method " << method << ", params: " << params.size();
+  if (method == "sendEsMessage") {
+    auto vueMessage = HRValueUtils::GetString(params[0]);
+
+    HippyValueObjectType paramsObj;
+    paramsObj.insert_or_assign("code", 100);
+    paramsObj.insert_or_assign("message", std::string("native receive vue message:") + vueMessage);
+    std::shared_ptr<HippyValue> retParams = std::make_shared<HippyValue>(paramsObj);
+    HREventUtils::SendComponentEvent(ctx_, tag_, HREventUtils::EVENT_ES_COMPONENT_EVENT_,
+                                     retParams);
+    //
+    if (callback) {
+      callback(HippyValue("EventView ok"));
+    }
+  }
+  //
+  else {
+    BaseView::CallImpl(method, params, callback);
+  }
+}
+
 
 } // namespace native
 } // namespace render
