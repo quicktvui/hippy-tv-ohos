@@ -80,6 +80,7 @@ set(SOURCE_SET
   src/utils/hr_perf_utils.cc
   src/virtual/hr_virtual_view_manager.cc
   src/virtual/hr_virtual_view.cc
+  # node
   src/arkui/arkui_node.cc
   src/arkui/arkui_node_registry.cc
   src/arkui/column_node.cc
@@ -105,6 +106,9 @@ set(SOURCE_SET
   src/arkui/water_flow_node.cc
   src/arkui/water_flow_item_node.cc
   src/arkui/dialog_controller.cc
+  src/arkui/loading_progress_node.cc
+  src/arkui/progress_node.cc
+  # component
   src/components/hippy_render_view_creator.cc
   src/components/base_view.cc
   src/components/custom_ts_view.cc
@@ -133,6 +137,9 @@ set(SOURCE_SET
   src/components/waterfall_view.cc
   src/components/waterfall_pull_footer_view.cc
   src/components/waterfall_pull_header_view.cc
+  src/components/loading_progress_view.cc
+  src/components/progress_view.cc
+  #
   src/recycle/recycle_view.cc
   src/text_measure/font_collection_manager.cc
   src/text_measure/text_measurer.cc

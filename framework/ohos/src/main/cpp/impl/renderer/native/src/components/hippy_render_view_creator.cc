@@ -42,6 +42,9 @@
 #include "renderer/components/waterfall_pull_footer_view.h"
 #include "renderer/components/waterfall_pull_header_view.h"
 #include "renderer/components/waterfall_view.h"
+//
+#include "renderer/components/loading_progress_view.h"
+#include "renderer/components/progress_view.h"
 
 namespace hippy {
 inline namespace render {
@@ -49,7 +52,11 @@ inline namespace native {
 
 std::shared_ptr<BaseView> HippyCreateRenderView(std::string &view_name, bool is_parent_text, bool is_parent_waterfall, std::shared_ptr<NativeRenderContext> &ctx) {
 //  FOOTSTONE_DLOG(INFO)<<__FUNCTION__<<" view_name = "<<view_name;
-  if (view_name == "EsEventComponent") {
+  if (view_name == "LoadingViewComponent") {
+    auto view = std::make_shared<ProgressView>(ctx);
+    view->Init();
+    return view;
+  } else if (view_name == "EsEventComponent") {
     auto view = std::make_shared<EventView>(ctx);
     view->Init();
     return view;
