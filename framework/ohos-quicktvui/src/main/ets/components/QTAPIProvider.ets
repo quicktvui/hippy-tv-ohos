@@ -21,6 +21,7 @@ import { QTLoadingView } from './loading/QTLoadingView';
 import { QTEventView } from './event/QTEventView';
 import { QTProgressView } from './progress/QTProgressView';
 import { QTQRCodeView } from './qrcode/QTQRCodeView';
+import { QTWebView } from './web/QTWebView';
 
 export class QTAPIProvider extends HippyAPIProvider {
   getCustomNativeModuleCreatorMap(): Map<string, HippyNativeModuleCreator> | null {
@@ -44,6 +45,7 @@ export class QTAPIProvider extends HippyAPIProvider {
     //测试
     registerMap.set("LoadingViewComponent", (ctx): HippyRenderBaseView => new QTLoadingView(ctx))
     registerMap.set("QrCodeComponent", (ctx): HippyRenderBaseView => new QTQRCodeView(ctx))
+    registerMap.set("ESWebViewComponent", (ctx): HippyRenderBaseView => new QTWebView(ctx))
     registerMap.set("TVProgressBarViewComponent", (ctx): HippyRenderBaseView => new QTProgressView(ctx))
     registerMap.set("EsEventComponent", (ctx): HippyRenderBaseView => new QTEventView(ctx))
     // registerMap.set("ExampleViewB", (ctx): HippyRenderBaseView => new ExampleViewB(ctx))

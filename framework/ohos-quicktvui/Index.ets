@@ -7,3 +7,5 @@ export { QTEventView, QTEvent } from './src/main/ets/components/event/QTEventVie
 export { QTProgressView, QTProgress } from './src/main/ets/components/progress/QTProgressView'
 
 export { QTQRCodeView, QTQRCode } from './src/main/ets/components/qrcode/QTQRCodeView'
+
+export { QTWebView, QTWeb } from './src/main/ets/components/web/QTWebView'

@@ -29,7 +29,9 @@ import {
   QTProgressView,
   QTProgress,
   QTQRCodeView,
-  QTQRCode
+  QTQRCode,
+  QTWebView,
+  QTWeb,
 } from 'quicktvui';
 
 const TAG: string = 'RuntimeDebug'
@@ -239,6 +241,11 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
   }else if ($$ instanceof QTQRCodeView) {
     QTQRCode({
       renderView: $$ as QTQRCodeView,
+      children: $$.children,
+    })
+  }else if ($$ instanceof QTWebView) {
+    QTWeb({
+      renderView: $$ as QTWebView,
       children: $$.children,
     })
   }
