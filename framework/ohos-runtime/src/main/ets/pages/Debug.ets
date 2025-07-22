@@ -21,7 +21,16 @@ import { RuntimeAPIProvider } from '../api/RuntimeAPIProvider'
 // import inputDevice from '@ohos.multimodalInput.inputDevice';
 // import keyEvent from '@ohos.multimodalInput.keyEvent';
 import { QTAPIProvider } from 'quicktvui/src/main/ets/components/QTAPIProvider';
-import { QTLoadingView, QTLoading, QTEventView, QTEvent, QTProgressView, QTProgress } from 'quicktvui';
+import {
+  QTLoadingView,
+  QTLoading,
+  QTEventView,
+  QTEvent,
+  QTProgressView,
+  QTProgress,
+  QTQRCodeView,
+  QTQRCode
+} from 'quicktvui';
 
 const TAG: string = 'RuntimeDebug'
 
@@ -225,6 +234,11 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
   } else if ($$ instanceof QTProgressView) {
     QTProgress({
       renderView: $$ as QTProgressView,
+      children: $$.children,
+    })
+  }else if ($$ instanceof QTQRCodeView) {
+    QTQRCode({
+      renderView: $$ as QTQRCodeView,
       children: $$.children,
     })
   }

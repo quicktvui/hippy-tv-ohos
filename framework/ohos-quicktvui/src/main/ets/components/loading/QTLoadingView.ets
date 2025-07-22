@@ -67,6 +67,7 @@ export struct QTLoading {
 
   aboutToDisappear() {
     clearInterval(this.timer);
+    this.timer = -1
   }
 
   private draw() {
