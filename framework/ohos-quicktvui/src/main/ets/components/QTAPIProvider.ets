@@ -19,6 +19,7 @@ import { QTFastFlexView } from './fastlist/QTFastFlexView';
 import { QTFastItemView } from './fastlist/QTFastItemView';
 import { QTLoadingView } from './loading/QTLoadingView';
 import { QTEventView } from './event/QTEventView';
+import { QTProgressView } from './progress/QTProgressView';
 
 export class QTAPIProvider extends HippyAPIProvider {
   getCustomNativeModuleCreatorMap(): Map<string, HippyNativeModuleCreator> | null {
@@ -41,6 +42,7 @@ export class QTAPIProvider extends HippyAPIProvider {
 
     //测试
     registerMap.set("LoadingViewComponent", (ctx): HippyRenderBaseView => new QTLoadingView(ctx))
+    registerMap.set("TVProgressBarViewComponent", (ctx): HippyRenderBaseView => new QTProgressView(ctx))
     registerMap.set("EsEventComponent", (ctx): HippyRenderBaseView => new QTEventView(ctx))
     // registerMap.set("ExampleViewB", (ctx): HippyRenderBaseView => new ExampleViewB(ctx))
     // registerMap.set("MyScrollView", (ctx): HippyRenderBaseView => new MyScrollView(ctx))

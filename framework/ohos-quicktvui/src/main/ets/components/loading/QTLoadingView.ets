@@ -37,15 +37,13 @@ export struct QTLoading {
   }
 
   build() {
-    Stack() {
-      Text("This is a custom component A.")
-    }
-    .applyRenderViewBaseAttr(this.renderView)
+    LoadingProgress()
+      .applyRenderViewBaseAttr(this.renderView)
   }
 }
 
 // base props for all components
-@Extend(Stack)
+@Extend(LoadingProgress)
 function applyRenderViewBaseAttr($$: HippyRenderBaseView) {
   .key(HIPPY_COMPONENT_KEY_PREFIX + $$.tag)
   .backgroundColor($$.cssBackgroundColor)

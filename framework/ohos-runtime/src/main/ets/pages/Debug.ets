@@ -21,7 +21,7 @@ import { RuntimeAPIProvider } from '../api/RuntimeAPIProvider'
 // import inputDevice from '@ohos.multimodalInput.inputDevice';
 // import keyEvent from '@ohos.multimodalInput.keyEvent';
 import { QTAPIProvider } from 'quicktvui/src/main/ets/components/QTAPIProvider';
-import { QTLoadingView, QTLoading, QTEventView, QTEvent } from 'quicktvui';
+import { QTLoadingView, QTLoading, QTEventView, QTEvent, QTProgressView, QTProgress } from 'quicktvui';
 
 const TAG: string = 'RuntimeDebug'
 
@@ -92,7 +92,7 @@ struct Debug {
     let params = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext())
     params.coreJSAssetsPath = "vue2/vendor.ohos.js"
     params.enableArkCApi = true
-    params.debugServerHost = '192.168.80.113:38989'
+    params.debugServerHost = '192.168.40.28:38989'
     params.debugMode = true
     params.enableLog = true
     //自定义 module 和 component 入口
@@ -220,6 +220,11 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
   } else if ($$ instanceof QTEventView) {
     QTEvent({
       renderView: $$ as QTEventView,
+      children: $$.children,
+    })
+  } else if ($$ instanceof QTProgressView) {
+    QTProgress({
+      renderView: $$ as QTProgressView,
       children: $$.children,
     })
   }
