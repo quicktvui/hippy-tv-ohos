@@ -4,26 +4,44 @@ import {
   NativeRenderContext,
   HippyAny,
   HIPPY_COMPONENT_KEY_PREFIX,
+  LogUtils
 } from 'hippy'
 
+import { BarcodeFormat, } from '@ohos/zxing';
+import QRCode from './QRCode'
 
-// import { scanCore, generateBarcode } from '@kit.ScanKit';
-import { BusinessError } from '@kit.BasicServicesKit';
-import { image } from '@kit.ImageKit';
-import { hilog } from '@kit.PerformanceAnalysisKit';
 import { QTBaseComponentView } from '../QTBaseComponentView';
+import { image } from '@kit.ImageKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Observed
 export class QTQRCodeView extends QTBaseComponentView {
-  public color: string = '#ffffff';
+  private readonly TAG = "QTQRCodeView";
+  private qrcode = new QRCode()
+  public pixelMap: image.PixelMap | null = null
+  public qrcodeWidth: number = 0
+  public qrcodeHeight: number = 0
 
   constructor(ctx: NativeRenderContext) {
     super(ctx)
   }
 
   setProp(propKey: string, propValue: HippyAny): boolean {
-    if (propKey === 'color') {
-      this.color = propValue as string;
+    if (propKey === 'width') {
+      this.qrcodeWidth = propValue as number
+    } else if (propKey === 'height') {
+      this.qrcodeHeight = propValue as number
+    } else if (propKey === 'content') {
+      this.qrcode.encode(propValue as string, {
+        width: Math.floor(this.qrcodeWidth),
+        height: Math.floor(this.qrcodeHeight),
+        format: BarcodeFormat.QR_CODE
+      }).then((pixelMap) => {
+        this.pixelMap = pixelMap
+      }, (error: BusinessError) => {
+        this.pixelMap = null
+        LogUtils.e(this.TAG, "qrcode encode error: " + JSON.stringify(error))
+      })
       return true;
     }
     return super.setProp(propKey, propValue)
@@ -35,48 +53,20 @@ export struct QTQRCode {
   @ObjectLink renderView: QTQRCodeView
   @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
 
-  aboutToAppear() {
-    // scanCore, generateBarcod
-
-    // let content: string = 'huawei';
-    // let options: generateBarcode.CreateOptions = {
-    //   scanType: scanCore.ScanType.QR_CODE,
-    //   height: 400,
-    //   width: 400
-    // }
-  }
-
-  aboutToDisappear() {
-
-  }
-
-
   build() {
-    Image('images/view.jpg')
-      .width(200)
-    // Canvas(this.context)
-    //   .applyRenderViewBaseAttr(this.renderView)
-    //   .onReady(() => {
-    //     this.draw();
-    //   })
+    Image(this.renderView.pixelMap)
+      .applyRenderViewBaseAttr(this.renderView)
   }
 }
 
-// base props for all components
 @Extend(Image)
 function applyRenderViewBaseAttr($$: HippyRenderBaseView) {
   .key(HIPPY_COMPONENT_KEY_PREFIX + $$.tag)
   .backgroundColor($$.cssBackgroundColor)
   .position({ x: $$.cssPositionX, y: $$.cssPositionY })
   .size({
-    width:
-    typeof $$.cssWidth === 'number'
-      ? $$.cssWidth
-      : parseFloat($$.cssWidth) || 100,
-    height:
-    typeof $$.cssHeight === 'number'
-      ? $$.cssHeight
-      : parseFloat($$.cssHeight) || 100,
+    width: $$.cssWidth,
+    height: $$.cssHeight
   })
   .opacity($$.cssOpacity)
   .clip($$.cssOverflow)
