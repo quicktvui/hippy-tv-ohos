@@ -1,16 +1,11 @@
-import {
-  HippyEngineContext,
-  HippyAny,
-  HippyModulePromise,
-  HippyNativeModule,
-  LogUtils
-} from 'hippy';
+import { HippyEngineContext, HippyNativeModule, HippyAny, HippyModulePromise } from 'hippy';
 
 import { BaseModule } from './BaseModule';
+import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
 
-@HippyNativeModule({ name: "ESTestModule" })
-export class ESTestModule extends BaseModule {
-  public static readonly NAME: string = 'ESTestModule'
+@HippyNativeModule({ name: "ESLocalStorageModule" })
+export class ESLocalStorageModule extends BaseModule {
+  public static readonly NAME: string = 'ESLocalStorageModule'
 
   constructor(ctx: HippyEngineContext) {
     super(ctx)

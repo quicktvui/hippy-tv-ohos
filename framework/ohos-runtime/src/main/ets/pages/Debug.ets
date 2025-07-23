@@ -33,6 +33,7 @@ import {
   QTWebView,
   QTWeb,
 } from 'quicktvui';
+import { QTAVPlayer, QTAVPlayerView } from '../components/video/QTAVPlayerView';
 
 const TAG: string = 'RuntimeDebug'
 
@@ -103,7 +104,7 @@ struct Debug {
     let params = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext())
     params.coreJSAssetsPath = "vue2/vendor.ohos.js"
     params.enableArkCApi = true
-    params.debugServerHost = '192.168.40.28:38989'
+    params.debugServerHost = '192.168.40.56:38989'
     params.debugMode = true
     params.enableLog = true
     //自定义 module 和 component 入口
@@ -246,6 +247,11 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
   }else if ($$ instanceof QTWebView) {
     QTWeb({
       renderView: $$ as QTWebView,
+      children: $$.children,
+    })
+  }else if ($$ instanceof QTAVPlayerView) {
+    QTAVPlayer({
+      renderView: $$ as QTAVPlayerView,
       children: $$.children,
     })
   }

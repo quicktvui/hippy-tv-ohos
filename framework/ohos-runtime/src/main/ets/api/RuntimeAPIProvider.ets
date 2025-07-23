@@ -1,14 +1,11 @@
-import { HippyAPIProvider } from 'hippy'
 import {
+  HippyAPIProvider,
+  HippyRenderBaseView,
   HippyJSModuleCreator,
-  HippyNativeModuleCreator
-} from 'hippy/src/main/ets/hippy_framework/modules/HippyModuleManagerImpl'
-import {
-  HRRenderViewCreator
-} from 'hippy/src/main/ets/renderer_native/components/HippyRenderRegisterMap'
-import {
+  HippyNativeModuleCreator,
+  HRRenderViewCreator,
   HippyNativeModuleBase
-} from 'hippy/src/main/ets/hippy_framework/modules/native/HippyNativeModuleBase';
+} from 'hippy'
 
 import { ESLogModule } from '../module/ESLogModule'
 import { ESToastModule } from '../module/ESToastModule';
@@ -22,6 +19,7 @@ import { ESPluginModule } from '../module/ESPluginModule';
 import { ESWindowModule } from '../module/ESWindowModule';
 import { ESPermissionModule } from '../module/ESPermissionModule';
 import { ESModule } from '../module/ESModule';
+import { QTAVPlayerView } from '../components/video/QTAVPlayerView';
 
 /**
  * 自定义 module 和 component 入口
@@ -56,7 +54,7 @@ export class RuntimeAPIProvider extends HippyAPIProvider {
 
   getCustomRenderViewCreatorMap(): Map<string, HRRenderViewCreator> | null {
     let registerMap: Map<string, HRRenderViewCreator> = new Map()
-    // registerMap.set("ExampleViewA", (ctx): HippyRenderBaseView => new ExampleViewA(ctx))
+    registerMap.set("QTAVPlayerView", (ctx): HippyRenderBaseView => new QTAVPlayerView(ctx))
     return registerMap
   }
 
