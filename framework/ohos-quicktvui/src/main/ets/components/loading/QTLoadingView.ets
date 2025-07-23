@@ -4,11 +4,11 @@ import {
   NativeRenderContext,
   HippyAny,
   HIPPY_COMPONENT_KEY_PREFIX,
-  HippyCustomComponentView,
 } from 'hippy'
+import { QTBaseComponentView } from '../QTBaseComponentView';
 
 @Observed
-export class QTLoadingView extends HippyCustomComponentView {
+export class QTLoadingView extends QTBaseComponentView {
   public color: string = '#ffffff';
 
   constructor(ctx: NativeRenderContext) {

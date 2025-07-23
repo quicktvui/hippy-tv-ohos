@@ -4,12 +4,14 @@ import {
   NativeRenderContext,
   HippyAny,
   HIPPY_COMPONENT_KEY_PREFIX,
-  HippyCustomComponentView,
+  HippyRenderCallback,
 } from 'hippy'
+
+import { QTBaseComponentView } from 'quicktvui';
 
 
 @Observed
-export class QTAVPlayerView extends HippyCustomComponentView {
+export class QTAVPlayerView extends QTBaseComponentView {
   public color: string = '#ffffff';
 
   constructor(ctx: NativeRenderContext) {
@@ -22,6 +24,14 @@ export class QTAVPlayerView extends HippyCustomComponentView {
       return true;
     }
     return super.setProp(propKey, propValue)
+  }
+
+  call(method: string, params: Array<HippyAny>, callback: HippyRenderCallback | null): void {
+    //
+    if (method == "loadUrl") {
+
+    }
+    super.call(method, params, callback)
   }
 }
 

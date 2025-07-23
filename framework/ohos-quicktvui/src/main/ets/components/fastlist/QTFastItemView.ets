@@ -6,10 +6,11 @@ import {
   HippyAny,
   HippyRenderCallback
 } from 'hippy'
+import { QTBaseComponentView } from '../QTBaseComponentView';
 
 
 @Observed
-export class QTFastItemView extends HippyRenderBaseView {
+export class QTFastItemView extends QTBaseComponentView {
   constructor(ctx: NativeRenderContext) {
     super(ctx)
   }

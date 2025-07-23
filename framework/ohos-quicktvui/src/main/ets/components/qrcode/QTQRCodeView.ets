@@ -4,7 +4,6 @@ import {
   NativeRenderContext,
   HippyAny,
   HIPPY_COMPONENT_KEY_PREFIX,
-  HippyCustomComponentView,
 } from 'hippy'
 
 
@@ -12,9 +11,10 @@ import {
 import { BusinessError } from '@kit.BasicServicesKit';
 import { image } from '@kit.ImageKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { QTBaseComponentView } from '../QTBaseComponentView';
 
 @Observed
-export class QTQRCodeView extends HippyCustomComponentView {
+export class QTQRCodeView extends QTBaseComponentView {
   public color: string = '#ffffff';
 
   constructor(ctx: NativeRenderContext) {

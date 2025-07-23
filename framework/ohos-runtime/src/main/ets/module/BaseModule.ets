@@ -7,10 +7,9 @@ import {
 } from 'hippy';
 
 import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
+import { ESInfo } from '../api/ESInfo';
 
 export class BaseModule extends HippyNativeModuleBase {
-  public static readonly ES_PROP_INFO_VERSION = "version";
-  public static readonly ES_PROP_INFO_ESKIT_VERSION = 'eskit_ver_code';
 
   constructor(ctx: HippyEngineContext) {
     super(ctx)
@@ -23,8 +22,8 @@ export class BaseModule extends HippyNativeModuleBase {
       }
       case 'getEsInfo': {
         const params = new Map<string, HippyAny>();
-        params.set(BaseModule.ES_PROP_INFO_VERSION, 1);
-        params.set(BaseModule.ES_PROP_INFO_ESKIT_VERSION, 1);
+        params.set(ESInfo.ES_PROP_INFO_VERSION, 1);
+        params.set(ESInfo.ES_PROP_INFO_ESKIT_VERSION, 1);
         promise.resolve(params);
         break;
       }

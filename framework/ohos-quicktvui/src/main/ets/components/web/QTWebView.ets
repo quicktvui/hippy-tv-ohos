@@ -4,13 +4,13 @@ import {
   NativeRenderContext,
   HippyAny,
   HIPPY_COMPONENT_KEY_PREFIX,
-  HippyCustomComponentView,
   HippyRenderCallback,
 } from 'hippy'
 import { webview } from '@kit.ArkWeb';
+import { QTBaseComponentView } from '../QTBaseComponentView';
 
 @Observed
-export class QTWebView extends HippyCustomComponentView {
+export class QTWebView extends QTBaseComponentView {
   public url: string | null = null;
 
   constructor(ctx: NativeRenderContext) {

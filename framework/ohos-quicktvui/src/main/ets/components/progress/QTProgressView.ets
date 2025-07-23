@@ -4,12 +4,12 @@ import {
   NativeRenderContext,
   HippyAny,
   HIPPY_COMPONENT_KEY_PREFIX,
-  HippyCustomComponentView,
   HippyRenderCallback,
 } from 'hippy'
+import { QTBaseComponentView } from '../QTBaseComponentView';
 
 @Observed
-export class QTProgressView extends HippyCustomComponentView {
+export class QTProgressView extends QTBaseComponentView {
   public color: string = '#ffffff';
   public progress: number = 20;
   public maxProgress: number = 100;

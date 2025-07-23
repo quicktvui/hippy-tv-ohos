@@ -6,13 +6,13 @@ import {
   HippyRenderCallback,
   HIPPY_COMPONENT_KEY_PREFIX,
   HippyViewEvent,
-  HippyCustomComponentView,
   buildHippyRenderView
 } from 'hippy'
+import { QTBaseComponentView } from '../QTBaseComponentView'
 
 
 @Observed
-export class QTEventView extends HippyCustomComponentView {
+export class QTEventView extends QTBaseComponentView {
   constructor(ctx: NativeRenderContext) {
     super(ctx)
   }

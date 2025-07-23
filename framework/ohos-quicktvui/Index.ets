@@ -9,3 +9,5 @@ export { QTProgressView, QTProgress } from './src/main/ets/components/progress/Q
 export { QTQRCodeView, QTQRCode } from './src/main/ets/components/qrcode/QTQRCodeView'
 
 export { QTWebView, QTWeb } from './src/main/ets/components/web/QTWebView'
+
+export { QTBaseComponentView } from './src/main/ets/components/QTBaseComponentView'
