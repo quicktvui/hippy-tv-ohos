@@ -32,6 +32,8 @@ import {
   QTQRCode,
   QTWebView,
   QTWeb,
+  QTSliderView,
+  QTSlider,
 } from 'quicktvui';
 import { QTAVPlayer, QTAVPlayerView } from '../components/video/QTAVPlayerView';
 
@@ -252,6 +254,11 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
   }else if ($$ instanceof QTAVPlayerView) {
     QTAVPlayer({
       renderView: $$ as QTAVPlayerView,
+      children: $$.children,
+    })
+  }else if ($$ instanceof QTSliderView) {
+    QTSlider({
+      renderView: $$ as QTSliderView,
       children: $$.children,
     })
   }

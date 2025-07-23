@@ -22,6 +22,7 @@ import { QTEventView } from './event/QTEventView';
 import { QTProgressView } from './progress/QTProgressView';
 import { QTQRCodeView } from './qrcode/QTQRCodeView';
 import { QTWebView } from './web/QTWebView';
+import { QTSliderView } from './slider/QTSliderView';
 
 export class QTAPIProvider extends HippyAPIProvider {
   getCustomNativeModuleCreatorMap(): Map<string, HippyNativeModuleCreator> | null {
@@ -48,6 +49,8 @@ export class QTAPIProvider extends HippyAPIProvider {
     registerMap.set("ESWebViewComponent", (ctx): HippyRenderBaseView => new QTWebView(ctx))
     registerMap.set("TVProgressBarViewComponent", (ctx): HippyRenderBaseView => new QTProgressView(ctx))
     registerMap.set("EsEventComponent", (ctx): HippyRenderBaseView => new QTEventView(ctx))
+    registerMap.set("QTSliderView", (ctx): HippyRenderBaseView => new QTSliderView(ctx))
+
     // registerMap.set("ExampleViewB", (ctx): HippyRenderBaseView => new ExampleViewB(ctx))
     // registerMap.set("MyScrollView", (ctx): HippyRenderBaseView => new MyScrollView(ctx))
     // registerMap.set("MyTopView", (ctx): HippyRenderBaseView => new MyTopView(ctx))
