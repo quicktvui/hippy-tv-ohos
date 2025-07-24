@@ -3,6 +3,9 @@ import { HippyEngineContext, HippyAny, HippyModulePromise, HippyNativeModule } f
 import { BaseModule } from './BaseModule';
 import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
 
+/**
+ * TODO LIULIPENG
+ */
 @HippyNativeModule({ name: "ESModule" })
 export class ESModule extends BaseModule {
   public static readonly NAME: string = 'ESModule'
