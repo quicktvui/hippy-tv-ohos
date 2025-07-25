@@ -303,9 +303,7 @@ export struct  QTFastList {
     HRDiv({
       renderView: this.renderView,
       children:  this.children
-    }).onClick(()=>{
-
-    })
+    }).backgroundColor(Color.Blue)
   }
 
   aboutToAppear(): void {

@@ -19,7 +19,7 @@
  */
 import {HippyRenderBaseView,HippyObservedArray} from 'hippy'
 
-export class HRListDataSource implements IDataSource {
+export class FastListDataSource implements IDataSource {
   private listeners: DataChangeListener[] = [];
   private templates: HippyObservedArray<HippyRenderBaseView> = []
   private count: number = 0

@@ -1,10 +1,25 @@
 
 import {HippyRenderBaseView,HippyObservedArray,HRDiv,NativeRenderContext,HippyAny,HippyRenderCallback} from 'hippy'
+import { QUICKTVUI_TAG } from '../../Constant';
+import { HRValueUtils } from '../HRValueUtils';
 import QTRenderBaseView from '../QTRenderBaseView';
 
 
 @Observed
 export class QTTextView extends QTRenderBaseView{
+  cssPadding: Padding = { top: 0, right: 0, bottom: 0, left: 0 }
+  maxLines: number = 10000000
+  text: string = ""
+  fontColor: number | null = null
+  fontSize: number = 20
+  lineHeight: number | null = null
+  // fontStyle: FontStyle = FontStyle.Normal
+  // fontWeight: number | FontWeight | string = FontWeight.Normal
+  // fontFamily: string | null = null
+
+  letterSpacing: number = 0
+  textAlign: TextAlign = TextAlign.Start
+  ellipsisMode: EllipsisMode = EllipsisMode.END
 
   constructor(ctx: NativeRenderContext) {
     super(ctx)
@@ -31,7 +46,7 @@ export class QTTextView extends QTRenderBaseView{
 
         return true;
       case "gravity":
-
+        // this. = HRValueUtils.getNumber(propValue)
         return true;
       case "fontSize":
 
@@ -46,19 +61,19 @@ export class QTTextView extends QTRenderBaseView{
 
         return true;
       case "ellipsizeMode":
-
+        this.ellipsisMode = HRValueUtils.getNumber(propValue)
         return true;
       case "lines":
 
         return true;
       case "maxLines":
-
+        this.maxLines = HRValueUtils.getNumber(propValue)
         return true;
       case "textColor":
 
         return true;
       case "lineHeight":
-
+        this.lineHeight = HRValueUtils.getNumber(propValue)
         return true;
       case "fallbackLineSpacing":
 
@@ -76,7 +91,8 @@ export class QTTextView extends QTRenderBaseView{
 
         return true;
       case "text":
-
+        this.text = HRValueUtils.getString(propValue)
+        console.log(QUICKTVUI_TAG,`setText:${this.text}`)
         return true;
     }
     return super.setProp(propKey, propValue)
@@ -117,12 +133,12 @@ export struct  QTText {
   @ObjectLink children: HippyObservedArray<QTRenderBaseView>
 
   build(): void {
-    HRDiv({
-      renderView: this.renderView,
-      children:  this.children
-    }).onClick(()=>{
-
-    })
+    Text(this.renderView.text)
+      .fontSize(this.renderView.fontSize)
+      .fontColor(this.renderView.fontColor)
+      .lineHeight(this.renderView.lineHeight)
+      .maxLines(this.renderView.maxLines)
+      .textAlign(this.renderView.textAlign)
   }
 
   aboutToAppear(): void {
