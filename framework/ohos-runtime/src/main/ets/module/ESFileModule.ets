@@ -8,10 +8,10 @@ import {
 
 import { BaseModule } from './BaseModule';
 
-@HippyNativeModule({ name: "ESTestModule" })
-export class ESTestModule extends BaseModule {
-  public static readonly NAME: string = 'ESTestModule'
-  public readonly TAG: string = 'ESTestModule'
+@HippyNativeModule({ name: "ESFileModule" })
+export class ESFileModule extends BaseModule {
+  public static readonly NAME: string = 'ESFileModule'
+  public readonly TAG: string = 'ESFileModule'
 
   constructor(ctx: HippyEngineContext) {
     super(ctx)
