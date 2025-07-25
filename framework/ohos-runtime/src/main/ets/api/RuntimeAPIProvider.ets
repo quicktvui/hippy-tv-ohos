@@ -21,6 +21,7 @@ import { ESPermissionModule } from '../module/ESPermissionModule';
 import { ESModule } from '../module/ESModule';
 import { QTAVPlayerView } from '../components/video/QTAVPlayerView';
 import { ESLocalStorageModule } from '../module/ESLocalStorageModule';
+import { ESSoundPoolPlayerModule } from '../module/ESSoundPoolPlayerModule';
 
 /**
  * 自定义 module 和 component 入口
@@ -47,6 +48,8 @@ export class RuntimeAPIProvider extends HippyAPIProvider {
       (ctx): HippyNativeModuleBase => new ESModule(ctx))
     registerMap.set(ESLocalStorageModule.NAME,
       (ctx): HippyNativeModuleBase => new ESLocalStorageModule(ctx))
+    registerMap.set(ESSoundPoolPlayerModule.NAME,
+      (ctx): HippyNativeModuleBase => new ESSoundPoolPlayerModule(ctx))
     //
     return registerMap;
   }
