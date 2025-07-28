@@ -78,6 +78,8 @@ export class ESFileModule extends BaseModule {
           const map = params[0] as HippyMap
           const pathname = map.get('pathname') as string
           const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          LogUtils.i(this.TAG,
+            `ESFileModule op: access start: ${rootFilePath + "/" + pathname}`);
           const exist = fs.accessSync(rootFilePath + "/" + pathname)
           LogUtils.i(this.TAG,
             `ESFileModule op: access ${rootFilePath + "/" + pathname} ret:${exist}`);
@@ -205,103 +207,143 @@ export class ESFileModule extends BaseModule {
         }
         break;
       }
-    //-------------------------------------------------------------------------------------------
-      case 'listFile': {
-        const pathname = params[0] as string
-        fs.listFile(pathname).then((files: string[]) => {
-          promise.resolve(files)
-        }).catch((error: BusinessError) => {
-          LogUtils.e(this.TAG, `ESFileModule listFile error message:${error.message}`);
-          if (promise) {
-            promise.reject(JSON.stringify(error))
-          }
-        });
-        break;
-      }
+    //
       case 'mkdir': {
-        const pathname = params[0] as string
-        fs.mkdir(pathname).then(() => {
+        try {
+          const map = params[0] as HippyMap
+          const pathname = map.get('pathname') as string
+          const recursion = map.get('recursion') as boolean
+          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          LogUtils.i(this.TAG, `ESFileModule op: mkdir path :${rootFilePath + "/" + pathname}`);
+          fs.mkdirSync(rootFilePath + "/" + pathname, recursion ?? false)
           promise.resolve(true)
-        }).catch((error: BusinessError) => {
+        } catch (error) {
           LogUtils.e(this.TAG, `ESFileModule mkdir error message:${error.message}`);
           if (promise) {
             promise.reject(JSON.stringify(error))
           }
-        });
+        }
         break;
       }
-      case 'moveFile': {
-        const src = params[0] as string
-        const dest = params[1] as string
-        fs.moveFile(src, dest).then(() => {
-          promise.resolve(true)
-        }).catch((error: BusinessError) => {
-          LogUtils.e(this.TAG, `ESFileModule moveFile error message:${error.message}`);
+    //
+      case 'listFile': {
+        try {
+          const map = params[0] as HippyMap
+          const pathname = map.get('pathname') as string
+          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          const files: string[] = fs.listFileSync(rootFilePath + "/" + pathname)
+          promise.resolve(files)
+        } catch (error) {
+          LogUtils.e(this.TAG, `ESFileModule listFile error message:${error.message}`);
           if (promise) {
             promise.reject(JSON.stringify(error))
           }
-        });
+        }
         break;
       }
-      case 'read': {
-        const fd = params[0] as number
-        const arrayBuffer = new ArrayBuffer(1024);
-        const readOptions: ReadOptions = {
-          offset: 0,
-          length: arrayBuffer.byteLength
-        };
-        fs.read(fd, arrayBuffer, readOptions).then((readLen: number) => {
-          const buf = buffer.from(arrayBuffer, 0, readLen);
-          if (promise) {
-            promise.resolve(buf.toString())
-          }
-        }).catch((error: BusinessError) => {
-          LogUtils.e(this.TAG, `ESFileModule read error message:${error.message}`);
-          if (promise) {
-            promise.reject(JSON.stringify(error))
-          }
-        });
-        break;
-      }
-
-
-      case 'rename': {
-        const oldPath = params[0] as string
-        const newPath = params[1] as string
-        fs.rename(oldPath, newPath).then(() => {
-          promise.resolve(true)
-        }).catch((error: BusinessError) => {
-          LogUtils.e(this.TAG, `ESFileModule rename error message:${error.message}`);
-          if (promise) {
-            promise.reject(JSON.stringify(error))
-          }
-        });
-        break;
-      }
+    //
       case 'rmdir': {
-        const pathname = params[0] as string
-        fs.rmdir(pathname).then(() => {
+        try {
+          const map = params[0] as HippyMap
+          const pathname = map.get('pathname') as string
+          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          fs.rmdirSync(rootFilePath + "/" + pathname)
+          LogUtils.e(this.TAG,
+            `ESFileModule rmdir success. path: ${rootFilePath + "/" + pathname}`);
           promise.resolve(true)
-        }).catch((error: BusinessError) => {
+        } catch (error) {
           LogUtils.e(this.TAG, `ESFileModule rmdir error message:${error.message}`);
           if (promise) {
             promise.reject(JSON.stringify(error))
           }
-        });
+        }
         break;
       }
+    //
+      case 'moveFile': {
+        try {
+          const map = params[0] as HippyMap
+          const src = map.get('src') as string
+          const dest = map.get('dest') as string
+          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          LogUtils.e(this.TAG,
+            `ESFileModule moveFile file. src: ${rootFilePath + "/" + src}  dest:${rootFilePath +
+              "/" + dest}`);
 
+          fs.moveFileSync(rootFilePath + "/" + src, rootFilePath + "/" + dest)
+          promise.resolve(true)
+        } catch (error) {
+          LogUtils.e(this.TAG, `ESFileModule moveFile error message:${error.message}`);
+          if (promise) {
+            promise.reject(JSON.stringify(error))
+          }
+        }
+        break;
+      }
+    //
+      case 'rename': {
+        try {
+          const map = params[0] as HippyMap
+          const src = map.get('src') as string
+          const dest = map.get('dest') as string
+          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          LogUtils.e(this.TAG,
+            `ESFileModule rename file. src: ${rootFilePath + "/" + src}  dest:${rootFilePath +
+              "/" + dest}`);
+          fs.renameSync(rootFilePath + "/" + src, rootFilePath + "/" + dest)
+          promise.resolve(true)
+        } catch (error) {
+          LogUtils.e(this.TAG, `ESFileModule rename error message:${error.message}`);
+          if (promise) {
+            promise.reject(JSON.stringify(error))
+          }
+        }
+        break;
+      }
+    //
+      case 'read': {
+        try {
+          const map = params[0] as HippyMap
+          const pathname = map.get('pathname') as string
+          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          const file = fs.openSync(rootFilePath + "/" + pathname, fs.OpenMode.READ_ONLY)
+          const arrayBuffer = new ArrayBuffer(1024);
+          const readOptions: ReadOptions = {
+            offset: 0,
+            length: arrayBuffer.byteLength
+          };
+          const readLen: number = fs.readSync(file.fd, arrayBuffer, readOptions)
+          const buf = buffer.from(arrayBuffer, 0, readLen);
+          if (promise) {
+            promise.resolve(buf.toString())
+          }
+        } catch (error) {
+          LogUtils.e(this.TAG, `ESFileModule read error message:${error.message}`);
+          if (promise) {
+            promise.reject(JSON.stringify(error))
+          }
+        }
+        break;
+      }
+      //
       case 'write': {
-        const fd = params[0] as number
-        const content = params[1] as string
-        fs.write(fd, content).then((count: number) => {
-          promise.resolve(count)
-        }).catch((error: BusinessError) => {
+        try {
+          const map = params[0] as HippyMap
+          const pathname = map.get('pathname') as string
+          const content = map.get('content') as string
+
+          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          const file = fs.openSync(rootFilePath + "/" + pathname, fs.OpenMode.WRITE_ONLY)
+          const count: number = fs.writeSync(file.fd, content)
+          if (promise) {
+            promise.resolve(count)
+          }
+        } catch (error) {
           LogUtils.e(this.TAG, `ESFileModule write error message:${error.message}`);
           if (promise) {
             promise.reject(JSON.stringify(error))
           }
-        });
+        }
         break;
       }
       default:
