@@ -1,6 +1,8 @@
 /**
- * TODO
+ *
  */
+import { HippyEngineContext } from 'hippy';
+
 export default class QTAppManager {
   private static instance: QTAppManager;
 
@@ -28,5 +30,34 @@ export default class QTAppManager {
 
   public getVersionName(): string {
     return "test"
+  }
+
+  //----------------------------------------------------------------------------------------
+  // filesDir:        /data/storage/el2/base/haps/runtime/files
+  // tempDir:         /data/storage/el2/base/haps/runtime/temp
+  // bundleCodeDir:   /data/storage/el1/bundle
+  // preferencesDir:  /data/storage/el2/base/haps/runtime/preferences
+
+  /**
+   * 获取EsApp路径, 用于文件存储管理
+   * @return
+   * /data/data/APK包名/app_rpk/apps/小程序包名/files
+   * 示例:/data/data/com.extscreen.runtime/app_rpk/apps/es.com.baduanjin.tv/files
+   */
+  public getESAppFilePath(ctx: HippyEngineContext): string {
+    return ctx.getAbilityContext().filesDir + "/app_rpk/apps/"
+      + QTAppManager.getInstance().getPackageName() + "/files"
+  }
+
+  /**
+   * 获取EsApp运行时路径, 通常用于获取代码包里的assets
+   * @return
+   * /data/data/APK包名/app_rpk/apps/小程序包名/版本号/android
+   * 示例:/data/data/com.extscreen.runtime/app_rpk/apps/es.com.baduanjin.tv/2.2.2203/android
+   */
+  public getESAppRuntimePath(ctx: HippyEngineContext): string {
+    return ctx.getAbilityContext().filesDir + "/app_rpk/apps/"
+      + QTAppManager.getInstance().getPackageName() + "/files/"
+      + QTAppManager.getInstance().getVersionCode() + "/ohos"
   }
 }

@@ -47,8 +47,8 @@ export class ESModule extends BaseModule {
         info.set('packageName', '')
         info.set('eskit_ver_code', '')
         info.set('eskit_ver_name', '')
-        info.set('miniProgramPath', this.getESAppFilePath())
-        info.set('runtimePath', this.getESAppRuntimePath())
+        info.set('miniProgramPath', QTAppManager.getInstance().getESAppFilePath(this.ctx))
+        info.set('runtimePath', QTAppManager.getInstance().getESAppRuntimePath(this.ctx))
         info.set('schemes', '')
         info.set('sdkChannel', '')
         promise.resolve(info)
@@ -75,7 +75,7 @@ export class ESModule extends BaseModule {
      * 示例:/data/data/com.extscreen.runtime/app_rpk/apps/es.com.baduanjin.tv/files
      */
       case 'getESAppFilePath': {
-        promise.resolve(this.getESAppFilePath())
+        promise.resolve(QTAppManager.getInstance().getESAppFilePath(this.ctx))
         break;
       }
     /**
@@ -85,7 +85,7 @@ export class ESModule extends BaseModule {
      * 示例:/data/data/com.extscreen.runtime/app_rpk/apps/es.com.baduanjin.tv/2.2.2203/android
      */
       case 'getESAppRuntimePath': {
-        promise.resolve(this.getESAppRuntimePath())
+        promise.resolve(QTAppManager.getInstance().getESAppRuntimePath(this.ctx))
         break;
       }
     //-------------------------------------------------------------------
@@ -135,35 +135,5 @@ export class ESModule extends BaseModule {
         super.call(method, params, promise);
     }
     return null;
-  }
-
-
-  //----------------------------------------------------------------------------------------
-  // filesDir:        /data/storage/el2/base/haps/runtime/files
-  // tempDir:         /data/storage/el2/base/haps/runtime/temp
-  // bundleCodeDir:   /data/storage/el1/bundle
-  // preferencesDir:  /data/storage/el2/base/haps/runtime/preferences
-
-  /**
-   * 获取EsApp路径, 用于文件存储管理
-   * @return
-   * /data/data/APK包名/app_rpk/apps/小程序包名/files
-   * 示例:/data/data/com.extscreen.runtime/app_rpk/apps/es.com.baduanjin.tv/files
-   */
-  private getESAppFilePath(): string {
-    return this.ctx.getAbilityContext().filesDir + "/app_rpk/apps/"
-      + QTAppManager.getInstance().getPackageName() + "/files"
-  }
-
-  /**
-   * 获取EsApp运行时路径, 通常用于获取代码包里的assets
-   * @return
-   * /data/data/APK包名/app_rpk/apps/小程序包名/版本号/android
-   * 示例:/data/data/com.extscreen.runtime/app_rpk/apps/es.com.baduanjin.tv/2.2.2203/android
-   */
-  private getESAppRuntimePath(): string {
-    return this.ctx.getAbilityContext().filesDir + "/app_rpk/apps/"
-      + QTAppManager.getInstance().getPackageName() + "/files/"
-      + QTAppManager.getInstance().getVersionCode() + "/ohos"
   }
 }
