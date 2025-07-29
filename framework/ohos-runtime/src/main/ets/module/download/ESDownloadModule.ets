@@ -161,7 +161,7 @@ export class ESDownloadModule extends BaseModule {
 
   private hippyAnyToDownloadConfig(params: HippyMap): DownloadConfig {
     const config: DownloadConfig = {
-      downloadCacheDir: params.get('downloadCacheDir') as string,
+      downloadCacheDir: params.get('cacheDir') as string,
       progressThrottleInterval: params.get('progressThrottleInterval') as number,
       precise: params.get('precise') as boolean,
       overwrite: params.get('overwrite') as boolean,
