@@ -83,6 +83,7 @@ export class ESDownloadModule extends BaseModule {
       }
       case 'initDownload': {
         const config: DownloadConfig = this.hippyAnyToDownloadConfig(params[0] as HippyMap);
+        LogUtils.e(this.TAG, `[initDownload] Config:${JSON.stringify(config)}}`);
         DownloadManager.getInstance()
           .init(this.ctx.getAbilityContext(), config)
         break;

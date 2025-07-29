@@ -45,7 +45,7 @@ export class ESModule extends BaseModule {
         info.set('versionCode', '')
         info.set('versionName', '')
         info.set('packageName', '')
-        info.set('eskit_ver_code', '')
+        info.set('eskit_ver_code', 3.0)
         info.set('eskit_ver_name', '')
         info.set('miniProgramPath', QTAppManager.getInstance().getESAppFilePath(this.ctx.getAbilityContext()))
         info.set('runtimePath', QTAppManager.getInstance().getESAppRuntimePath(this.ctx.getAbilityContext()))

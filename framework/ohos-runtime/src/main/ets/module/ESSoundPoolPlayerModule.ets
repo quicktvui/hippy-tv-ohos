@@ -15,7 +15,7 @@ import { QTPlayerEvent } from '../components/player/QTPlayerEvent';
 import { QTPlayerEventProp } from '../components/player/QTPlayerEventProp';
 
 /**
- * TODO 待测试
+ * SoundPool
  */
 @HippyNativeModule({ name: "ESSoundPoolPlayerModule" })
 export class ESSoundPoolPlayerModule extends BaseModule {
@@ -35,7 +35,6 @@ export class ESSoundPoolPlayerModule extends BaseModule {
   }
 
   public call(method: string, params: Array<HippyAny>, promise: HippyModulePromise): HippyAny {
-    LogUtils.d(this.TAG, '=======call=======>>>>>method:' + method + " params:" + params);
     switch (method) {
       case 'init': {
         const usage = params[0] as number
@@ -104,7 +103,7 @@ export class ESSoundPoolPlayerModule extends BaseModule {
           //
           LogUtils.i(this.TAG, 'SoundPool load success soundId:' + soundId);
         }).catch((error: BusinessError) => {
-          LogUtils.e(this.TAG, `SoundPool load error message:${error.message}`);
+          LogUtils.e(this.TAG, `SoundPool load error message:${JSON.stringify(error)}`);
           if (promise) {
             promise.reject(JSON.stringify(error))
           }

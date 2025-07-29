@@ -51,6 +51,7 @@ export class DownloadManager {
     if (!download || !download.fileUrl) {
       return;
     }
+    LogUtils.d(this.TAG, `Download download: ${JSON.stringify(download)}`);
     this.waitList.push(download);
     await this.flushBackgroundTask();
   }
@@ -65,7 +66,6 @@ export class DownloadManager {
     if (availableSlots <= 0 || this.waitList.length === 0) {
       return;
     }
-
     const toStart = this.waitList.splice(0, availableSlots);
     await this.createDownloadTasks(toStart);
   }
@@ -83,6 +83,7 @@ export class DownloadManager {
       download.downloadPath = path;
 
       const task = new DownloadTask(this.context!, this.config!);
+      LogUtils.d(this.TAG, `createDownloadTasks: ${url}`);
       this.taskMap.set(url, task);
 
       task.setDownloadStatusListener((status: DownloadStatus<DownloadMessage>) => {
@@ -100,7 +101,6 @@ export class DownloadManager {
           this.flushBackgroundTask();
         }
       });
-
       task.setDownloadProgressListener((progressStatus: DownloadStatus<DownloadProgress>) => {
         try {
           const fileUrl: string = progressStatus.download?.fileUrl ?? "";
@@ -117,42 +117,49 @@ export class DownloadManager {
           LogUtils.e(this.TAG, `Progress listener error: ${e}`);
         }
       });
-
       await task.download(download);
-      this.taskMap.set(url, task);
     }
   }
 
   public start(download: Download) {
+    LogUtils.d(this.TAG,
+      `Download start: ${JSON.stringify(download)} ${this.taskMap.get(download.fileUrl)}`);
     this.taskMap.get(download.fileUrl)?.start();
   }
 
   public stop(download: Download) {
+    LogUtils.d(this.TAG, `Download stop: ${JSON.stringify(download)}`);
     this.taskMap.get(download.fileUrl)?.stop();
   }
 
   public pause(download: Download) {
+    LogUtils.d(this.TAG, `Download pause: ${JSON.stringify(download)}`);
     this.taskMap.get(download.fileUrl)?.pause();
   }
 
   public pauseAll() {
+    LogUtils.d(this.TAG, `Download pauseAll`);
     this.taskMap.forEach((task): Promise<void> => task.pause());
   }
 
   public resume(download: Download) {
+    LogUtils.d(this.TAG, `Download resume: ${JSON.stringify(download)}`);
     this.taskMap.get(download.fileUrl)?.resume();
   }
 
   public resumeAll() {
+    LogUtils.d(this.TAG, `Download resumeAll`);
     this.taskMap.forEach((task): Promise<void> => task.resume());
   }
 
   public cancel(download: Download) {
+    LogUtils.d(this.TAG, `Download cancel: ${JSON.stringify(download)}`);
     this.taskMap.get(download.fileUrl)?.cancel();
     this.taskMap.delete(download.fileUrl);
   }
 
   public async release() {
+    LogUtils.d(this.TAG, `Download release`);
     await Promise.all(Array.from(this.taskMap.values()).map((task): Promise<void> => {
       task.stop();
       task.cancel();

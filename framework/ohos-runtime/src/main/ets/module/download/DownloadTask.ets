@@ -6,12 +6,14 @@ import { DownloadProgress } from "./DownloadProgress";
 import { DownloadState } from "./DownloadState";
 import { DownloadMessage } from "./DownloadMessage";
 import { DownloadConfig } from "./DownloadConfig";
+import { LogUtils, } from 'hippy';
 
 /**
  * 下载任务
  */
 export class DownloadTask {
   //
+  private readonly TAG = "DownloadTask"
   private context: Context;
   private downloadTask: request.agent.Task | null = null
   private downloadInfo: Download | null = null;
@@ -49,9 +51,17 @@ export class DownloadTask {
 
     //
     this.downloadTask.on('progress', (progress: request.agent.Progress) => {
+
       let processed = Number(progress.processed.toString()).valueOf();
       let size = progress.sizes[0];
       let process: number = Math.floor(processed / size * 100);
+
+      LogUtils.d(this.TAG, `[DownloadProgressListener] Progress Update:
+        fileUrl = ${this.downloadInfo?.fileUrl},
+        downloaded = ${processed},
+        total = ${size},
+        progress = ${process}%
+      `);
 
       if (this.downloadProgressListener) {
         const progress: DownloadProgress = {
@@ -79,7 +89,6 @@ export class DownloadTask {
       }
       await this.cancel()
     })
-
     //pause
     this.downloadTask.on('pause', async () => {
       if (this.downloadStatusListener) {
@@ -104,6 +113,10 @@ export class DownloadTask {
     })
     //
     this.downloadTask.on('failed', async (progress: request.agent.Progress) => {
+      LogUtils.e(this.TAG, `[DownloadProgressListener] failed:
+        fileUrl = ${this.downloadInfo?.fileUrl},
+      `);
+
       if (this.downloadTask) {
         let taskInfo = await request.agent.show(this.downloadTask.tid);
 
@@ -119,48 +132,73 @@ export class DownloadTask {
           }
           this.downloadStatusListener(status)
         }
-
         await this.cancel()
       }
     })
+    //init
+    if (this.downloadStatusListener) {
+      const status: DownloadStatus<DownloadMessage> = {
+        state: DownloadState.DOWNLOAD_STATE_INIT,
+        download: this.downloadInfo,
+        data: null
+      }
+      this.downloadStatusListener(status)
+    }
   }
 
   async start() {
+
     if (this.downloadTask) {
+      LogUtils.d(this.TAG, `Download start`);
       await this.downloadTask.start();
+    } else {
+      LogUtils.d(this.TAG, `Download start: DownloadTask is null`);
     }
   }
 
   async stop() {
     if (this.downloadTask) {
+      LogUtils.d(this.TAG, `Download stop`);
       await this.downloadTask.stop();
+    } else {
+      LogUtils.d(this.TAG, `Download start: DownloadTask is null`);
     }
   }
 
   async pause() {
     if (this.downloadTask) {
+      LogUtils.d(this.TAG, `Download pause`);
       await this.downloadTask.pause();
+    } else {
+      LogUtils.d(this.TAG, `Download start: DownloadTask is null`);
     }
   }
 
   async resume() {
     if (this.downloadTask) {
+      LogUtils.d(this.TAG, `Download resume`);
       await this.downloadTask.resume();
+    } else {
+      LogUtils.d(this.TAG, `Download start: DownloadTask is null`);
     }
   }
 
   async cancel() {
     if (this.downloadTask) {
+      LogUtils.d(this.TAG, `Download cancel`);
       this.downloadTask.off('progress');
       this.downloadTask.off('completed');
       this.downloadTask.off('failed');
       this.downloadTask.off('pause');
       this.downloadTask.off('resume');
       await request.agent.remove(this.downloadTask.tid);
+    } else {
+      LogUtils.d(this.TAG, `Download start: DownloadTask is null`);
     }
   }
 
   async release() {
+    LogUtils.d(this.TAG, `Download release`);
     this.downloadStatusListener = null
   }
 
