@@ -13,6 +13,7 @@ import { BusinessError } from '@kit.BasicServicesKit';
 import { QTPlayerState } from '../components/player/QTPlayerState';
 import { QTPlayerEvent } from '../components/player/QTPlayerEvent';
 import { QTPlayerEventProp } from '../components/player/QTPlayerEventProp';
+import { fileIo as fs } from '@kit.CoreFileKit';
 
 /**
  * SoundPool
@@ -94,22 +95,17 @@ export class ESSoundPoolPlayerModule extends BaseModule {
         break;
       }
       case 'load': {
-        const url = params[0] as string
-        LogUtils.i(this.TAG, 'SoundPool load url:' + url);
-
-        this.soundPool?.load(url).then((soundId: number) => {
-          //
+        let url = params[0] as string
+        this.load(url).then((soundId: number) => {
+          LogUtils.i(this.TAG, 'SoundPool load soundId:' + soundId);
           if (promise) {
             promise.resolve(soundId)
           }
-          //
-          LogUtils.i(this.TAG, 'SoundPool load success soundId:' + soundId);
         }).catch((error: BusinessError) => {
           LogUtils.e(this.TAG, `SoundPool load error message:${JSON.stringify(error)}`);
           if (promise) {
             promise.reject(JSON.stringify(error))
           }
-          //
           const event = new Map<string, HippyAny>()
           event.set("url", url)
           this.dispatchEvent('onESSoundPoolLoadError', event)
@@ -244,5 +240,13 @@ export class ESSoundPoolPlayerModule extends BaseModule {
         super.call(method, params, promise);
     }
     return null;
+  }
+
+  private async load(url: string) {
+    const file: fs.File = await fs.openSync(url, fs.OpenMode.READ_ONLY)
+    LogUtils.i(this.TAG, 'SoundPool load url file: ' + file.fd);
+    url = 'fd://' + (file.fd).toString()
+    const soundId: number = await this.soundPool?.load(url) ?? -1
+    return soundId
   }
 }
