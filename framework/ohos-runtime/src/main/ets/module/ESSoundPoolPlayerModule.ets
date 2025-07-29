@@ -95,6 +95,8 @@ export class ESSoundPoolPlayerModule extends BaseModule {
       }
       case 'load': {
         const url = params[0] as string
+        LogUtils.i(this.TAG, 'SoundPool load url:' + url);
+
         this.soundPool?.load(url).then((soundId: number) => {
           //
           if (promise) {

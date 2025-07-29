@@ -37,6 +37,7 @@ export class ESDownloadModule extends BaseModule {
       `);
       const event = new Map<string, HippyAny>()
       event.set("download", this.downloadToHippyAny(status.download))
+      event.set("filePath", status.download?.downloadPath)
       event.set("state", status.state)
       this.dispatchEvent("onDownloadStatusChanged", event)
     }
@@ -53,6 +54,7 @@ export class ESDownloadModule extends BaseModule {
       event.set("totalSize", progressStatus.data?.totalSize)
       event.set("download", this.downloadToHippyAny(progressStatus.download))
       event.set("state", progressStatus.state)
+      event.set("filePath", progressStatus.download?.downloadPath)
       this.dispatchEvent("onDownloadStatusChanged", event)
     }
   }
@@ -157,6 +159,7 @@ export class ESDownloadModule extends BaseModule {
     map.set("fileMD5", download.fileMD5)
     map.set("fileName", download.fileName)
     map.set("fileType", download.fileType)
+    map.set("filePath", download.downloadPath)
     return map
   }
 
