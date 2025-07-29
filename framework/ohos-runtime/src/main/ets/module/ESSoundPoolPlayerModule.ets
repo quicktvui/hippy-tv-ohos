@@ -32,7 +32,6 @@ export class ESSoundPoolPlayerModule extends BaseModule {
   }
 
   destroy(): void {
-
   }
 
   public call(method: string, params: Array<HippyAny>, promise: HippyModulePromise): HippyAny {
@@ -72,11 +71,7 @@ export class ESSoundPoolPlayerModule extends BaseModule {
               this.dispatchEvent(QTPlayerEvent.ON_PLAYER_ERROR, errorEvent)
 
               // statusEvent
-              const statusEvent = new Map<string, HippyAny>()
-              statusEvent.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.ERROR)
-              statusEvent.set(QTPlayerEventProp.ERROR_CODE, error.code)
-              statusEvent.set(QTPlayerEventProp.ERROR_MESSAGE, error.message)
-              this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, statusEvent)
+              this.notifyError(error)
             })
             //
             if (promise) {
@@ -118,6 +113,7 @@ export class ESSoundPoolPlayerModule extends BaseModule {
           LogUtils.i(this.TAG, 'SoundPool unload success soundId:' + soundId);
         }).catch((error: BusinessError) => {
           LogUtils.e(this.TAG, `SoundPool unload error message:${error.message}`);
+          this.notifyError(error)
         });
         break;
       }
@@ -179,6 +175,7 @@ export class ESSoundPoolPlayerModule extends BaseModule {
         }).catch((error: BusinessError) => {
           LogUtils.e(this.TAG,
             `SoundPool stop error streamId: ${streamId} message:${error.message}`);
+          this.notifyError(error)
         });
         break;
       }
@@ -191,6 +188,7 @@ export class ESSoundPoolPlayerModule extends BaseModule {
         }).catch((error: BusinessError) => {
           LogUtils.e(this.TAG,
             `SoundPool setVolume error streamId: ${streamId} message:${error.message}`);
+          this.notifyError(error)
         });
         break;
       }
@@ -202,6 +200,7 @@ export class ESSoundPoolPlayerModule extends BaseModule {
         }).catch((error: BusinessError) => {
           LogUtils.e(this.TAG,
             `SoundPool setRate error streamId: ${streamId} message:${error.message}`);
+          this.notifyError(error)
         });
         break;
       }
@@ -213,6 +212,7 @@ export class ESSoundPoolPlayerModule extends BaseModule {
         }).catch((error: BusinessError) => {
           LogUtils.e(this.TAG,
             `SoundPool setPriority error streamId: ${streamId} message:${error.message}`);
+          this.notifyError(error)
         });
         break;
       }
@@ -224,6 +224,7 @@ export class ESSoundPoolPlayerModule extends BaseModule {
         }).catch((error: BusinessError) => {
           LogUtils.e(this.TAG,
             `SoundPool setLoop error streamId: ${streamId} message:${error.message}`);
+          this.notifyError(error)
         });
         break;
       }
@@ -233,6 +234,7 @@ export class ESSoundPoolPlayerModule extends BaseModule {
         }).catch((error: BusinessError) => {
           LogUtils.e(this.TAG,
             `SoundPool release error message:${error.message}`);
+          this.notifyError(error)
         });
         break;
       }
@@ -248,5 +250,14 @@ export class ESSoundPoolPlayerModule extends BaseModule {
     url = 'fd://' + (file.fd).toString()
     const soundId: number = await this.soundPool?.load(url) ?? -1
     return soundId
+  }
+
+  private notifyError(error: BusinessError) {
+    // statusEvent
+    const statusEvent = new Map<string, HippyAny>()
+    statusEvent.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.ERROR)
+    statusEvent.set(QTPlayerEventProp.ERROR_CODE, error.code)
+    statusEvent.set(QTPlayerEventProp.ERROR_MESSAGE, error.message)
+    this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, statusEvent)
   }
 }
