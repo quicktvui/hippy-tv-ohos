@@ -23,7 +23,7 @@ import { QTAVPlayerView } from '../components/video/QTAVPlayerView';
 import { ESLocalStorageModule } from '../module/ESLocalStorageModule';
 import { ESSoundPoolPlayerModule } from '../module/ESSoundPoolPlayerModule';
 import { ESAudioPlayerModule } from '../module/ESAudioPlayerModule';
-import { ESDownloadModule } from '../module/ESDownloadModule';
+import { ESDownloadModule } from '../module/download/ESDownloadModule';
 import { ESUploadModule } from '../module/ESUploadModule';
 import { ESFileModule } from '../module/ESFileModule';
 

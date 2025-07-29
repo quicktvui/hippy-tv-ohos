@@ -9,7 +9,6 @@ import {
 
 import { BaseModule } from './BaseModule';
 import { fileIo as fs, ReadOptions } from '@kit.CoreFileKit';
-import { BusinessError } from '@kit.BasicServicesKit';
 import { buffer } from '@kit.ArkTS';
 import QTAppManager from '../quick/QTAppManager';
 
@@ -35,7 +34,7 @@ export class ESFileModule extends BaseModule {
         try {
           const map = params[0] as HippyMap
           const pathname = map.get('pathname') as string
-          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx.getAbilityContext())
           const exists = fs.accessSync(rootFilePath)
           if (!exists) {
             fs.mkdirSync(rootFilePath, true)
@@ -77,7 +76,7 @@ export class ESFileModule extends BaseModule {
         try {
           const map = params[0] as HippyMap
           const pathname = map.get('pathname') as string
-          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx.getAbilityContext())
           LogUtils.i(this.TAG,
             `ESFileModule op: access start: ${rootFilePath + "/" + pathname}`);
           const exist = fs.accessSync(rootFilePath + "/" + pathname)
@@ -117,7 +116,7 @@ export class ESFileModule extends BaseModule {
         try {
           const map = params[0] as HippyMap
           const pathname = map.get('pathname') as string
-          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx.getAbilityContext())
           const stat: fs.Stat = fs.statSync(rootFilePath + "/" + pathname)
           LogUtils.i(this.TAG,
             `ESFileModule op: stat file: ${rootFilePath + "/" + pathname} ret:${stat}`);
@@ -155,7 +154,7 @@ export class ESFileModule extends BaseModule {
         try {
           const map = params[0] as HippyMap
           const pathname = map.get('pathname') as string
-          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx.getAbilityContext())
           const stat: fs.Stat = fs.statSync(rootFilePath + "/" + pathname)
           LogUtils.i(this.TAG, `ESFileModule op: isDirectory file: ${rootFilePath + "/" +
             pathname} ret:${stat.isDirectory()}`);
@@ -175,7 +174,7 @@ export class ESFileModule extends BaseModule {
         try {
           const map = params[0] as HippyMap
           const pathname = map.get('pathname') as string
-          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx.getAbilityContext())
           const stat: fs.Stat = fs.statSync(rootFilePath + "/" + pathname)
           LogUtils.i(this.TAG, `ESFileModule op: isDirectory file: ${rootFilePath + "/" +
             pathname} ret:${stat.isFile()}`);
@@ -195,7 +194,7 @@ export class ESFileModule extends BaseModule {
         try {
           const map = params[0] as HippyMap
           const pathname = map.get('pathname') as string
-          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx.getAbilityContext())
           LogUtils.i(this.TAG, `ESFileModule op: unlink path :${rootFilePath + "/" + pathname}`);
           fs.unlinkSync(rootFilePath + "/" + pathname)
           promise.resolve(true)
@@ -213,7 +212,7 @@ export class ESFileModule extends BaseModule {
           const map = params[0] as HippyMap
           const pathname = map.get('pathname') as string
           const recursion = map.get('recursion') as boolean
-          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx.getAbilityContext())
           LogUtils.i(this.TAG, `ESFileModule op: mkdir path :${rootFilePath + "/" + pathname}`);
           fs.mkdirSync(rootFilePath + "/" + pathname, recursion ?? false)
           promise.resolve(true)
@@ -230,7 +229,7 @@ export class ESFileModule extends BaseModule {
         try {
           const map = params[0] as HippyMap
           const pathname = map.get('pathname') as string
-          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx.getAbilityContext())
           const files: string[] = fs.listFileSync(rootFilePath + "/" + pathname)
           promise.resolve(files)
         } catch (error) {
@@ -246,7 +245,7 @@ export class ESFileModule extends BaseModule {
         try {
           const map = params[0] as HippyMap
           const pathname = map.get('pathname') as string
-          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx.getAbilityContext())
           fs.rmdirSync(rootFilePath + "/" + pathname)
           LogUtils.e(this.TAG,
             `ESFileModule rmdir success. path: ${rootFilePath + "/" + pathname}`);
@@ -265,7 +264,7 @@ export class ESFileModule extends BaseModule {
           const map = params[0] as HippyMap
           const src = map.get('src') as string
           const dest = map.get('dest') as string
-          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx.getAbilityContext())
           LogUtils.e(this.TAG,
             `ESFileModule moveFile file. src: ${rootFilePath + "/" + src}  dest:${rootFilePath +
               "/" + dest}`);
@@ -286,7 +285,7 @@ export class ESFileModule extends BaseModule {
           const map = params[0] as HippyMap
           const src = map.get('src') as string
           const dest = map.get('dest') as string
-          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx.getAbilityContext())
           LogUtils.e(this.TAG,
             `ESFileModule rename file. src: ${rootFilePath + "/" + src}  dest:${rootFilePath +
               "/" + dest}`);
@@ -305,7 +304,7 @@ export class ESFileModule extends BaseModule {
         try {
           const map = params[0] as HippyMap
           const pathname = map.get('pathname') as string
-          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx.getAbilityContext())
           const file = fs.openSync(rootFilePath + "/" + pathname, fs.OpenMode.READ_ONLY)
           const arrayBuffer = new ArrayBuffer(1024);
           const readOptions: ReadOptions = {
@@ -332,7 +331,7 @@ export class ESFileModule extends BaseModule {
           const pathname = map.get('pathname') as string
           const content = map.get('content') as string
 
-          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx)
+          const rootFilePath = QTAppManager.getInstance().getESAppFilePath(this.ctx.getAbilityContext())
           const file = fs.openSync(rootFilePath + "/" + pathname, fs.OpenMode.WRITE_ONLY)
           const count: number = fs.writeSync(file.fd, content)
           if (promise) {

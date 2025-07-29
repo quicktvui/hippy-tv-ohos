@@ -47,8 +47,8 @@ export class ESModule extends BaseModule {
         info.set('packageName', '')
         info.set('eskit_ver_code', '')
         info.set('eskit_ver_name', '')
-        info.set('miniProgramPath', QTAppManager.getInstance().getESAppFilePath(this.ctx))
-        info.set('runtimePath', QTAppManager.getInstance().getESAppRuntimePath(this.ctx))
+        info.set('miniProgramPath', QTAppManager.getInstance().getESAppFilePath(this.ctx.getAbilityContext()))
+        info.set('runtimePath', QTAppManager.getInstance().getESAppRuntimePath(this.ctx.getAbilityContext()))
         info.set('schemes', '')
         info.set('sdkChannel', '')
         promise.resolve(info)
@@ -75,7 +75,7 @@ export class ESModule extends BaseModule {
      * 示例:/data/data/com.extscreen.runtime/app_rpk/apps/es.com.baduanjin.tv/files
      */
       case 'getESAppFilePath': {
-        promise.resolve(QTAppManager.getInstance().getESAppFilePath(this.ctx))
+        promise.resolve(QTAppManager.getInstance().getESAppFilePath(this.ctx.getAbilityContext()))
         break;
       }
     /**
@@ -85,7 +85,7 @@ export class ESModule extends BaseModule {
      * 示例:/data/data/com.extscreen.runtime/app_rpk/apps/es.com.baduanjin.tv/2.2.2203/android
      */
       case 'getESAppRuntimePath': {
-        promise.resolve(QTAppManager.getInstance().getESAppRuntimePath(this.ctx))
+        promise.resolve(QTAppManager.getInstance().getESAppRuntimePath(this.ctx.getAbilityContext()))
         break;
       }
     //-------------------------------------------------------------------

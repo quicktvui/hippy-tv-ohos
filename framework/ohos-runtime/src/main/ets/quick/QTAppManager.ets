@@ -44,8 +44,8 @@ export default class QTAppManager {
    * /data/data/APK包名/app_rpk/apps/小程序包名/files
    * 示例:/data/data/com.extscreen.runtime/app_rpk/apps/es.com.baduanjin.tv/files
    */
-  public getESAppFilePath(ctx: HippyEngineContext): string {
-    return ctx.getAbilityContext().filesDir + "/app_rpk/apps/"
+  public getESAppFilePath(ctx: Context): string {
+    return ctx.filesDir + "/app_rpk/apps/"
       + QTAppManager.getInstance().getPackageName() + "/files"
   }
 
@@ -55,8 +55,8 @@ export default class QTAppManager {
    * /data/data/APK包名/app_rpk/apps/小程序包名/版本号/android
    * 示例:/data/data/com.extscreen.runtime/app_rpk/apps/es.com.baduanjin.tv/2.2.2203/android
    */
-  public getESAppRuntimePath(ctx: HippyEngineContext): string {
-    return ctx.getAbilityContext().filesDir + "/app_rpk/apps/"
+  public getESAppRuntimePath(ctx: Context): string {
+    return ctx.filesDir + "/app_rpk/apps/"
       + QTAppManager.getInstance().getPackageName() + "/files/"
       + QTAppManager.getInstance().getVersionCode() + "/ohos"
   }

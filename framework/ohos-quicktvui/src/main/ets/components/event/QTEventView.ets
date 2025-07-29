@@ -10,11 +10,21 @@ import {
 } from 'hippy'
 import { QTBaseComponentView } from '../QTBaseComponentView'
 
+export type QTOpCallback = (method: string, params: Array<HippyAny>,
+  callback: HippyRenderCallback | null) => boolean
 
 @Observed
 export class QTEventView extends QTBaseComponentView {
+  public color: string = '#ffffff';
+  private callback: QTOpCallback | null = null
+
   constructor(ctx: NativeRenderContext) {
     super(ctx)
+  }
+
+  setOpCallback(callback: QTOpCallback) {
+    console.log("====QTEvent=======setOpCallback==============>>>>" + callback)
+    this.callback = callback
   }
 
   setProp(propKey: string, propValue: HippyAny): boolean {
@@ -29,18 +39,9 @@ export class QTEventView extends QTBaseComponentView {
   }
 
   call(method: string, params: Array<HippyAny>, callback: HippyRenderCallback | null): void {
-    if (method == "sendEsMessage") {
-      // 自定义事件举例
-      let event = new HippyViewEvent("onEsEvent")
-      let params = new Map<string, string>()
-      params.set('code', "100")
-      params.set('message', "Native 发送的事件消息")
-      event.send(this.ctx, this.tag, params)
-
-      // 如果需要返回值，返回值举例
-      if (callback) {
-        callback("result from native")
-      }
+    console.log("===QTEvent========call==============>>>>" + callback)
+    if (this.callback && this.callback(method, params, callback)) {
+      return;
     }
   }
 }
@@ -49,6 +50,30 @@ export class QTEventView extends QTBaseComponentView {
 export struct QTEvent {
   @ObjectLink renderView: QTEventView
   @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
+
+  aboutToAppear(): void {
+    console.log("=====QTEvent======aboutToAppear==============>>>>" + this.renderView)
+    this.renderView.setOpCallback((method: string, params: Array<HippyAny>,
+      callback: HippyRenderCallback | null) => {
+      if (method == "sendEsMessage") {
+        // 自定义事件举例
+        let event = new HippyViewEvent("onEsEvent")
+        let params = new Map<string, string>()
+        params.set('code', "100")
+        params.set('message', "Native 发送的事件消息")
+        event.send(this.renderView.ctx, this.renderView.tag, params)
+
+        // 如果需要返回值，返回值举例
+        if (callback) {
+          callback("result from native")
+        }
+      }
+      return false
+    })
+  }
+
+  aboutToDisappear() {
+  }
 
   build(): void {
     Stack() {
@@ -60,13 +85,6 @@ export struct QTEvent {
       ContentSlot(this.renderView.childSlot)
     }
     .applyRenderViewBaseAttr(this.renderView)
-  }
-
-  aboutToAppear(): void {
-
-  }
-
-  aboutToDisappear() {
   }
 }
 
