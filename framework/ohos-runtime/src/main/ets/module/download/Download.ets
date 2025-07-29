@@ -5,7 +5,7 @@ export interface Download {
   fileName: string
   fileType: string
   //
-  fileLength: number
-  downloadLength: number
-  downloadPath: string
+  fileLength?: number
+  downloadLength?: number
+  downloadPath?: string
 }

@@ -5,6 +5,7 @@ import { DownloadStatus } from "./DownloadStatus";
 import { DownloadProgress } from "./DownloadProgress";
 import { DownloadState } from "./DownloadState";
 import { DownloadMessage } from "./DownloadMessage";
+import { DownloadConfig } from "./DownloadConfig";
 
 /**
  * 下载任务
@@ -16,9 +17,11 @@ export class DownloadTask {
   private downloadInfo: Download | null = null;
   private downloadStatusListener: DownloadStatusListener | null = null;
   private downloadProgressListener: DownloadProgressListener | null = null
+  private config: DownloadConfig | null = null
 
-  public constructor(context: Context) {
+  public constructor(context: Context, config: DownloadConfig) {
     this.context = context
+    this.config = config
   }
 
   getDownload(): Download | null {
@@ -37,8 +40,9 @@ export class DownloadTask {
       mode: request.agent.Mode.BACKGROUND,
       network: request.agent.Network.ANY,
       saveas: path,
-      overwrite: true,
-      gauge: true
+      overwrite: this.config!.overwrite ?? true,
+      gauge: this.config!.gauge ?? true,
+      headers: this.config!.headers,
     };
     //
     this.downloadTask = await request.agent.create(this.context, config);
@@ -74,6 +78,29 @@ export class DownloadTask {
         this.downloadStatusListener(status)
       }
       await this.cancel()
+    })
+
+    //pause
+    this.downloadTask.on('pause', async () => {
+      if (this.downloadStatusListener) {
+        const status: DownloadStatus<DownloadMessage> = {
+          state: DownloadState.DOWNLOAD_STATE_PAUSE,
+          download: this.downloadInfo,
+          data: null
+        }
+        this.downloadStatusListener(status)
+      }
+    })
+    //resume
+    this.downloadTask.on('resume', async () => {
+      if (this.downloadStatusListener) {
+        const status: DownloadStatus<DownloadMessage> = {
+          state: DownloadState.DOWNLOAD_STATE_RESUME,
+          download: this.downloadInfo,
+          data: null
+        }
+        this.downloadStatusListener(status)
+      }
     })
     //
     this.downloadTask.on('failed', async (progress: request.agent.Progress) => {
@@ -127,6 +154,8 @@ export class DownloadTask {
       this.downloadTask.off('progress');
       this.downloadTask.off('completed');
       this.downloadTask.off('failed');
+      this.downloadTask.off('pause');
+      this.downloadTask.off('resume');
       await request.agent.remove(this.downloadTask.tid);
     }
   }

@@ -1,8 +1,5 @@
 import { Download } from "./Download";
-import {
-  DownloadProgressListener,
-  DownloadStatusListener
-} from "./DownloadListener";
+import { DownloadProgressListener, DownloadStatusListener } from "./DownloadListener";
 import request from '@ohos.request';
 import QTAppManager from "../../quick/QTAppManager";
 import { DownloadTask } from "./DownloadTask";
@@ -11,21 +8,26 @@ import { DownloadMessage } from "./DownloadMessage";
 import { DownloadStatus } from "./DownloadStatus";
 import { DownloadProgress } from "./DownloadProgress";
 import { DownloadState } from "./DownloadState";
+import { DownloadConfig } from "./DownloadConfig";
 
 /**
- *
+ * 下载管理器
  */
 export class DownloadManager {
   private readonly TAG = 'DownloadManager';
-  //
   private readonly TASK_MAX: number = 10;
-  //
   private static instance: DownloadManager;
-  private waitList: Array<Download> = [];
-  private backgroundTasks: Array<DownloadTask> = [];
-  private statusListener: Set<DownloadStatusListener> = new Set();
-  private progressListener: Set<DownloadProgressListener> = new Set();
+  private waitList: Download[] = [];
+  private taskMap: Map<string, DownloadTask> = new Map(); // fileUrl → DownloadTask
+  private statusListeners: Set<DownloadStatusListener> = new Set();
+  private progressListeners: Set<DownloadProgressListener> = new Set();
   private context: Context | null = null;
+  private cachePath: string | null = null;
+  private progressThrottleInterval: number = 1000; // 节流间隔（单位 ms）
+  private lastProgressNotifyTime: Map<string, number> = new Map(); // fileUrl → timestamp
+
+  private overwrite: boolean = true
+  private config: DownloadConfig | null = null;
 
   private constructor() {
   }
@@ -37,146 +39,144 @@ export class DownloadManager {
     return DownloadManager.instance;
   }
 
-  public init(context: Context) {
-    this.context = context
-  }
-
-  private async flushBackgroundTask() {
-    let runningTasks = await request.agent.search({
-      state: request.agent.State.RUNNING
-    });
-    if (runningTasks.length < this.TASK_MAX && this.waitList.length > 0) {
-      const allowed = this.TASK_MAX - runningTasks.length;
-      const toDownload = this.waitList.splice(0, allowed);
-      await this.createBackgroundTasks(toDownload);
-    }
-  }
-
-  private async createBackgroundTasks(downloads: Download[]) {
-    for (const download of downloads) {
-      if (!this.backgroundTasks.find(t => t.getDownload()?.fileUrl === download.fileUrl)) {
-        const path =
-          QTAppManager.getInstance().getESAppFilePath(this.context!) + "/download/" +
-          download.fileName
-        download.downloadPath = path
-        const downloadTask: DownloadTask = new DownloadTask(this.context!)
-        downloadTask.download(download)
-        downloadTask.setDownloadStatusListener((downloadStatus: DownloadStatus<DownloadMessage>) => {
-          this.notifyDownloadStatusChanged(downloadStatus)
-          //
-          if (downloadStatus.state == DownloadState.DOWNLOAD_STATE_ERROR ||
-            downloadStatus.state == DownloadState.DOWNLOAD_STATE_SUCCESS) {
-            this.flushBackgroundTask()
-          }
-        })
-        downloadTask.setDownloadProgressListener((downloadProgress: DownloadStatus<DownloadProgress>) => {
-          this.notifyDownloadProgressChanged(downloadProgress)
-        })
-        this.backgroundTasks.push(downloadTask);
-      } else {
-        LogUtils.i(this.TAG, 'download already in task!' + JSON.stringify(download));
-      }
-    }
+  public init(context: Context, config: DownloadConfig) {
+    this.config = config;
+    this.overwrite = config.overwrite ?? true
+    this.context = context;
+    this.cachePath = config.downloadCacheDir;
+    this.progressThrottleInterval = config.progressThrottleInterval;
   }
 
   public async download(download: Download) {
-    this.waitList.push(download)
-    this.flushBackgroundTask()
+    if (!download || !download.fileUrl) {
+      return;
+    }
+    this.waitList.push(download);
+    await this.flushBackgroundTask();
+  }
+
+  private async flushBackgroundTask() {
+    if (!this.context) {
+      return;
+    }
+    const runningTasks = await request.agent.search({ state: request.agent.State.RUNNING });
+    const availableSlots = this.TASK_MAX - runningTasks.length;
+
+    if (availableSlots <= 0 || this.waitList.length === 0) {
+      return;
+    }
+
+    const toStart = this.waitList.splice(0, availableSlots);
+    await this.createDownloadTasks(toStart);
+  }
+
+  private async createDownloadTasks(downloads: Download[]) {
+    for (const download of downloads) {
+      const url = download.fileUrl;
+      if (this.taskMap.has(url)) {
+        LogUtils.i(this.TAG, `Task for ${url} already exists`);
+        continue;
+      }
+      //
+      const path = QTAppManager.getInstance().getESAppFilePath(this.context!) + this.cachePath +
+        "/" + download.fileName;
+      download.downloadPath = path;
+
+      const task = new DownloadTask(this.context!, this.config!);
+      this.taskMap.set(url, task);
+
+      task.setDownloadStatusListener((status: DownloadStatus<DownloadMessage>) => {
+        try {
+          this.statusListeners.forEach(l => l(status));
+        } catch (e) {
+          LogUtils.e(this.TAG, `Status listener error: ${e}`);
+        }
+
+        if (
+          status.state === DownloadState.DOWNLOAD_STATE_SUCCESS ||
+            status.state === DownloadState.DOWNLOAD_STATE_ERROR
+        ) {
+          this.taskMap.delete(url);
+          this.flushBackgroundTask();
+        }
+      });
+
+      task.setDownloadProgressListener((progressStatus: DownloadStatus<DownloadProgress>) => {
+        try {
+          const fileUrl: string = progressStatus.download?.fileUrl ?? "";
+          const progress: number = progressStatus.data?.progress ?? -1
+          const now = Date.now();
+          const lastTime: number = this.lastProgressNotifyTime.get(fileUrl!) ?? 0;
+
+          // 如果时间间隔超过 throttle 或任务已完成（100%），则触发回调
+          if ((now - lastTime >= this.progressThrottleInterval) || progress === 100) {
+            this.lastProgressNotifyTime.set(fileUrl!, now);
+            this.progressListeners.forEach(listener => listener(progressStatus));
+          }
+        } catch (e) {
+          LogUtils.e(this.TAG, `Progress listener error: ${e}`);
+        }
+      });
+
+      await task.download(download);
+      this.taskMap.set(url, task);
+    }
   }
 
   public start(download: Download) {
-    const downloadTask =
-      this.backgroundTasks.find(t => t.getDownload()?.fileUrl === download.fileUrl)
-    if (downloadTask) {
-      downloadTask.start()
-    }
+    this.taskMap.get(download.fileUrl)?.start();
   }
 
   public stop(download: Download) {
-    const downloadTask =
-      this.backgroundTasks.find(t => t.getDownload()?.fileUrl === download.fileUrl)
-    if (downloadTask) {
-      downloadTask.stop()
-    }
+    this.taskMap.get(download.fileUrl)?.stop();
   }
 
-  public async pause(download: Download) {
-    const downloadTask =
-      this.backgroundTasks.find(t => t.getDownload()?.fileUrl === download.fileUrl)
-    if (downloadTask) {
-      downloadTask.pause()
-    }
+  public pause(download: Download) {
+    this.taskMap.get(download.fileUrl)?.pause();
   }
 
-  public async pauseAll() {
-    for (const task of this.backgroundTasks) {
-      try {
-        await task.pause();
-      } catch (err) {
-        LogUtils.e(this.TAG, `Pause error: ${JSON.stringify(err)}`);
-      }
-    }
+  public pauseAll() {
+    this.taskMap.forEach((task): Promise<void> => task.pause());
   }
 
-  public async resume(download: Download) {
-    const downloadTask =
-      this.backgroundTasks.find(t => t.getDownload()?.fileUrl === download.fileUrl)
-    if (downloadTask) {
-      downloadTask.resume()
-    }
+  public resume(download: Download) {
+    this.taskMap.get(download.fileUrl)?.resume();
   }
 
-  public async resumeAll() {
-    for (const task of this.backgroundTasks) {
-      try {
-        await task.resume();
-      } catch (err) {
-        LogUtils.e(this.TAG, `Resume error: ${JSON.stringify(err)}`);
-      }
-    }
+  public resumeAll() {
+    this.taskMap.forEach((task): Promise<void> => task.resume());
   }
 
   public cancel(download: Download) {
-    const downloadTask =
-      this.backgroundTasks.find(t => t.getDownload()?.fileUrl === download.fileUrl)
-    if (downloadTask) {
-      downloadTask.cancel()
-    }
+    this.taskMap.get(download.fileUrl)?.cancel();
+    this.taskMap.delete(download.fileUrl);
   }
 
-  public release() {
-    for (const downloadTask of this.backgroundTasks) {
-      downloadTask.stop()
-      downloadTask.cancel()
-      downloadTask.release()
-    }
+  public async release() {
+    await Promise.all(Array.from(this.taskMap.values()).map((task): Promise<void> => {
+      task.stop();
+      task.cancel();
+      return task.release();
+    }));
+    this.taskMap.clear();
+    this.waitList = [];
+    this.statusListeners.clear();
+    this.progressListeners.clear();
   }
 
   public registerDownloadStatusListener(listener: DownloadStatusListener) {
-    this.statusListener.add(listener);
+    this.statusListeners.add(listener);
   }
 
   public unregisterDownloadStatusListener(listener: DownloadStatusListener) {
-    this.statusListener.delete(listener);
+    this.statusListeners.delete(listener);
   }
 
   public registerDownloadProgressListener(listener: DownloadProgressListener) {
-    this.progressListener.add(listener);
+    this.progressListeners.add(listener);
   }
 
   public unregisterDownloadProgressListener(listener: DownloadProgressListener) {
-    this.progressListener.delete(listener);
+    this.progressListeners.delete(listener);
   }
-
-  private notifyDownloadStatusChanged(downloadStatus: DownloadStatus<DownloadMessage>) {
-    this.statusListener.forEach((listener) => {
-      listener(downloadStatus)
-    })
-  }
-
-  private notifyDownloadProgressChanged(downloadProgress: DownloadStatus<DownloadProgress>) {
-    this.progressListener.forEach((listener) => {
-      listener(downloadProgress)
-    })
-  };
 }
