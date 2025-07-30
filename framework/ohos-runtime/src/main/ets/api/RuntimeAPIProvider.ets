@@ -24,8 +24,8 @@ import { ESLocalStorageModule } from '../module/ESLocalStorageModule';
 import { ESSoundPoolPlayerModule } from '../module/ESSoundPoolPlayerModule';
 import { ESAudioPlayerModule } from '../module/ESAudioPlayerModule';
 import { ESDownloadModule } from '../module/download/ESDownloadModule';
-import { ESUploadModule } from '../module/ESUploadModule';
 import { ESFileModule } from '../module/ESFileModule';
+import { ESUploadModule } from '../module/upload/ESUploadModule';
 
 /**
  * 自定义 module 和 component 入口
