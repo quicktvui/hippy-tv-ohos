@@ -94,8 +94,8 @@ export class DownloadManager {
         }
 
         if (
-          status.state === DownloadState.DOWNLOAD_STATE_SUCCESS ||
-            status.state === DownloadState.DOWNLOAD_STATE_ERROR
+          status.state === DownloadState.SUCCESS ||
+            status.state === DownloadState.ERROR
         ) {
           this.taskMap.delete(url);
           this.flushBackgroundTask();

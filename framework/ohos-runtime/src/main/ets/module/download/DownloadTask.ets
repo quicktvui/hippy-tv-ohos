@@ -70,7 +70,7 @@ export class DownloadTask {
           progress: process
         }
         const status: DownloadStatus<DownloadProgress> = {
-          state: DownloadState.DOWNLOAD_STATE_PROGRESS,
+          state: DownloadState.PROGRESS,
           download: this.downloadInfo,
           data: progress
         }
@@ -81,7 +81,7 @@ export class DownloadTask {
     this.downloadTask.on('completed', async (progress: request.agent.Progress) => {
       if (this.downloadStatusListener) {
         const status: DownloadStatus<DownloadMessage> = {
-          state: DownloadState.DOWNLOAD_STATE_SUCCESS,
+          state: DownloadState.SUCCESS,
           download: this.downloadInfo,
           data: null
         }
@@ -93,7 +93,7 @@ export class DownloadTask {
     this.downloadTask.on('pause', async () => {
       if (this.downloadStatusListener) {
         const status: DownloadStatus<DownloadMessage> = {
-          state: DownloadState.DOWNLOAD_STATE_PAUSE,
+          state: DownloadState.PAUSE,
           download: this.downloadInfo,
           data: null
         }
@@ -104,7 +104,7 @@ export class DownloadTask {
     this.downloadTask.on('resume', async () => {
       if (this.downloadStatusListener) {
         const status: DownloadStatus<DownloadMessage> = {
-          state: DownloadState.DOWNLOAD_STATE_RESUME,
+          state: DownloadState.RESUME,
           download: this.downloadInfo,
           data: null
         }
@@ -126,7 +126,7 @@ export class DownloadTask {
             code: -1
           }
           const status: DownloadStatus<DownloadMessage> = {
-            state: DownloadState.DOWNLOAD_STATE_ERROR,
+            state: DownloadState.ERROR,
             download: this.downloadInfo,
             data: message
           }
@@ -138,7 +138,7 @@ export class DownloadTask {
     //init
     if (this.downloadStatusListener) {
       const status: DownloadStatus<DownloadMessage> = {
-        state: DownloadState.DOWNLOAD_STATE_INIT,
+        state: DownloadState.INIT,
         download: this.downloadInfo,
         data: null
       }
