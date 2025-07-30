@@ -1,16 +1,19 @@
-import {
-  HippyRenderBaseView,
-  HippyObservedArray,
-  HRDiv,
-  NativeRenderContext,
-  HippyAny,
-  HippyRenderCallback
-} from 'hippy'
-import { QTBaseComponentView } from '../QTBaseComponentView';
+
+import {HippyRenderBaseView,HippyObservedArray,HRDiv,NativeRenderContext,HippyAny,HippyRenderCallback,HippyArray,HippyMap} from 'hippy'
+import { QUICKTVUI_TAG } from '../../Constant';
+import { HRValueUtils } from '../../HRValueUtils';
+import QTRenderBaseView from '../QTRenderBaseView';
+import { ItemView } from './ItemView';
+import { QTFastList } from './QTFastList';
 
 
 @Observed
 export class QTFastListView extends QTRenderBaseView{
+
+  public uiCtx: UIContext | null = null
+  public dataList: HippyObservedArray<ItemView> = new HippyObservedArray()
+  // public dataSource : FastListDataSource | null = null;
+  public ui : QTFastList | null = null;
 
   constructor(ctx: NativeRenderContext) {
     super(ctx)
@@ -18,7 +21,8 @@ export class QTFastListView extends QTRenderBaseView{
 
 
   setProp(propKey: string, propValue: HippyAny): boolean {
-    switch (propKey) {
+    // console.log(QUICKTVUI_TAG,`FastList:propKey:${propKey},value:${propValue}`)
+    switch (propKey){
       case "scrollOffset":
 
         return true;
@@ -187,134 +191,143 @@ export class QTFastListView extends QTRenderBaseView{
       case "autoscrollInfiniteMode":
       case "autoSelectPosition":
       case "useLayoutAnimation":
-        console.error(`QTFastListView : 未实现propKey : ${propKey}`)
+        console.error(QUICKTVUI_TAG,`QTFastListView : 未实现propKey : ${propKey}`)
         return true;
+      // default :
+      //   console.warn(QUICKTVUI_TAG,`QTFastListView : 未知的未实现propKey : ${propKey}`)
       default:
         console.warn(`QTFastFlexView : 未知的未实现propKey : ${propKey}`)
     }
     return super.setProp(propKey, propValue)
   }
 
-  call(method: string, params: Array<HippyAny>, callback: HippyRenderCallback | null): void {
 
-    switch (method) {
-      case 'scrollToPositionWithOffsetInfiniteMode':
-      case 'setGroupChildSelectByItemPosition':
-      case 'refreshListData':
-      case 'requestItemLayout':
-      case 'destroy':
-      case 'recycle':
-      case 'prepareForRecycle':
-      case 'setDisplay':
-      case 'changeDisplayState':
-      case 'notifySaveInstance':
-      case 'notifyRestoreInstance':
-      case 'clearAllPostTask':
-      case 'clearPostTaskByCate':
-      case 'pausePostTask':
-      case 'resumePostTask':
-      case 'requestLayoutManual':
-      case 'setBackgroundColor':
-      case 'setCustomStateEnableOnFocus':
-      case 'setItemCustomState':
-      case 'scheduleLayoutAnimation':
-      case "useDiff":
-      case "keyName":
-        console.error(`QTFastListView : 未实现的function : ${method}`)
-        return;
-    }
-
-    switch (method) {
-      case 'scrollToIndex':
-
-        break;
-      case 'startScroll':
-
-        break;
-      case 'requestChildFocus':
-
-        break;
-      case 'setSelectChildPosition':
-
-        break;
-      case 'scrollToPositionWithOffset':
-
-        break;
-      case 'scrollToPosition':
-
-        break;
-      case 'updateItem':
-
-        break;
-      case 'updateItemRange':
-
-        break;
-      case 'insertItemRange':
-
-        break;
-      case 'updateItemMatched':
-
-        break;
-      case 'deleteItemRange':
-
-        break;
-      case 'setListDataWithParams':
-
-        break;
-      case 'addListData':
-
-        break;
-      case 'addListDataWithParams':
-
-        break;
-      case 'scrollToTop':
-
-        break;
-      case 'updateItemProps':
-
-        break;
-      case 'scrollToFocus':
-
-        break;
-      case 'dispatchItemFunction':
-
-        break;
-      case 'clearData':
-
-        break;
-      case 'setSpanCount':
-
-        break;
-      case 'searchReplaceItem':
-
-        break;
-    //with promise
-      case 'dispatchItemFunctionWithPromise':
-
-        break;
-      case 'getScrollOffset':
-
-        break;
+  onDataChanged(data : HippyArray | null){
+    if(data && data.length > 0){
+      this.dataList.push(...
+        data?.map((item,index)=>{
+          return new ItemView(index,item as HippyMap)
+        })
+      )
+      this.ui?.notifyReload()
+    }else{
+      this.dataList = []
+      this.ui?.notifyReload()
     }
   }
-}
 
-@Component
-export struct QTFastList {
-  @ObjectLink renderView: QTFastListView
-  @ObjectLink children: HippyObservedArray<QTRenderBaseView>
+  call(method: string, params: Array<HippyAny>, callback: HippyRenderCallback | null): void {
+    console.log(QUICKTVUI_TAG,`QTFastListView call function : ${method},params:${params}`)
+    this.uiCtx?.runScopedTask(() => {
+      switch (method){
+        case 'scrollToPositionWithOffsetInfiniteMode':
+        case 'setGroupChildSelectByItemPosition':
+        case 'refreshListData':
+        case 'requestItemLayout':
+        case 'destroy':
+        case 'recycle':
+        case 'prepareForRecycle':
+        case 'setDisplay':
+        case 'changeDisplayState':
+        case 'notifySaveInstance':
+        case 'notifyRestoreInstance':
+        case 'clearAllPostTask':
+        case 'clearPostTaskByCate':
+        case 'pausePostTask':
+        case 'resumePostTask':
+        case 'requestLayoutManual':
+        case 'setBackgroundColor':
+        case 'setCustomStateEnableOnFocus':
+        case 'setItemCustomState':
+        case 'scheduleLayoutAnimation':
+        case "useDiff":
+        case "keyName":
+          console.error(QUICKTVUI_TAG,`QTFastListView : 未实现的function : ${method}`)
+          return;
+      }
 
-  build(): void {
-    HRDiv({
-      renderView: this.renderView,
-      children: this.children
-    }).onClick(() => {
+      switch (method){
+        case 'scrollToIndex':
 
+          break;
+        case 'startScroll':
+
+          break;
+        case 'requestChildFocus':
+
+          break;
+        case 'setSelectChildPosition':
+
+          break;
+        case 'scrollToPositionWithOffset':
+
+          break;
+        case 'scrollToPosition':
+
+          break;
+        case 'updateItem':
+
+          break;
+        case 'updateItemRange':
+
+          break;
+        case 'insertItemRange':
+
+          break;
+        case 'updateItemMatched':
+
+          break;
+        case 'deleteItemRange':
+
+          break;
+        case 'setListDataWithParams':
+          console.info(QUICKTVUI_TAG,`setListDataWithParams data:${HRValueUtils.getArray(params)}`)
+
+          break;
+        case 'setListData':
+          console.info(QUICKTVUI_TAG,`setListData data:${HRValueUtils.getArray(params)}`)
+          let data = HRValueUtils.getArray(params)
+          this.onDataChanged(data)
+          break;
+        case 'addListData':
+
+          break;
+        case 'addListDataWithParams':
+
+          break;
+        case 'scrollToTop':
+
+          break;
+        case 'updateItemProps':
+
+          break;
+        case 'scrollToFocus':
+
+          break;
+        case 'dispatchItemFunction':
+
+          break;
+        case 'clearData':
+
+          break;
+        case 'setSpanCount':
+
+          break;
+        case 'searchReplaceItem':
+
+          break;
+      //with promise
+        case 'dispatchItemFunctionWithPromise':
+
+          break;
+        case 'getScrollOffset':
+
+          break;
+      }
     })
   }
 
-  aboutToAppear(): void {
-
-  }
 }
+
+
 

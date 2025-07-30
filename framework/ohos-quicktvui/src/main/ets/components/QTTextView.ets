@@ -1,15 +1,15 @@
 
-import {HippyRenderBaseView,HippyObservedArray,HRDiv,NativeRenderContext,HippyAny,HippyRenderCallback} from 'hippy'
-import { QUICKTVUI_TAG } from '../../Constant';
+import {HippyRenderBaseView,HippyObservedArray,HRDiv,NativeRenderContext,HippyAny,HippyRenderCallback,HIPPY_COMPONENT_KEY_PREFIX} from 'hippy'
+import { QUICKTVUI_TAG } from '../Constant';
 import { HRValueUtils } from '../HRValueUtils';
-import QTRenderBaseView from '../QTRenderBaseView';
+import QTRenderBaseView from './QTRenderBaseView';
 
 
 @Observed
 export class QTTextView extends QTRenderBaseView{
   cssPadding: Padding = { top: 0, right: 0, bottom: 0, left: 0 }
   maxLines: number = 10000000
-  text: string = ""
+  text: string = "haha"
   fontColor: number | null = null
   fontSize: number = 20
   lineHeight: number | null = null
@@ -130,10 +130,11 @@ export class QTTextView extends QTRenderBaseView{
 @Component
 export struct  QTText {
   @ObjectLink renderView: QTTextView
-  @ObjectLink children: HippyObservedArray<QTRenderBaseView>
+  @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
 
   build(): void {
     Text(this.renderView.text)
+      .applyRenderViewBaseAttr(this.renderView)
       .fontSize(this.renderView.fontSize)
       .fontColor(this.renderView.fontColor)
       .lineHeight(this.renderView.lineHeight)
@@ -142,7 +143,32 @@ export struct  QTText {
   }
 
   aboutToAppear(): void {
-
   }
+}
+
+@Extend(Text)
+function applyRenderViewBaseAttr($$: HippyRenderBaseView) {
+  .key(HIPPY_COMPONENT_KEY_PREFIX + $$.tag)
+  .backgroundColor($$.cssBackgroundColor)
+  .position({x: $$.cssPositionX, y: $$.cssPositionY})
+  .size({width:$$.cssWidth, height: $$.cssHeight})
+  .opacity($$.cssOpacity)
+  .clip($$.cssOverflow)
+  .visibility(($$ as HippyRenderBaseView).cssVisibility) // must add as, otherwise the compiler has error
+  .zIndex($$.cssZIndex)
+  .accessibilityText($$.cssAccessibilityLabel)
+  .focusable($$.cssFocusable)
+  .border($$.cssBorder)
+  .shadow($$.cssShadow)
+  .linearGradient($$.cssLinearGradient)
+  .backgroundImage($$.cssBackgroundImage)
+  .backgroundImageSize($$.cssBackgroundImageSize)
+  .backgroundImagePosition($$.cssBackgroundImagePosition)
+  .transform($$.cssMatrix)
+  .rotate($$.cssRotate)
+  .scale($$.cssScale)
+  .translate($$.cssTranslate)
+  .hitTestBehavior($$.hitTestBehavior)
+  .onClick($$.eventClick)
 }
 

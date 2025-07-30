@@ -17,25 +17,90 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { HippyRenderBaseView, HippyObservedArray } from 'hippy'
+import {HippyRenderBaseView,HippyObservedArray,NativeRenderContext,NativeRender} from 'hippy'
+import { QUICKTVUI_TAG } from '../../Constant';
+import {HippyMap,HippyArray,HippyAny} from 'hippy'
+import {ItemView,getItemType} from './ItemView'
+import {getNodeById,getRenderView} from '../../utils/NodeUtils'
+import assertNull from '@ohos/hypium/src/main/module/assert/assertNull';
+
+// class ItemEntry{
+//   position: number;
+//   raw:HippyAny;
+//   constructor(position: number, raw : HippyAny) {
+//     this.position = position
+//     this.raw = raw
+//   }
+// }
 
 export class FastListDataSource implements IDataSource {
   private listeners: DataChangeListener[] = [];
-  private templates: HippyObservedArray<HippyRenderBaseView> = []
-  private count: number = 0
+  private templates: HippyObservedArray<HippyRenderBaseView> = [];
+  private dataList: HippyObservedArray<ItemView> = [];
 
-  constructor(templates: HippyObservedArray<HippyRenderBaseView>) {
-    this.templates = templates
-    this.count = templates.length
-    console.info('HRList', `templates total:${templates.length}, count:${this.count}`)
+  private ctx : NativeRenderContext;
+  private templatesMap : Map<number,HippyRenderBaseView> = new Map()
+
+  constructor(ctx : NativeRenderContext,dataList:HippyObservedArray<ItemView>) {
+    this.ctx = ctx;
+    assertNull(ctx) ?? 'ctx is null'
+    // this.mockData()
+    this.dataList = dataList;
   }
 
-  public getData(index: number): HippyRenderBaseView {
-    return this.templates[index]
+  public setTemplates(templates : HippyObservedArray<HippyRenderBaseView>){
+    this.templates = templates;
+    console.info(QUICKTVUI_TAG, `setTemplates total:${templates.length}`)
   }
+
+  public registerTemplate(child: HippyRenderBaseView,childIndex: number){
+    let childTag = child.tag
+    let childViewName = child.viewType
+    let node = getNodeById(this.ctx,childTag)
+    // let renderView = getRenderView(this.ctx,childTag)
+    if(child == null || node == null){
+      console.error(QUICKTVUI_TAG,`registerTemplate error renderView:${child},node:${node},viewName:${childViewName}`)
+      return;
+    }
+    if(node?.props){
+      let type = getItemType(node.props)
+      if(type && child){
+        console.log(QUICKTVUI_TAG,`registerTemplate type:${type},renderView:${child}`)
+        this.templatesMap.set(type,child)
+      }
+    }
+  }
+
+
+  public getData(index: number): ItemView {
+    let item = this.dataList[index]
+    let type = getItemType(item.raw)
+    if(type){
+      let template = this.templatesMap.get(type);
+      item.template = template;
+    }
+    return item
+  }
+
+  // public setListData(rawList : HippyArray){
+  //   this.dataList = []
+  //   this.notifyReload()
+  // }
+
+  // setListDataInner(data : ItemView[]){
+  //   this.dataList = data;
+  //   this.itemCount = this.dataList.length
+  // }
+
+  // 添加新数据
+  // public addData(item: ItemView): void {
+  //   this.dataList.push(item);
+  //   this.notifyDataAdd(this.dataList.length - 1);
+  // }
 
   public totalCount(): number {
-    return this.count
+    console.log(QUICKTVUI_TAG,`dataSource:totalCount:${this.dataList.length}`)
+    return this.dataList.length
   }
 
   registerDataChangeListener(listener: DataChangeListener): void {
@@ -52,9 +117,26 @@ export class FastListDataSource implements IDataSource {
   }
 
   notifyReload() {
-    this.count = this.templates.length
+    console.log(QUICKTVUI_TAG,'notifyReload called')
     this.listeners.forEach(listener => {
       listener.onDataReloaded();
     })
+  }
+
+  notifyDataAdd(index : number) {
+    this.listeners.forEach(listener => {
+      listener.onDataAdd(index)
+    })
+  }
+
+  mockData(){
+    const total = 100;
+    for(let i = 0; i < total; i++){
+      let map : Map<string, HippyAny> = new Map()
+      map.set('type',10001)
+      let item = new ItemView(i,map)
+      this.dataList.push(item)
+    }
+    this.notifyReload()
   }
 }

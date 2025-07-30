@@ -443,6 +443,7 @@ export class NativeRenderImpl implements NativeRender {
     }
 
     LogUtils.d(this.TAG,  "callUIFunction: rootId " + rootId + ", id " + nodeId + ", functionName " + functionName + ", params" + params)
+    LogUtils.e('quicktvui',`callViewMethod2 tag:${nodeId}  methond :${functionName} params:${params}`)
     viewManager.callViewMethod(nodeId, functionName, params, callback)
   }
 
@@ -776,6 +777,7 @@ key1               value1
   }
 
   callViewMethod(rootId: number, nodeId: number, method: string, params: HippyArray, callback: CallResultCallback | null): void {
+    LogUtils.w('quicktvui',`callViewMethod1 tag:${nodeId}  methond :${method} params:${params}`)
     this.libHippy?.NativeRenderProvider_CallViewMethod(this.instanceId, rootId, nodeId, method, params, callback)
   }
 

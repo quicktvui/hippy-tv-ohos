@@ -18,7 +18,8 @@ import { QTFastListView } from './fastlist/QTFastListView';
 import { QTFastFlexView } from './fastlist/QTFastFlexView';
 import { QTFastItemView } from './fastlist/QTFastItemView';
 import { QUICKTVUI_TAG } from '../Constant';
-import { QTTextView } from './fastlist/QTTextView';
+import { QTTextView } from './QTTextView';
+import { QTFallback, QTFallbackView } from './compat/QTFallbackView';
 import { QTLoadingView } from './loading/QTLoadingView';
 import { QTEventView } from './event/QTEventView';
 import { QTProgressView } from './progress/QTProgressView';
@@ -54,6 +55,10 @@ export class QTAPIProvider extends HippyAPIProvider {
     registerMap.set("QTSliderView", (ctx): HippyRenderBaseView => new QTSliderView(ctx))
 
     registerMap.set("TextView", (ctx): HippyRenderBaseView => new QTTextView(ctx))
+
+    //fallback
+    registerMap.set("ItemFrameComponent", (ctx): HippyRenderBaseView => new QTFallbackView(ctx))
+    registerMap.set("RippleViewComponent", (ctx): HippyRenderBaseView => new QTFallbackView(ctx))
     // registerMap.set("ExampleViewB", (ctx): HippyRenderBaseView => new ExampleViewB(ctx))
     // registerMap.set("MyScrollView", (ctx): HippyRenderBaseView => new MyScrollView(ctx))
     // registerMap.set("MyTopView", (ctx): HippyRenderBaseView => new MyTopView(ctx))

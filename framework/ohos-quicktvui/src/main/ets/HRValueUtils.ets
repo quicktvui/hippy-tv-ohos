@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { HippyAny, HippyArray, HippyMap } from 'hippy/'
+import { HippyAny, HippyArray, HippyMap } from 'hippy'
 
 export class HRValueUtils {
   static getNumber(value: HippyAny): number {

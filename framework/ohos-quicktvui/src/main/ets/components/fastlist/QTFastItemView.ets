@@ -7,6 +7,7 @@ import {
   HippyRenderCallback
 } from 'hippy'
 import { QTBaseComponentView } from '../QTBaseComponentView';
+import QTRenderBaseView from '../QTRenderBaseView';
 
 
 @Observed

@@ -36,6 +36,10 @@ import {
   QTSlider,
 } from 'quicktvui';
 import { QTAVPlayer, QTAVPlayerView } from '../components/video/QTAVPlayerView';
+import { QTFastListView } from 'quicktvui/src/main/ets/components/fastlist/QTFastListView';
+import { QTFastList } from 'quicktvui/src/main/ets/components/fastlist/QTFastList';
+import { QTTextView,QTText } from 'quicktvui/src/main/ets/components/QTTextView';
+import { QTFallbackView,QTFallback } from 'quicktvui/src/main/ets/components/compat/QTFallbackView';
 
 const TAG: string = 'RuntimeDebug'
 
@@ -105,7 +109,7 @@ struct Debug {
     //
     let params = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext())
     params.coreJSAssetsPath = "vue2/vendor.ohos.js"
-    params.enableArkCApi = true
+    params.enableArkCApi = false
     params.debugServerHost = this.deviceIp+':38989'
     params.debugMode = true
     params.enableLog = true
@@ -259,6 +263,22 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
   }else if ($$ instanceof QTSliderView) {
     QTSlider({
       renderView: $$ as QTSliderView,
+      children: $$.children,
+    })
+  }
+  if ($$ instanceof QTFastListView) {
+    QTFastList({
+      renderView: $$ as QTFastListView,
+      children: $$.children,
+    })
+  } else if ($$ instanceof QTTextView) {
+    QTText({
+      renderView: $$ as QTTextView,
+      children: $$.children,
+    })
+  }else{
+    QTFallback({
+      renderView: $$ as QTFallbackView,
       children: $$.children,
     })
   }
