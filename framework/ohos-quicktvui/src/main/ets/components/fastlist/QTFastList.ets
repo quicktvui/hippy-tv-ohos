@@ -34,6 +34,10 @@ export struct  QTFastList {
             renderItem(item)
           })
         }
+        .divider({
+          strokeWidth: 2,  // 分隔线宽度
+          color: 'white',  // 分隔线颜色
+        })
         .width('100%')
         .height('100%')
         // ContentSlot(this.renderView.childSlot)

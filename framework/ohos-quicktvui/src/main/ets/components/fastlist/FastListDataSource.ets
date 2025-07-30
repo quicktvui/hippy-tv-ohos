@@ -20,9 +20,11 @@
 import {HippyRenderBaseView,HippyObservedArray,NativeRenderContext,NativeRender} from 'hippy'
 import { QUICKTVUI_TAG } from '../../Constant';
 import {HippyMap,HippyArray,HippyAny} from 'hippy'
-import {ItemView,getItemType} from './ItemView'
+import {ItemView,getItemType, ItemTemplate} from './ItemView'
 import {getNodeById,getRenderView} from '../../utils/NodeUtils'
 import assertNull from '@ohos/hypium/src/main/module/assert/assertNull';
+
+
 
 // class ItemEntry{
 //   position: number;
@@ -39,7 +41,7 @@ export class FastListDataSource implements IDataSource {
   private dataList: HippyObservedArray<ItemView> = [];
 
   private ctx : NativeRenderContext;
-  private templatesMap : Map<number,HippyRenderBaseView> = new Map()
+  private templatesMap : Map<number,ItemTemplate> = new Map()
 
   constructor(ctx : NativeRenderContext,dataList:HippyObservedArray<ItemView>) {
     this.ctx = ctx;
@@ -66,7 +68,8 @@ export class FastListDataSource implements IDataSource {
       let type = getItemType(node.props)
       if(type && child){
         console.log(QUICKTVUI_TAG,`registerTemplate type:${type},renderView:${child}`)
-        this.templatesMap.set(type,child)
+        let it : ItemTemplate = new ItemTemplate(child,type,node.props)
+        this.templatesMap.set(type,it)
       }
     }
   }

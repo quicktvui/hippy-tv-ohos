@@ -1,8 +1,21 @@
 import {HippyRenderBaseView,HippyMap,HippyAny} from 'hippy'
 
+export class ItemTemplate  {
+  templateView: HippyRenderBaseView;
+  viewType:number;
+  props:HippyMap;
+
+  constructor(templateView: HippyRenderBaseView, viewType: number, props: HippyMap) {
+    this.templateView = templateView;
+    this.viewType = viewType;
+    this.props = props;
+  }
+}
+
 @Observed
 export class ItemView{
-  template: HippyRenderBaseView | undefined = undefined;
+  // template: HippyRenderBaseView | undefined = undefined;
+  template:ItemTemplate | undefined = undefined
   position: number;
   raw:HippyMap | null;
   constructor(position: number, raw : HippyMap | null) {
@@ -13,8 +26,11 @@ export class ItemView{
 
 
 @Builder
-export function renderView(template : HippyRenderBaseView,data:HippyMap){
-
+export function renderView(template : ItemTemplate,data:HippyMap){
+  Stack()
+    .width('100%')
+    .height(100)
+    .backgroundColor(Color.Blue)
 }
 
 // @Component
