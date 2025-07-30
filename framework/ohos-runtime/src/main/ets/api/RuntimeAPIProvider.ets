@@ -26,6 +26,7 @@ import { ESAudioPlayerModule } from '../module/ESAudioPlayerModule';
 import { ESDownloadModule } from '../module/download/ESDownloadModule';
 import { ESFileModule } from '../module/ESFileModule';
 import { ESUploadModule } from '../module/upload/ESUploadModule';
+import { ESBundleModule } from '../module/ESBundleModule';
 
 /**
  * 自定义 module 和 component 入口
@@ -62,6 +63,8 @@ export class RuntimeAPIProvider extends HippyAPIProvider {
       (ctx): HippyNativeModuleBase => new ESUploadModule(ctx))
     registerMap.set(ESFileModule.NAME,
       (ctx): HippyNativeModuleBase => new ESFileModule(ctx))
+    registerMap.set(ESBundleModule.NAME,
+      (ctx): HippyNativeModuleBase => new ESBundleModule(ctx))
     //
     return registerMap;
   }
