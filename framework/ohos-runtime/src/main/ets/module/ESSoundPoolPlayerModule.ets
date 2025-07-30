@@ -245,6 +245,7 @@ export class ESSoundPoolPlayerModule extends BaseModule {
   }
 
   private async load(url: string) {
+    LogUtils.i(this.TAG, 'SoundPool load file url: ' + url);
     const file: fs.File = await fs.openSync(url, fs.OpenMode.READ_ONLY)
     LogUtils.i(this.TAG, 'SoundPool load url file: ' + file.fd);
     url = 'fd://' + (file.fd).toString()
