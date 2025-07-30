@@ -22,11 +22,9 @@ export class UploadManager {
   private statusListeners: Set<UploadStatusListener> = new Set();
   private progressListeners: Set<UploadProgressListener> = new Set();
   private context: Context | null = null;
-  private cachePath: string | null = null;
   private progressThrottleInterval: number = 1000; // 节流间隔（单位 ms）
   private lastProgressNotifyTime: Map<string, number> = new Map(); // fileUrl → timestamp
 
-  private overwrite: boolean = true
   private config: UploadConfig | null = null;
 
   private constructor() {
@@ -41,14 +39,12 @@ export class UploadManager {
 
   public init(context: Context, config: UploadConfig) {
     this.config = config;
-    this.overwrite = config.overwrite ?? true
     this.context = context;
-    this.cachePath = config.uploadCacheDir;
     this.progressThrottleInterval = config.progressThrottleInterval;
   }
 
   public async upload(upload: Upload) {
-    if (!upload || !upload.fileUrl) {
+    if (!upload || !upload.filePath) {
       return;
     }
     LogUtils.d(this.TAG, `Upload upload: ${JSON.stringify(upload)}`);
@@ -72,19 +68,20 @@ export class UploadManager {
 
   private async createUploadTasks(uploads: Upload[]) {
     for (const upload of uploads) {
-      const url = upload.fileUrl;
-      if (this.taskMap.has(url)) {
-        LogUtils.i(this.TAG, `Task for ${url} already exists`);
+      const filePath = upload.filePath;
+
+      if (this.taskMap.has(filePath)) {
+        LogUtils.i(this.TAG, `Task for ${filePath} already exists`);
         continue;
       }
       //
-      const path = QTAppManager.getInstance().getESAppFilePath(this.context!) + this.cachePath +
-        "/" + upload.fileName;
-      upload.uploadPath = path;
+      const absolutePath =
+        QTAppManager.getInstance().getESAppFilePath(this.context!) + "/" + filePath;
+      upload.fileAbsolutePath = absolutePath;
 
       const task = new UploadTask(this.context!, this.config!);
-      LogUtils.d(this.TAG, `createUploadTasks: ${url}`);
-      this.taskMap.set(url, task);
+      LogUtils.d(this.TAG, `createUploadTasks: absolutePath: ${absolutePath}`);
+      this.taskMap.set(filePath, task);
 
       task.setUploadStatusListener((status: UploadStatus<UploadMessage>) => {
         try {
@@ -97,44 +94,47 @@ export class UploadManager {
           status.state === UploadState.SUCCESS ||
             status.state === UploadState.ERROR
         ) {
-          this.taskMap.delete(url);
+          this.taskMap.delete(filePath);
           this.flushBackgroundTask();
         }
       });
       task.setUploadProgressListener((progressStatus: UploadStatus<UploadProgress>) => {
         try {
-          const fileUrl: string = progressStatus.upload?.fileUrl ?? "";
+          const filePath: string = progressStatus.upload?.filePath ?? "";
           const progress: number = progressStatus.data?.progress ?? -1
           const now = Date.now();
-          const lastTime: number = this.lastProgressNotifyTime.get(fileUrl!) ?? 0;
+          const lastTime: number = this.lastProgressNotifyTime.get(filePath!) ?? 0;
 
           // 如果时间间隔超过 throttle 或任务已完成（100%），则触发回调
           if ((now - lastTime >= this.progressThrottleInterval) || progress === 100) {
-            this.lastProgressNotifyTime.set(fileUrl!, now);
+            this.lastProgressNotifyTime.set(filePath!, now);
             this.progressListeners.forEach(listener => listener(progressStatus));
           }
         } catch (e) {
           LogUtils.e(this.TAG, `Progress listener error: ${e}`);
         }
       });
+
+      LogUtils.d(this.TAG, `createUploadTasks: init upload task start: ${absolutePath}`);
       await task.upload(upload);
+      LogUtils.d(this.TAG, `createUploadTasks: init upload task end: ${absolutePath}`);
     }
   }
 
   public start(upload: Upload) {
     LogUtils.d(this.TAG,
-      `Upload start: ${JSON.stringify(upload)} ${this.taskMap.get(upload.fileUrl)}`);
-    this.taskMap.get(upload.fileUrl)?.start();
+      `Upload start: ${JSON.stringify(upload)} ${this.taskMap.get(upload.filePath)}`);
+    this.taskMap.get(upload.filePath)?.start();
   }
 
   public stop(upload: Upload) {
     LogUtils.d(this.TAG, `Upload stop: ${JSON.stringify(upload)}`);
-    this.taskMap.get(upload.fileUrl)?.stop();
+    this.taskMap.get(upload.filePath)?.stop();
   }
 
   public pause(upload: Upload) {
     LogUtils.d(this.TAG, `Upload pause: ${JSON.stringify(upload)}`);
-    this.taskMap.get(upload.fileUrl)?.pause();
+    this.taskMap.get(upload.filePath)?.pause();
   }
 
   public pauseAll() {
@@ -144,7 +144,7 @@ export class UploadManager {
 
   public resume(upload: Upload) {
     LogUtils.d(this.TAG, `Upload resume: ${JSON.stringify(upload)}`);
-    this.taskMap.get(upload.fileUrl)?.resume();
+    this.taskMap.get(upload.filePath)?.resume();
   }
 
   public resumeAll() {
@@ -154,8 +154,8 @@ export class UploadManager {
 
   public cancel(upload: Upload) {
     LogUtils.d(this.TAG, `Upload cancel: ${JSON.stringify(upload)}`);
-    this.taskMap.get(upload.fileUrl)?.cancel();
-    this.taskMap.delete(upload.fileUrl);
+    this.taskMap.get(upload.filePath)?.cancel();
+    this.taskMap.delete(upload.filePath);
   }
 
   public async release() {

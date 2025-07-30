@@ -1,11 +1,11 @@
 export interface Upload {
   id: number
-  fileUrl: string
-  fileMD5: string
+  filePath: string
+  fileAbsolutePath?: string
   fileName: string
   fileType: string
+  uploadPath: string
   //
   fileLength?: number
   uploadLength?: number
-  uploadPath?: string
 }

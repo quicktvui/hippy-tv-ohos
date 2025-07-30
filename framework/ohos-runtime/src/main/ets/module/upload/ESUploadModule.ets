@@ -31,7 +31,7 @@ export class ESUploadModule extends BaseModule {
     super(ctx)
     this.uploadStatusListener = (status: UploadStatus<UploadMessage>) => {
       LogUtils.d(this.TAG, `[UploadStatusListener] Status Changed:
-        fileUrl = ${status.upload?.fileUrl},
+        filePath = ${status.upload?.filePath},
         state = ${status.state},
         message = ${status.data?.message ?? 'N/A'},
         code = ${status.data?.code ?? 'N/A'}
@@ -44,7 +44,7 @@ export class ESUploadModule extends BaseModule {
     }
     this.uploadProgressListener = (progressStatus: UploadStatus<UploadProgress>) => {
       LogUtils.d(this.TAG, `[UploadProgressListener] Progress Update:
-        fileUrl = ${progressStatus.upload?.fileUrl},
+        filePath = ${progressStatus.upload?.filePath},
         state = ${progressStatus.state},
         uploaded = ${progressStatus.data?.uploadSize},
         total = ${progressStatus.data?.totalSize},
@@ -78,7 +78,7 @@ export class ESUploadModule extends BaseModule {
     switch (method) {
       case 'initUpload': {
         const config: UploadConfig = this.hippyAnyToUploadConfig(params[0] as HippyMap);
-        LogUtils.e(this.TAG, `[initUpload] Config:${JSON.stringify(config)}}`);
+        LogUtils.d(this.TAG, `[initUpload] Config:${JSON.stringify(config)}}`);
         UploadManager.getInstance()
           .init(this.ctx.getAbilityContext(), config)
         break;
@@ -134,10 +134,10 @@ export class ESUploadModule extends BaseModule {
   private hippyAnyToUpload(params: HippyMap): Upload {
     const upload: Upload = {
       id: params.get("id") as number,
-      fileUrl: params.get("fileUrl") as string,
-      fileMD5: params.get("fileMD5") as string,
+      filePath: params.get("filePath") as string,
       fileName: params.get("fileName") as string,
       fileType: params.get("fileType") as string,
+      uploadPath: params.get("url") as string,
     }
     return upload
   }
@@ -148,11 +148,10 @@ export class ESUploadModule extends BaseModule {
     }
     const map: HippyMap = new Map<string, HippyAny>()
     map.set("id", upload.id)
-    map.set("fileUrl", upload.fileUrl)
-    map.set("fileMD5", upload.fileMD5)
+    map.set("filePath", upload.filePath)
     map.set("fileName", upload.fileName)
     map.set("fileType", upload.fileType)
-    map.set("filePath", upload.uploadPath)
+    map.set("url", upload.uploadPath)
     return map
   }
 

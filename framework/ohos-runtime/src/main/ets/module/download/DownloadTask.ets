@@ -45,6 +45,7 @@ export class DownloadTask {
       overwrite: this.config!.overwrite ?? true,
       gauge: this.config!.gauge ?? true,
       headers: this.config!.headers,
+      token: this.config?.token
     };
     //
     this.downloadTask = await request.agent.create(this.context, config);

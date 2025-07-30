@@ -17,6 +17,7 @@ export class UploadTask {
   private context: Context;
   private uploadTask: request.agent.Task | null = null
   private uploadInfo: Upload | null = null;
+  //
   private uploadStatusListener: UploadStatusListener | null = null;
   private uploadProgressListener: UploadProgressListener | null = null
   private config: UploadConfig | null = null
@@ -26,29 +27,30 @@ export class UploadTask {
     this.config = config
   }
 
-  getDownload(): Upload | null {
+  getUpload(): Upload | null {
     return this.uploadInfo
   }
 
   async upload(upload: Upload) {
+    LogUtils.d(this.TAG, `init upload task start!`);
     this.uploadInfo = upload
-    const url = upload.fileUrl
-    const path = upload.uploadPath
+    const url = upload.uploadPath ?? ''
+    //
     const config: request.agent.Config = {
-      action: request.agent.Action.DOWNLOAD,
-      url,
-      method: 'GET',
+      action: request.agent.Action.UPLOAD,
+      headers: this.config!.headers,
+      url: url,
+      method: 'POST',
       title: 'upload',
       mode: request.agent.Mode.BACKGROUND,
       network: request.agent.Network.ANY,
-      saveas: path,
       overwrite: this.config!.overwrite ?? true,
       gauge: this.config!.gauge ?? true,
-      headers: this.config!.headers,
+      data: await this.getFileData(upload),
+      token: this.config?.token
     };
     //
     this.uploadTask = await request.agent.create(this.context, config);
-
     //
     this.uploadTask.on('progress', (progress: request.agent.Progress) => {
 
@@ -57,7 +59,7 @@ export class UploadTask {
       let process: number = Math.floor(processed / size * 100);
 
       LogUtils.d(this.TAG, `[DownloadProgressListener] Progress Update:
-        fileUrl = ${this.uploadInfo?.fileUrl},
+        fileUrl = ${this.uploadInfo?.filePath},
         uploaded = ${processed},
         total = ${size},
         progress = ${process}%
@@ -114,7 +116,7 @@ export class UploadTask {
     //
     this.uploadTask.on('failed', async (progress: request.agent.Progress) => {
       LogUtils.e(this.TAG, `[UploadProgressListener] failed:
-        fileUrl = ${this.uploadInfo?.fileUrl},
+        fileUrl = ${this.uploadInfo?.filePath},
       `);
 
       if (this.uploadTask) {
@@ -144,10 +146,38 @@ export class UploadTask {
       }
       this.uploadStatusListener(status)
     }
+    LogUtils.d(this.TAG, `init upload task completed!`);
+  }
+
+
+  private async getFileData(upload: Upload): Promise<Array<request.agent.FormItem>> {
+    let files: Array<request.agent.FormItem> = [];
+    const path = upload.fileAbsolutePath ?? ''
+    const fileName = this.getFileName(upload)
+    const item: request.agent.FormItem = {
+      name: fileName,
+      value: {
+        filename: fileName,
+        mimeType: 'application/octet-stream',
+        path: path,
+      }
+    }
+    files.push(item)
+    return files;
+  }
+
+  private getFileName(upload: Upload): string {
+    const fileName = upload.fileName?.trim();
+    const path = upload.fileAbsolutePath ?? '';
+    if (fileName) {
+      return fileName;
+    }
+    // 从 path 中截取最后的文件名部分（适配 Unix 和 Windows 路径）
+    const segments = path.split(/[\\/]/); // 匹配 "/" 或 "\"
+    return segments.length > 0 ? segments[segments.length - 1] : 'unknown';
   }
 
   async start() {
-
     if (this.uploadTask) {
       LogUtils.d(this.TAG, `Upload start`);
       await this.uploadTask.start();
