@@ -1,7 +1,11 @@
-import { HippyEngineContext } from 'hippy';
-import { HippyModulePromise } from 'hippy/src/main/ets/hippy_framework/modules/HippyModulePromise';
-import { HippyNativeModule } from 'hippy/src/main/ets/support/annotation/HippyNativeModule';
-import { HippyAny, HippyRecord } from 'hippy/src/main/ets/support/common/HippyTypes';
+import {
+  HippyEngineContext,
+  HippyAny,
+  HippyRecord,
+  HippyModulePromise,
+  HippyNativeModule
+} from 'hippy';
+
 import { BaseModule } from './BaseModule';
 import deviceInfo from '@ohos.deviceInfo';
 

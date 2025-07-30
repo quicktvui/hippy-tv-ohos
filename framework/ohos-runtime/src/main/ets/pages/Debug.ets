@@ -18,8 +18,24 @@ import {
 import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
 import { BackPressHandler } from 'hippy/src/main/ets/hippy_framework/HippyEngine'
 import { RuntimeAPIProvider } from '../api/RuntimeAPIProvider'
-import inputDevice from '@ohos.multimodalInput.inputDevice';
-import keyEvent from '@ohos.multimodalInput.keyEvent';
+// import inputDevice from '@ohos.multimodalInput.inputDevice';
+// import keyEvent from '@ohos.multimodalInput.keyEvent';
+import { QTAPIProvider } from 'quicktvui/src/main/ets/components/QTAPIProvider';
+import {
+  QTLoadingView,
+  QTLoading,
+  QTEventView,
+  QTEvent,
+  QTProgressView,
+  QTProgress,
+  QTQRCodeView,
+  QTQRCode,
+  QTWebView,
+  QTWeb,
+  QTSliderView,
+  QTSlider,
+} from 'quicktvui';
+import { QTAVPlayer, QTAVPlayerView } from '../components/video/QTAVPlayerView';
 
 const TAG: string = 'RuntimeDebug'
 
@@ -50,14 +66,14 @@ struct Debug {
     // this.versionCode = version.code
     // this.deviceIp = await getDeviceIp()
 
-   // let listenerId = inputDevice.on('key', (event: keyEvent.KeyEventData) => {
-   //    console.info(`按键 code: ${event.keyCode}, action: ${event.keyAction}`);
-   //
-   //    // 例如：方向键
-   //    if (event.keyCode === 19 && event.keyAction === 0) { // KEYCODE_DPAD_UP
-   //      console.log('↑ 向上键按下');
-   //    }
-   //  });
+    // let listenerId = inputDevice.on('key', (event: keyEvent.KeyEventData) => {
+    //    console.info(`按键 code: ${event.keyCode}, action: ${event.keyAction}`);
+    //
+    //    // 例如：方向键
+    //    if (event.keyCode === 19 && event.keyAction === 0) { // KEYCODE_DPAD_UP
+    //      console.log('↑ 向上键按下');
+    //    }
+    //  });
   }
 
   onBackPress(): boolean | void {
@@ -94,7 +110,12 @@ struct Debug {
     params.debugMode = true
     params.enableLog = true
     //自定义 module 和 component 入口
-    params.providers = new Array(new RuntimeAPIProvider())
+    params.providers = [
+      new RuntimeAPIProvider(),
+      new QTAPIProvider()
+    ]
+    //TODO
+    params.enableArkCApi = false
 
     //
     this.hippyEngine = createHippyEngine(params)
@@ -199,8 +220,48 @@ class RuntimeDefaultBackHandler implements BackPressHandler {
 }
 
 
+/**
+ * 渲染
+ * @param $$
+ */
 @Builder
 function buildCustomRenderView($$: HippyRenderBaseView) {
+  if ($$ instanceof QTLoadingView) {
+    QTLoading({
+      renderView: $$ as QTLoadingView,
+      children: $$.children,
+    })
+  } else if ($$ instanceof QTEventView) {
+    QTEvent({
+      renderView: $$ as QTEventView,
+      children: $$.children,
+    })
+  } else if ($$ instanceof QTProgressView) {
+    QTProgress({
+      renderView: $$ as QTProgressView,
+      children: $$.children,
+    })
+  }else if ($$ instanceof QTQRCodeView) {
+    QTQRCode({
+      renderView: $$ as QTQRCodeView,
+      children: $$.children,
+    })
+  }else if ($$ instanceof QTWebView) {
+    QTWeb({
+      renderView: $$ as QTWebView,
+      children: $$.children,
+    })
+  }else if ($$ instanceof QTAVPlayerView) {
+    QTAVPlayer({
+      renderView: $$ as QTAVPlayerView,
+      children: $$.children,
+    })
+  }else if ($$ instanceof QTSliderView) {
+    QTSlider({
+      renderView: $$ as QTSliderView,
+      children: $$.children,
+    })
+  }
 }
 
 class DefaultEngineListener implements EngineListener {

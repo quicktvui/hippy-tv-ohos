@@ -1,16 +1,17 @@
-import { HippyEngineContext } from 'hippy';
-import { HippyModulePromise } from 'hippy/src/main/ets/hippy_framework/modules/HippyModulePromise';
-import { HippyNativeModule } from 'hippy/src/main/ets/support/annotation/HippyNativeModule';
 import {
+  HippyEngineContext,
   HippyAny,
+  HippyMap,
   HippyRecord,
   HippyArray,
-  HippyMap
-} from 'hippy/src/main/ets/support/common/HippyTypes';
+  HippyModulePromise,
+  HippyNativeModule,
+  LogUtils
+} from 'hippy';
+
 import { BaseModule } from './BaseModule';
 import { connection } from '@kit.NetworkKit';
 import { AsyncCallback, BusinessError } from '@kit.BasicServicesKit';
-import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
 
 /**
  * 自定义网络模块

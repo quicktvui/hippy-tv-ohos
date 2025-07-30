@@ -1,11 +1,15 @@
-import { HippyEngineContext } from 'hippy';
-import { HippyModulePromise } from 'hippy/src/main/ets/hippy_framework/modules/HippyModulePromise';
-import { HippyNativeModule } from 'hippy/src/main/ets/support/annotation/HippyNativeModule';
+import {
+  HippyEngineContext,
+  HippyAny,
+  HippyMap,
+  HippyModulePromise,
+  HippyNativeModule,
+  PixelUtil
+} from 'hippy';
+
 import { BaseModule } from './BaseModule';
 import deviceInfo from '@ohos.deviceInfo';
 import { display } from '@kit.ArkUI';
-import { PixelUtil } from 'hippy/src/main/ets/support/utils/PixelUtil';
-import { HippyAny, HippyMap } from 'hippy/src/main/ets/support/common/HippyTypes';
 
 /**
  *

@@ -1,6 +1,12 @@
-
-import {HippyRenderBaseView,HippyObservedArray,HRDiv,NativeRenderContext,HippyAny,HippyRenderCallback} from 'hippy'
-import QTRenderBaseView from '../QTRenderBaseView';
+import {
+  HippyRenderBaseView,
+  HippyObservedArray,
+  HRDiv,
+  NativeRenderContext,
+  HippyAny,
+  HippyRenderCallback
+} from 'hippy'
+import { QTBaseComponentView } from '../QTBaseComponentView';
 
 
 @Observed
@@ -12,7 +18,7 @@ export class QTFastListView extends QTRenderBaseView{
 
 
   setProp(propKey: string, propValue: HippyAny): boolean {
-    switch (propKey){
+    switch (propKey) {
       case "scrollOffset":
 
         return true;
@@ -156,7 +162,7 @@ export class QTFastListView extends QTRenderBaseView{
 
     }
     //不支持或者不处理的key
-    switch (propKey){
+    switch (propKey) {
       case "display":
       case "setData":
       case "suspendUpdateTaskOnPause":
@@ -183,7 +189,7 @@ export class QTFastListView extends QTRenderBaseView{
       case "useLayoutAnimation":
         console.error(`QTFastListView : 未实现propKey : ${propKey}`)
         return true;
-      default :
+      default:
         console.warn(`QTFastFlexView : 未知的未实现propKey : ${propKey}`)
     }
     return super.setProp(propKey, propValue)
@@ -191,7 +197,7 @@ export class QTFastListView extends QTRenderBaseView{
 
   call(method: string, params: Array<HippyAny>, callback: HippyRenderCallback | null): void {
 
-    switch (method){
+    switch (method) {
       case 'scrollToPositionWithOffsetInfiniteMode':
       case 'setGroupChildSelectByItemPosition':
       case 'refreshListData':
@@ -218,7 +224,7 @@ export class QTFastListView extends QTRenderBaseView{
         return;
     }
 
-    switch (method){
+    switch (method) {
       case 'scrollToIndex':
 
         break;
@@ -291,19 +297,20 @@ export class QTFastListView extends QTRenderBaseView{
         break;
     }
   }
-
 }
 
 @Component
-export struct  QTFastList {
+export struct QTFastList {
   @ObjectLink renderView: QTFastListView
   @ObjectLink children: HippyObservedArray<QTRenderBaseView>
 
   build(): void {
     HRDiv({
       renderView: this.renderView,
-      children:  this.children
-    }).backgroundColor(Color.Blue)
+      children: this.children
+    }).onClick(() => {
+
+    })
   }
 
   aboutToAppear(): void {

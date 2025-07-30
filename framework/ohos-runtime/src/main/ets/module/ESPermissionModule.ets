@@ -1,9 +1,13 @@
-import { HippyEngineContext } from 'hippy';
-import { HippyModulePromise } from 'hippy/src/main/ets/hippy_framework/modules/HippyModulePromise';
-import { HippyNativeModule } from 'hippy/src/main/ets/support/annotation/HippyNativeModule';
-import { HippyAny, HippyValue } from 'hippy/src/main/ets/support/common/HippyTypes';
+import {
+  HippyEngineContext,
+  HippyAny,
+  HippyValue,
+  HippyModulePromise,
+  HippyNativeModule,
+  LogUtils
+} from 'hippy';
+
 import { BaseModule } from './BaseModule';
-import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
 import { abilityAccessCtrl, bundleManager, common, Permissions } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 

@@ -1,10 +1,16 @@
-
-import {HRDivView,HippyRenderBaseView,HippyObservedArray,HRDiv,NativeRenderContext,HippyAny,HippyRenderCallback} from 'hippy'
+import {
+  HRDivView,
+  HippyRenderBaseView,
+  HippyObservedArray,
+  HRDiv,
+  NativeRenderContext,
+  HippyAny,
+  HippyRenderCallback
+} from 'hippy'
 
 
 @Observed
-export class QTDivView extends HRDivView{
-
+export class QTDivView extends HRDivView {
   constructor(ctx: NativeRenderContext) {
     super(ctx)
   }
@@ -15,19 +21,18 @@ export class QTDivView extends HRDivView{
 
   call(method: string, params: Array<HippyAny>, callback: HippyRenderCallback | null): void {
   }
-
 }
 
 @Component
-export struct  QTDiv {
+export struct QTDiv {
   @ObjectLink renderView: QTDivView
   @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
 
   build(): void {
     HRDiv({
       renderView: this.renderView,
-      children:  this.children
-    }).onClick(()=>{
+      children: this.children
+    }).onClick(() => {
 
     })
   }

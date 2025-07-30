@@ -1,14 +1,11 @@
-import { HippyAPIProvider } from 'hippy'
 import {
+  HippyAPIProvider,
+  HippyRenderBaseView,
   HippyJSModuleCreator,
-  HippyNativeModuleCreator
-} from 'hippy/src/main/ets/hippy_framework/modules/HippyModuleManagerImpl'
-import {
-  HRRenderViewCreator
-} from 'hippy/src/main/ets/renderer_native/components/HippyRenderRegisterMap'
-import {
+  HippyNativeModuleCreator,
+  HRRenderViewCreator,
   HippyNativeModuleBase
-} from 'hippy/src/main/ets/hippy_framework/modules/native/HippyNativeModuleBase';
+} from 'hippy'
 
 import { ESLogModule } from '../module/ESLogModule'
 import { ESToastModule } from '../module/ESToastModule';
@@ -21,12 +18,14 @@ import { ESDeviceModule } from '../module/ESDeviceModule';
 import { ESPluginModule } from '../module/ESPluginModule';
 import { ESWindowModule } from '../module/ESWindowModule';
 import { ESPermissionModule } from '../module/ESPermissionModule';
-import { QTAPIProvider } from 'quicktvui';
+import { ESModule } from '../module/ESModule';
+import { QTAVPlayerView } from '../components/video/QTAVPlayerView';
+import { ESLocalStorageModule } from '../module/ESLocalStorageModule';
 
 /**
  * 自定义 module 和 component 入口
  */
-export class RuntimeAPIProvider extends QTAPIProvider {
+export class RuntimeAPIProvider extends HippyAPIProvider {
   getCustomNativeModuleCreatorMap(): Map<string, HippyNativeModuleCreator> | null {
     //
     let registerMap: Map<string, HippyNativeModuleCreator> = new Map()
@@ -44,20 +43,30 @@ export class RuntimeAPIProvider extends QTAPIProvider {
     registerMap.set(ESWindowModule.NAME, (ctx): HippyNativeModuleBase => new ESWindowModule(ctx))
     registerMap.set(ESPermissionModule.NAME,
       (ctx): HippyNativeModuleBase => new ESPermissionModule(ctx))
+    registerMap.set(ESModule.NAME,
+      (ctx): HippyNativeModuleBase => new ESModule(ctx))
+    registerMap.set(ESLocalStorageModule.NAME,
+      (ctx): HippyNativeModuleBase => new ESLocalStorageModule(ctx))
     //
     return registerMap;
   }
 
   getCustomJavaScriptModuleCreatorMap(): Map<string, HippyJSModuleCreator> | null {
-    return super.getCustomJavaScriptModuleCreatorMap()
+    return null
   }
 
   getCustomRenderViewCreatorMap(): Map<string, HRRenderViewCreator> | null {
-    let registerMap = super.getCustomRenderViewCreatorMap();
-    // registerMap.set("ExampleViewA", (ctx): HippyRenderBaseView => new ExampleViewA(ctx))
+    let registerMap: Map<string, HRRenderViewCreator> = new Map()
+    registerMap.set("QTAVPlayerView", (ctx): HippyRenderBaseView => new QTAVPlayerView(ctx))
     return registerMap
   }
 
+  getCustomMeasureRenderViews(): Array<string> | null {
+    return null
+  }
 
+  getCustomMappingRenderViewMap(): Map<string, string> | null {
+    return null
+  }
 }
 

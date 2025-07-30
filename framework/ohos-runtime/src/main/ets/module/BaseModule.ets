@@ -1,17 +1,15 @@
-import { HippyEngineContext } from 'hippy';
-import { HippyModulePromise } from 'hippy/src/main/ets/hippy_framework/modules/HippyModulePromise';
 import {
-  HippyNativeModuleBase
-} from 'hippy/src/main/ets/hippy_framework/modules/native/HippyNativeModuleBase';
-import { HippyAny } from 'hippy/src/main/ets/support/common/HippyTypes';
-import {
-  EventDispatcher
-} from 'hippy/src/main/ets/hippy_framework/modules/javascript/EventDispatcher';
+  HippyEngineContext,
+  HippyNativeModuleBase,
+  EventDispatcher,
+  HippyAny,
+  HippyModulePromise
+} from 'hippy';
+
 import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
+import { ESInfo } from '../api/ESInfo';
 
 export class BaseModule extends HippyNativeModuleBase {
-  public static readonly ES_PROP_INFO_VERSION = "version";
-  public static readonly ES_PROP_INFO_ESKIT_VERSION = 'eskit_ver_code';
 
   constructor(ctx: HippyEngineContext) {
     super(ctx)
@@ -24,8 +22,8 @@ export class BaseModule extends HippyNativeModuleBase {
       }
       case 'getEsInfo': {
         const params = new Map<string, HippyAny>();
-        params.set(BaseModule.ES_PROP_INFO_VERSION, 1);
-        params.set(BaseModule.ES_PROP_INFO_ESKIT_VERSION, 1);
+        params.set(ESInfo.ES_PROP_INFO_VERSION, 1);
+        params.set(ESInfo.ES_PROP_INFO_ESKIT_VERSION, 1);
         promise.resolve(params);
         break;
       }

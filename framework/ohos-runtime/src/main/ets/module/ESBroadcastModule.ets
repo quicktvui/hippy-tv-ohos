@@ -1,9 +1,13 @@
-import { HippyEngineContext } from 'hippy';
-import { HippyModulePromise } from 'hippy/src/main/ets/hippy_framework/modules/HippyModulePromise';
-import { HippyNativeModule } from 'hippy/src/main/ets/support/annotation/HippyNativeModule';
-import { HippyAny } from 'hippy/src/main/ets/support/common/HippyTypes';
+import {
+  HippyEngineContext,
+  HippyAny,
+  LogUtils,
+  HippyModulePromise,
+  HippyNativeModule
+} from 'hippy';
+
 import { BaseModule } from './BaseModule';
-import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
+
 import { BusinessError, commonEventManager } from '@kit.BasicServicesKit';
 
 interface Broadcast {
