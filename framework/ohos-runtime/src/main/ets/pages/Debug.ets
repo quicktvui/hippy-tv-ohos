@@ -78,6 +78,18 @@ struct Debug {
     //  });
   }
 
+  onPageShow(): void {
+    this.hippyEngine?.onEngineResume()
+  }
+
+  onPageHide(): void {
+    this.hippyEngine?.onEnginePause()
+  }
+
+  aboutToDisappear(): void {
+
+  }
+
   onBackPress(): boolean | void {
     // const backPressHandler: BackPressHandler = {
     //   handleBackPress(): void {
@@ -91,14 +103,6 @@ struct Debug {
     //   this.destroyEngine()
     // }
     return true;
-  }
-
-  onPageShow(): void {
-    this.hippyEngine?.onEngineResume()
-  }
-
-  onPageHide(): void {
-    this.hippyEngine?.onEnginePause()
   }
 
   initEngine() {
