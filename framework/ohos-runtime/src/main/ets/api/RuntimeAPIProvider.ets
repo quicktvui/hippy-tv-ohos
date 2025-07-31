@@ -27,6 +27,8 @@ import { ESDownloadModule } from '../module/download/ESDownloadModule';
 import { ESFileModule } from '../module/ESFileModule';
 import { ESUploadModule } from '../module/upload/ESUploadModule';
 import { ESBundleModule } from '../module/ESBundleModule';
+import { QTPageRouterView } from '../components/router/QTPageRouterView';
+import { QTPageView } from '../components/router/QTPageView';
 
 /**
  * 自定义 module 和 component 入口
@@ -76,6 +78,8 @@ export class RuntimeAPIProvider extends HippyAPIProvider {
   getCustomRenderViewCreatorMap(): Map<string, HRRenderViewCreator> | null {
     let registerMap: Map<string, HRRenderViewCreator> = new Map()
     registerMap.set("QTVideoPlayerView", (ctx): HippyRenderBaseView => new QTVideoPlayerView(ctx))
+    registerMap.set("ESPageRouterView", (ctx): HippyRenderBaseView => new QTPageRouterView(ctx))
+    registerMap.set("ESPageRootView", (ctx): HippyRenderBaseView => new QTPageView(ctx))
     return registerMap
   }
 

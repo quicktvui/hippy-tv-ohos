@@ -36,6 +36,8 @@ import {
   QTSlider,
 } from 'quicktvui';
 import { QTVideoPlayer, QTVideoPlayerView } from '../components/video/QTVideoPlayerView';
+import { QTPageRouter, QTPageRouterView } from '../components/router/QTPageRouterView';
+import { QTPage, QTPageView } from '../components/router/QTPageView';
 
 const TAG: string = 'RuntimeDebug'
 
@@ -241,24 +243,38 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
       renderView: $$ as QTProgressView,
       children: $$.children,
     })
-  }else if ($$ instanceof QTQRCodeView) {
+  } else if ($$ instanceof QTQRCodeView) {
     QTQRCode({
       renderView: $$ as QTQRCodeView,
       children: $$.children,
     })
-  }else if ($$ instanceof QTWebView) {
+  } else if ($$ instanceof QTWebView) {
     QTWeb({
       renderView: $$ as QTWebView,
       children: $$.children,
     })
-  }else if ($$ instanceof QTVideoPlayerView) {
+  } else if ($$ instanceof QTVideoPlayerView) {
     QTVideoPlayer({
       renderView: $$ as QTVideoPlayerView,
       children: $$.children,
     })
-  }else if ($$ instanceof QTSliderView) {
+  } else if ($$ instanceof QTSliderView) {
     QTSlider({
       renderView: $$ as QTSliderView,
+      children: $$.children,
+    })
+  }
+  //路由
+  else if ($$ instanceof QTPageRouterView) {
+    QTPageRouter({
+      renderView: $$ as QTPageRouterView,
+      children: $$.children,
+    })
+  }
+  //页面
+  else if ($$ instanceof QTPageView) {
+    QTPage({
+      renderView: $$ as QTPageView,
       children: $$.children,
     })
   }
