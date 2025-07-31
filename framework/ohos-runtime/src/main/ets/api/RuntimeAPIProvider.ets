@@ -19,7 +19,7 @@ import { ESPluginModule } from '../module/ESPluginModule';
 import { ESWindowModule } from '../module/ESWindowModule';
 import { ESPermissionModule } from '../module/ESPermissionModule';
 import { ESModule } from '../module/ESModule';
-import { QTAVPlayerView } from '../components/video/QTAVPlayerView';
+import { QTVideoPlayerView } from '../components/video/QTVideoPlayerView';
 import { ESLocalStorageModule } from '../module/ESLocalStorageModule';
 import { ESSoundPoolPlayerModule } from '../module/ESSoundPoolPlayerModule';
 import { ESAudioPlayerModule } from '../module/ESAudioPlayerModule';
@@ -75,7 +75,7 @@ export class RuntimeAPIProvider extends HippyAPIProvider {
 
   getCustomRenderViewCreatorMap(): Map<string, HRRenderViewCreator> | null {
     let registerMap: Map<string, HRRenderViewCreator> = new Map()
-    registerMap.set("QTAVPlayerView", (ctx): HippyRenderBaseView => new QTAVPlayerView(ctx))
+    registerMap.set("QTVideoPlayerView", (ctx): HippyRenderBaseView => new QTVideoPlayerView(ctx))
     return registerMap
   }
 

@@ -21,28 +21,19 @@ const PROPORTION = 0.99; // 占屏幕比例
 const SURFACE_W = 0.9; // 表面宽比例
 const SURFACE_H = 1.78; // 表面高比例
 
-export type QTPlayerOpCallback = (method: string, params: Array<HippyAny>,
-  callback: HippyRenderCallback | null) => boolean
 
 @Observed
-export class QTAVPlayerView extends QTBaseComponentView {
-  private readonly TAG = "QTAVPlayerView"
+export class QTVideoPlayerView extends QTBaseComponentView {
+  private readonly TAG = "QTVideoPlayerView"
   public color: string = '#ffffff';
-  private playerOpCallback: QTPlayerOpCallback | null = null
+  public videoPlayer: QTVideoPlayer | null = null
 
   constructor(ctx: NativeRenderContext) {
     super(ctx)
   }
 
-  setPlayerOpCallback(playerOpCallback: QTPlayerOpCallback) {
-    LogUtils.e(this.TAG, "======###=====setPlayerOpCallback=======>>>>playerOpCallback:" + playerOpCallback)
-    this.playerOpCallback = playerOpCallback
-  }
-
   /**
    * 发送事件
-   * @param eventName
-   * @param params
    */
   sendEvent(eventName: string, params: HippyAny) {
     let event = new HippyViewEvent(eventName)
@@ -51,9 +42,6 @@ export class QTAVPlayerView extends QTBaseComponentView {
 
   /**
    * 设置属性
-   * @param propKey
-   * @param propValue
-   * @returns
    */
   setProp(propKey: string, propValue: HippyAny): boolean {
     if (propKey === 'color') {
@@ -65,185 +53,173 @@ export class QTAVPlayerView extends QTBaseComponentView {
 
   /**
    * 调用方法
-   * @param method
-   * @param params
-   * @param callback
    */
   call(method: string, params: Array<HippyAny>, callback: HippyRenderCallback | null): void {
-    LogUtils.e(this.TAG, "======###=====call=======>>>>method:" + method + " | " + params + " | " + this.playerOpCallback)
-    if (this.playerOpCallback && this.playerOpCallback(method, params, callback)) {
+    LogUtils.i(this.TAG, `call method ${method} params: ${params} videoPlayer: ${this.videoPlayer}`);
+    if (this.videoPlayer && this.videoPlayer.call(method, params, callback)) {
       return;
+    }
+    if (method == "getEsInfo") {
+      if (callback) {
+        const info = new Map<string, HippyAny>()
+        info.set("isSupportAsyncInit", true)
+        callback(info)
+      }
     }
     super.call(method, params, callback)
   }
 }
 
 @Component
-export struct QTAVPlayer {
-  private readonly TAG = "QTAVPlayer"
-  @ObjectLink renderView: QTAVPlayerView
+export struct QTVideoPlayer {
+  private readonly TAG = "QTVideoPlayer"
+  @ObjectLink renderView: QTVideoPlayerView
   @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
   //
   private xComponentController: XComponentController = new XComponentController();
   private surfaceId: string = '';
-  private avPlayer: media.AVPlayer | null = null;
+  private videoPlayer: media.AVPlayer | null = null;
   //
   @State percent: number = 0;
   @State windowWidth: number = 300;
   @State windowHeight: number = 200;
   @State surfaceW: number | null = null;
   @State surfaceH: number | null = null;
+  @State isInitialized: boolean = false
 
+  public call(method: string, params: Array<HippyAny>,
+    callback: HippyRenderCallback | null): boolean {
+    LogUtils.i(this.TAG, `call method ${method} params: ${params}`);
+    switch (method) {
+      case QTPlayerOp.INIT: {
+        this.isInitialized = true
+        return true;
+      }
+      case QTPlayerOp.PLAY: {
+        //1.
+        const url: string = params[0] as string;
+        //2.
+        const aspectRatio: number = params[1] as number;
+        //3.音量
+        const leftVolume: string = params[2] as string
+        const rightVolume: string = params[3] as string;
+        //4.options
+        const playerOptions: [] = params[4] as [];
+        //5.播放器类型
+        const playerType: number = params[5] as number;
+        //6.
+        const playerMediaCodec: boolean = params[6] as boolean;
+
+        this.play(url)
+        break;
+      }
+      case QTPlayerOp.START: {
+        this.start()
+        break;
+      }
+      case QTPlayerOp.SEEK_TO: {
+        break;
+      }
+      case QTPlayerOp.RESUME: {
+        break;
+      }
+      case QTPlayerOp.PAUSE: {
+        this.pause()
+        break;
+      }
+      case QTPlayerOp.STOP: {
+        this.stop()
+        break;
+      }
+      case QTPlayerOp.RELEASE: {
+        this.release()
+        break;
+      }
+      case QTPlayerOp.RESET: {
+        this.reset()
+        break;
+      }
+    //------------------------------------------------------------------------
+      case QTPlayerOp.GET_CURRENT_POSITION: {
+        break;
+      }
+      case QTPlayerOp.GET_DURATION: {
+        break;
+      }
+    //------------------------------------------------------------------------
+      case QTPlayerOp.SET_PLAYER_SIZE: {
+        break;
+      }
+    //------------------------------------------------------------------------
+      case QTPlayerOp.SET_SPEED: {
+        break;
+      }
+      case QTPlayerOp.SET_DEFINITION: {
+        break;
+      }
+      case QTPlayerOp.SET_DECODE: {
+        break;
+      }
+      case QTPlayerOp.SET_ASPECT_RATIO: {
+        break;
+      }
+    //------------------------------------------------------------------------
+      case QTPlayerOp.GET_LEFT_VOLUME: {
+        break;
+      }
+      case QTPlayerOp.GET_RIGHT_VOLUME: {
+        break;
+      }
+      case QTPlayerOp.SET_LEFT_VOLUME: {
+        break;
+      }
+      case QTPlayerOp.SET_RIGHT_VOLUME: {
+        break;
+      }
+      case QTPlayerOp.SET_VOLUME: {
+        break;
+      }
+    }
+    return false
+  }
 
   aboutToAppear() {
-    LogUtils.e(this.TAG, "=====1======call===aboutToAppear====>>>>")
+    this.renderView.videoPlayer = this
     this.windowWidth = display.getDefaultDisplaySync().width;
     this.windowHeight = display.getDefaultDisplaySync().height;
     this.surfaceW = this.windowWidth * SURFACE_W;
     this.surfaceH = this.surfaceW / SURFACE_H;
-    //
-    this.renderView.setPlayerOpCallback(
-      (method: string, params: Array<HippyAny>, callback: HippyRenderCallback | null) => {
-        LogUtils.e(this.TAG, "======2=====call======aboutToAppear=>>>>method:" + method + " | " + params)
-        switch (method) {
-          case QTPlayerOp.INIT: {
-            break;
-          }
-          case QTPlayerOp.PLAY: {
-            //1.
-            const url: string = params[0] as string;
-            //2.
-            const aspectRatio: number = params[1] as number;
-            //3.音量
-            const leftVolume: string = params[2] as string
-            const rightVolume: string = params[3] as string;
-            //4.options
-            const playerOptions: [] = params[4] as [];
-            //5.播放器类型
-            const playerType: number = params[5] as number;
-            //6.
-            const playerMediaCodec: boolean = params[6] as boolean;
-
-            this.play(url)
-            break;
-          }
-          case QTPlayerOp.START: {
-            this.start()
-            break;
-          }
-          case QTPlayerOp.SEEK_TO: {
-            break;
-          }
-          case QTPlayerOp.RESUME: {
-            break;
-          }
-          case QTPlayerOp.PAUSE: {
-            this.pause()
-            break;
-          }
-          case QTPlayerOp.STOP: {
-            this.stop()
-            break;
-          }
-          case QTPlayerOp.RELEASE: {
-            this.release()
-            break;
-          }
-          case QTPlayerOp.RESET: {
-            this.reset()
-            break;
-          }
-        //----------------------------
-          case QTPlayerOp.GET_CURRENT_POSITION: {
-            break;
-          }
-          case QTPlayerOp.GET_DURATION: {
-            break;
-          }
-        //----------------------------
-          case QTPlayerOp.SET_PLAYER_SIZE: {
-            break;
-          }
-        //----------------------------
-          case QTPlayerOp.SET_SPEED: {
-            break;
-          }
-          case QTPlayerOp.SET_DEFINITION: {
-            break;
-          }
-          case QTPlayerOp.SET_DECODE: {
-            break;
-          }
-          case QTPlayerOp.SET_ASPECT_RATIO: {
-            break;
-          }
-        //----------------------------
-          case QTPlayerOp.GET_LEFT_VOLUME: {
-            break;
-          }
-          case QTPlayerOp.GET_RIGHT_VOLUME: {
-            break;
-          }
-          case QTPlayerOp.SET_LEFT_VOLUME: {
-            break;
-          }
-          case QTPlayerOp.SET_RIGHT_VOLUME: {
-            break;
-          }
-          case QTPlayerOp.SET_VOLUME: {
-            break;
-          }
-          //---------------------
-        }
-        return false
-      })
   }
 
   aboutToDisappear() {
 
   }
 
-  @Builder
-  CoverXComponent() {
-    XComponent({
-      id: 'xComponent',
-      type: XComponentType.SURFACE,
-      controller: this.xComponentController
-    }).id('VideoView')// .visibility(this.XComponentFlag ? Visibility.Visible : Visibility.Hidden)
-      .onLoad(() => {
-        LogUtils.e(this.TAG, "=====1====CoverXComponent==call===onLoad====>>>>")
-        this.surfaceId = this.xComponentController.getXComponentSurfaceId();
-        // this.setupVideo();
-      })
-    // .height(`${this.surfaceH}px`)
-    // .width(`${this.surfaceW}px`)
-  }
-
   /**
    * 播放
    */
   async play(url: string) {
-    if (this.avPlayer) {
-      this.avPlayer.release();
+    if (this.videoPlayer) {
+      this.videoPlayer.release();
     }
-    this.avPlayer = await media.createAVPlayer();
+    this.videoPlayer = await media.createAVPlayer();
     await this.setAVPlayerCallback((avPlayer: media.AVPlayer) => {
       this.percent = avPlayer.width / avPlayer.height;
       this.setVideoWH();
     });
-    this.avPlayer.url = url
+    this.videoPlayer.url = url
   }
 
   // 注册avplayer回调函数
   async setAVPlayerCallback(callback: (avPlayer: media.AVPlayer) => void,
     type?: number): Promise<void> {
-    if (this.avPlayer == null) {
+    if (this.videoPlayer == null) {
       return;
     }
     /**
      * 快进
      */
-    this.avPlayer.on('seekDone', (seekDoneTime) => {
+    this.videoPlayer.on('seekDone', (seekDoneTime) => {
       const map = new Map<string, HippyAny>()
       map.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.SEEK_COMPLETED)
       this.renderView.sendEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
@@ -251,7 +227,7 @@ export struct QTAVPlayer {
     /**
      * 倍速
      */
-    this.avPlayer.on('speedDone', (speed) => {
+    this.videoPlayer.on('speedDone', (speed) => {
       const map = new Map<string, HippyAny>()
       map.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.SET_PLAY_RATE_SUCCESS)
       this.renderView.sendEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
@@ -259,21 +235,21 @@ export struct QTAVPlayer {
     /**
      * 错误
      */
-    this.avPlayer.on('error', (err) => {
+    this.videoPlayer.on('error', (err) => {
       const map = new Map<string, HippyAny>()
       map.set(QTPlayerEventProp.MESSAGE, JSON.stringify(err))
       map.set(QTPlayerEventProp.CODE, -1)
       this.renderView.sendEvent(QTPlayerEvent.ON_PLAYER_ERROR, map)
-      if (this.avPlayer == null) {
+      if (this.videoPlayer == null) {
         return;
       }
-      this.avPlayer.reset();
+      this.videoPlayer.reset();
     });
 
     /**
      * 缓冲进度
      */
-    this.avPlayer.on('bufferingUpdate', (type: media.BufferingInfoType, value: number) => {
+    this.videoPlayer.on('bufferingUpdate', (type: media.BufferingInfoType, value: number) => {
       const map = new Map<string, HippyAny>()
       map.set(QTPlayerEventProp.BUFFER_PERCENT, value)
 
@@ -290,16 +266,16 @@ export struct QTAVPlayer {
     /**
      * 播放进度
      */
-    this.avPlayer.on('timeUpdate', (time: number) => {
+    this.videoPlayer.on('timeUpdate', (time: number) => {
       // this.currentTime = time;
     });
 
     /**
      * 播放状态
      */
-    this.avPlayer.on('stateChange', async (state, reason) => {
-      console.log('=========stateChange==================>>>>>' + state)
-      if (this.avPlayer == null) {
+    this.videoPlayer.on('stateChange', async (state, reason) => {
+      LogUtils.e(this.TAG, "=========stateChange=====>>>>" + state)
+      if (this.videoPlayer == null) {
         return;
       }
       switch (state) {
@@ -311,8 +287,8 @@ export struct QTAVPlayer {
         }
         case 'initialized': {
           if (this.surfaceId) {
-            this.avPlayer.surfaceId = this.surfaceId;
-            this.avPlayer.prepare();
+            this.videoPlayer.surfaceId = this.surfaceId;
+            this.videoPlayer.prepare();
           }
           break;
         }
@@ -322,7 +298,9 @@ export struct QTAVPlayer {
           map.set(QTPlayerEventProp.CODE, -1)
           map.set(QTPlayerEventProp.MESSAGE, "AvPlayer has not init on state change")
           this.renderView.sendEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
-          callback(this.avPlayer);
+          callback(this.videoPlayer);
+
+          this.start()
           break;
         }
         case 'playing': {
@@ -383,8 +361,8 @@ export struct QTAVPlayer {
    * 播放
    */
   start() {
-    if (this.avPlayer) {
-      this.avPlayer.play()
+    if (this.videoPlayer) {
+      this.videoPlayer.play()
     }
   }
 
@@ -393,8 +371,8 @@ export struct QTAVPlayer {
    * @param progress
    */
   seekTo(progress: number) {
-    if (this.avPlayer) {
-      this.avPlayer.seek(progress)
+    if (this.videoPlayer) {
+      this.videoPlayer.seek(progress)
     }
   }
 
@@ -402,8 +380,8 @@ export struct QTAVPlayer {
    * 暂停
    */
   pause() {
-    if (this.avPlayer) {
-      this.avPlayer.pause()
+    if (this.videoPlayer) {
+      this.videoPlayer.pause()
     }
   }
 
@@ -411,8 +389,8 @@ export struct QTAVPlayer {
    * 停止
    */
   stop() {
-    if (this.avPlayer) {
-      this.avPlayer.stop()
+    if (this.videoPlayer) {
+      this.videoPlayer.stop()
     }
   }
 
@@ -420,8 +398,8 @@ export struct QTAVPlayer {
    * 资源回收
    */
   release() {
-    if (this.avPlayer) {
-      this.avPlayer.release()
+    if (this.videoPlayer) {
+      this.videoPlayer.release()
     }
   }
 
@@ -429,8 +407,8 @@ export struct QTAVPlayer {
    * 重置
    */
   reset() {
-    if (this.avPlayer) {
-      this.avPlayer.reset()
+    if (this.videoPlayer) {
+      this.videoPlayer.reset()
     }
   }
 
@@ -439,8 +417,8 @@ export struct QTAVPlayer {
    * @param speed
    */
   setSpeed(speed: number): void {
-    if (this.avPlayer) {
-      this.avPlayer.setSpeed(speed);
+    if (this.videoPlayer) {
+      this.videoPlayer.setSpeed(speed);
     }
   }
 
@@ -449,8 +427,8 @@ export struct QTAVPlayer {
    * @returns
    */
   getDuration(): number {
-    if (this.avPlayer) {
-      return this.avPlayer.duration
+    if (this.videoPlayer) {
+      return this.videoPlayer.duration
     }
     return -1
   }
@@ -460,8 +438,8 @@ export struct QTAVPlayer {
    * @returns
    */
   getCurrentPosition(): number {
-    if (this.avPlayer) {
-      return this.avPlayer.currentTime
+    if (this.videoPlayer) {
+      return this.videoPlayer.currentTime
     }
     return -1
   }
@@ -469,11 +447,36 @@ export struct QTAVPlayer {
   //------------------------------------------------------------------------------
   build() {
     Stack() {
-      this.CoverXComponent()
+      if (this.isInitialized) {
+        this.CoverXComponent()
+      }
     }
     .id('VideoView')
     .applyRenderViewBaseAttr(this.renderView)
     .backgroundColor(Color.Red)
+  }
+
+  @Builder
+  CoverXComponent() {
+    XComponent({
+      id: 'xComponent',
+      type: XComponentType.SURFACE,
+      controller: this.xComponentController
+    }).id('VideoView')// .visibility(this.XComponentFlag ? Visibility.Visible : Visibility.Hidden)
+      .onLoad(() => {
+        LogUtils.e(this.TAG, "=====1====CoverXComponent==call===onLoad====>>>>")
+        this.surfaceId = this.xComponentController.getXComponentSurfaceId();
+        //
+        if (this.surfaceId) {
+          const map = new Map<string, HippyAny>()
+          map.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.INITIALIZE_SUCCESS)
+          this.renderView.sendEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
+        } else {
+          const map = new Map<string, HippyAny>()
+          map.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.INITIALIZE_ERROR)
+          this.renderView.sendEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
+        }
+      })
   }
 }
 
