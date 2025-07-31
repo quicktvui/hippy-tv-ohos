@@ -1,5 +1,5 @@
 
-import {HippyRenderBaseView,HippyObservedArray,HRDiv,NativeRenderContext,HippyAny,HippyRenderCallback,HIPPY_COMPONENT_KEY_PREFIX} from 'hippy'
+import {HippyRenderBaseView,HippyObservedArray,HRRect,HRPadding,NativeRenderContext,HippyAny,HippyRenderCallback,HIPPY_COMPONENT_KEY_PREFIX} from 'hippy'
 import { QUICKTVUI_TAG } from '../Constant';
 import { HRValueUtils } from '../HRValueUtils';
 import QTRenderBaseView from './QTRenderBaseView';
@@ -123,6 +123,11 @@ export class QTTextView extends QTRenderBaseView{
       }
     }
 
+  }
+
+  setRenderViewFrame(frame: HRRect, padding: HRPadding | null): void {
+    console.error(QUICKTVUI_TAG,`QTText setRenderViewFrame width:${frame.width},height:${frame.height}`)
+    super.setRenderViewFrame(frame,padding)
   }
 
 }

@@ -1,5 +1,6 @@
 import {HippyRenderBaseView,NativeRenderContext,HippyAny,HippyRenderCallback,HippyCustomComponentView} from 'hippy'
 import { QUICKTVUI_TAG } from '../Constant'
+import { HRValueUtils } from '../HRValueUtils';
 import { QTBaseComponentView } from './QTBaseComponentView';
 
 type InsertListener = (childTag: number, childViewName: string, childIndex: number)=>void;
@@ -13,7 +14,6 @@ export default abstract class QTRenderBaseView extends  QTBaseComponentView{
   }
 
   setProp(propKey: string, propValue: HippyAny): boolean {
-    // console.info(QUICKTVUI_TAG,`QTRenderBaseView setProp:${propKey},propValue:${propValue}`)
     return super.setProp(propKey, propValue)
   }
 

@@ -1,4 +1,6 @@
-import {HippyRenderBaseView,HippyMap,HippyAny} from 'hippy'
+import {HippyRenderBaseView,HippyMap,HippyAny,buildHippyRenderView,HRDivView} from 'hippy'
+import {buildRenderViewByTemplateTraverse} from '../TemplateViewManager'
+import { QTPlaceholderView } from './QTPlaceholderView';
 
 export class ItemTemplate  {
   templateView: HippyRenderBaseView;
@@ -18,6 +20,7 @@ export class ItemView{
   template:ItemTemplate | undefined = undefined
   position: number;
   raw:HippyMap | null;
+  renderView:HippyRenderBaseView | null = null;
   constructor(position: number, raw : HippyMap | null) {
     this.position = position
     this.raw = raw
@@ -25,13 +28,18 @@ export class ItemView{
 }
 
 
-@Builder
-export function renderView(template : ItemTemplate,data:HippyMap){
-  Stack()
-    .width('100%')
-    .height(100)
-    .backgroundColor(Color.Blue)
-}
+
+// @Builder
+// export function createView4Template(template : ItemTemplate) : HippyRenderBaseView{
+//   return buildRenderViewByTemplate(template,)
+// }
+//
+// @Builder
+// export function renderView(template : ItemTemplate,data:HippyMap){
+//   Stack(){
+//     buildHippyRenderView()
+//   }
+// }
 
 // @Component
 // export struct Item{
@@ -49,10 +57,20 @@ export function renderView(template : ItemTemplate,data:HippyMap){
 //   }
 //
 // }
+
+
+
 @Builder
 export function  renderItem(item : ItemView){
   if(item.template && item.raw){
-    renderView(item.template,item.raw)
+    buildHippyRenderView(
+      buildRenderViewByTemplateTraverse(item.template.templateView.ctx,
+        item.template.templateView,
+        item.template.props,
+        item.raw,
+        null,
+        0) ?? new QTPlaceholderView(item.template.templateView.ctx),null
+    )
   }else{
     Text(`未实现:${item.position},viewName:${item.template?.viewType}`)
       .width('100%')

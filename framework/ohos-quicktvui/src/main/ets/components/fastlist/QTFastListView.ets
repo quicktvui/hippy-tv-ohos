@@ -2,6 +2,7 @@
 import {HippyRenderBaseView,HippyObservedArray,HRDiv,NativeRenderContext,HippyAny,HippyRenderCallback,HippyArray,HippyMap} from 'hippy'
 import { QUICKTVUI_TAG } from '../../Constant';
 import { HRValueUtils } from '../../HRValueUtils';
+import {  HippyUtils } from '../../utils/HippyUtils';
 import QTRenderBaseView from '../QTRenderBaseView';
 import { ItemView } from './ItemView';
 import { QTFastList } from './QTFastList';
@@ -206,6 +207,7 @@ export class QTFastListView extends QTRenderBaseView{
     if(data && data.length > 0){
       this.dataList.push(...
         data?.map((item,index)=>{
+          // console.log(QUICKTVUI_TAG,`onDataChanged crate item :${JSON.stringify(HippyUtils.hippyMap2String(item as HippyMap))}`)
           return new ItemView(index,item as HippyMap)
         })
       )

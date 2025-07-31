@@ -40,6 +40,7 @@ import { QTFastListView } from 'quicktvui/src/main/ets/components/fastlist/QTFas
 import { QTFastList } from 'quicktvui/src/main/ets/components/fastlist/QTFastList';
 import { QTTextView,QTText } from 'quicktvui/src/main/ets/components/QTTextView';
 import { QTFallbackView,QTFallback } from 'quicktvui/src/main/ets/components/compat/QTFallbackView';
+import { QTDiv, QTDivView } from 'quicktvui/src/main/ets/components/QTDivView';
 
 const TAG: string = 'RuntimeDebug'
 
@@ -50,8 +51,8 @@ struct Debug {
   @State currentEnv: string = 'dev'
   @State versionName: string = '1.0.0'
   @State versionCode: string = '1.0.0'
-  @State deviceIp: string = '192.168.80.60'
-  @State debugIp: string = '192.168.80.60' // 这里可以通过 storage 设置
+  @State deviceIp: string = '192.168.1.3'
+  @State debugIp: string = '192.168.1.3' // 这里可以通过 storage 设置
   envList: string[] = ['dev', 'test', 'prod']
   //----------------------------------------------------------------------
 
@@ -276,7 +277,13 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
       renderView: $$ as QTTextView,
       children: $$.children,
     })
-  }else{
+  }else if($$ instanceof QTDivView ){
+    QTDiv({
+      renderView: $$ as QTTextView,
+      children: $$.children,
+    })
+  }
+  else{
     QTFallback({
       renderView: $$ as QTFallbackView,
       children: $$.children,
