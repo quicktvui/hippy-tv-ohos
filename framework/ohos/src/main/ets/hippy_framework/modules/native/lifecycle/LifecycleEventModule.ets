@@ -18,7 +18,10 @@ export class LifecycleEventModule extends HippyNativeModuleBase {
   public onLifecycleEvent(event: string, params: HippyAny): boolean {
     let scriptModule = this.ctx.getModuleManager().getJavaScriptModule(EventDispatcher.MODULE_NAME)
     if (scriptModule != null) {
-      (scriptModule as EventDispatcher).receiveNativeEvent(event, params);
+      const evt = new Map<string, HippyAny>();
+      evt.set("name", event);
+      evt.set("params", params);
+      (scriptModule as EventDispatcher).receiveNativeEvent("onLifecycleEvent", evt);
       return true;
     } else {
       return false;
