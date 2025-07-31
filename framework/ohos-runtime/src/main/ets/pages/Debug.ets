@@ -39,7 +39,7 @@ import { QTVideoPlayer, QTVideoPlayerView } from '../components/video/QTVideoPla
 import { QTPageRouter, QTPageRouterView } from '../components/router/QTPageRouterView';
 import { QTPage, QTPageView } from '../components/router/QTPageView';
 
-const TAG: string = 'RuntimeDebug'
+const TAG: string = 'RuntimeDebugPage'
 
 
 @Entry
@@ -63,6 +63,7 @@ struct Debug {
   @State isEngineInitialized: boolean = false
 
   async aboutToAppear() {
+    LogUtils.e(TAG, 'Lifecycle: aboutToAppear');
     // let version = await getAppVersion()
     // this.versionName = version.name
     // this.versionCode = version.code
@@ -79,15 +80,17 @@ struct Debug {
   }
 
   onPageShow(): void {
+    LogUtils.e(TAG, 'Lifecycle: onPageShow');
     this.hippyEngine?.onEngineResume()
   }
 
   onPageHide(): void {
+    LogUtils.e(TAG, 'Lifecycle: onPageHide');
     this.hippyEngine?.onEnginePause()
   }
 
   aboutToDisappear(): void {
-
+    LogUtils.e(TAG, 'Lifecycle: aboutToDisappear');
   }
 
   onBackPress(): boolean | void {
@@ -102,7 +105,7 @@ struct Debug {
     // if (this.isEngineInitialized) {
     //   this.destroyEngine()
     // }
-    return true;
+    return false;
   }
 
   initEngine() {
