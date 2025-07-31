@@ -46,12 +46,9 @@ export function PageDebugBuilder(name: string, param: Object) {
   Debug()
 }
 
-@Entry
 @Component
 struct Debug {
-
-  // @Consume('pageInfos') pageInfos: NavPathStack;
-
+  pageInfos: NavPathStack = new NavPathStack();
   @State currentEnv: string = 'dev'
   @State versionName: string = '1.0.0'
   @State versionCode: string = '1.0.0'
@@ -89,7 +86,6 @@ struct Debug {
   onPageShow(): void {
     LogUtils.e(TAG, 'Lifecycle: onPageShow');
     this.hippyEngine?.onEngineResume()
-    // this.pageStack.pushPath({ name: "Debug", param: "PageOne Param" });
   }
 
   onPageHide(): void {
@@ -99,22 +95,6 @@ struct Debug {
 
   aboutToDisappear(): void {
     LogUtils.e(TAG, 'Lifecycle: aboutToDisappear');
-  }
-
-  onBackPress(): boolean | void {
-    // const backPressHandler: BackPressHandler = {
-    //   handleBackPress(): void {
-    //     // 实现返回逻辑
-    //     console.log('Back button pressed');
-    //   }
-    // } as BackPressHandler;
-    this.hippyEngine?.onBackPressed(new RuntimeDefaultBackHandler())
-    // const ret = this.isEngineInitialized;
-    // if (this.isEngineInitialized) {
-    //   this.destroyEngine()
-    // }
-    // this.pageInfos.pop()
-    return true;
   }
 
   initEngine() {
@@ -154,7 +134,7 @@ struct Debug {
   }
 
   build() {
-    Navigation() {
+    NavDestination() {
       Stack() {
         Row() {
           Column() {
@@ -233,7 +213,14 @@ struct Debug {
     .hideTitleBar(true)
     .hideBackButton(true)
     .hideToolBar(true)
-    .mode(NavigationMode.Stack)
+    .onReady((context: NavDestinationContext) => {
+      this.pageInfos = context.pathStack;
+    })
+    //返回键
+    .onBackPressed(() => {
+      this.hippyEngine?.onBackPressed(new RuntimeDefaultBackHandler())
+      return true
+    })
   }
 }
 
@@ -243,11 +230,6 @@ class RuntimeDefaultBackHandler implements BackPressHandler {
   }
 }
 
-
-/**
- * 渲染
- * @param $$
- */
 @Builder
 function buildCustomRenderView($$: HippyRenderBaseView) {
   if ($$ instanceof QTLoadingView) {

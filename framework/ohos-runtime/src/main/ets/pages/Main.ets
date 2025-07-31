@@ -1,11 +1,14 @@
 import { LogUtils, } from 'hippy'
-// import { Debug } from './Debug';
 
+/**
+ * 入口
+ */
 @Entry
 @Component
 struct Main {
   private readonly TAG: string = 'RuntimeMainPage'
-  @Provide('pageInfos') pageInfos: NavPathStack = new NavPathStack()
+  pageInfos: NavPathStack = new NavPathStack()
+
   @State progressValue: number = 0;
   private intervalId: number = -1
 
@@ -13,18 +16,8 @@ struct Main {
     LogUtils.d(this.TAG, 'Lifecycle: aboutToAppear');
   }
 
-  @Builder
-  PageMap(name: string) {
-    if (name === "Debug") {
-      // Debug();
-    }
-  }
-
   onPageShow(): void {
     LogUtils.d(this.TAG, 'Lifecycle: onPageShow');
-
-    this.pageInfos.pushPathByName('Debug', null, false);
-
     this.intervalId = setInterval(() => {
       this.progressValue = this.progressValue + 20
       if (this.progressValue == 100) {
@@ -44,7 +37,7 @@ struct Main {
 
   onBackPress(): boolean | void {
     LogUtils.d(this.TAG, 'Lifecycle: onBackPress');
-    return false;
+    return true;
   }
 
   build() {
@@ -62,7 +55,6 @@ struct Main {
       .backgroundColor('#3A4251')
       .expandSafeArea()
     }
-    // .navDestination(this.PageMap)
     .hideToolBar(true)
     .hideBackButton(true)
     .mode(NavigationMode.Stack)
