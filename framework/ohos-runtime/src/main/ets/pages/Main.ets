@@ -8,11 +8,11 @@ import { LogUtils, } from 'hippy'
 struct Main {
   private readonly TAG: string = 'RuntimeMainPage'
   pageInfos: NavPathStack = new NavPathStack()
-
   @State progressValue: number = 0;
   private intervalId: number = -1
 
   async aboutToAppear() {
+    AppStorage.setOrCreate("MainNavPathStack", this.pageInfos)
     LogUtils.d(this.TAG, 'Lifecycle: aboutToAppear');
   }
 
@@ -37,7 +37,7 @@ struct Main {
 
   onBackPress(): boolean | void {
     LogUtils.d(this.TAG, 'Lifecycle: onBackPress');
-    return true;
+    return false;
   }
 
   build() {
