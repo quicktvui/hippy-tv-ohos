@@ -41,10 +41,17 @@ import { QTPage, QTPageView } from '../components/router/QTPageView';
 
 const TAG: string = 'RuntimeDebugPage'
 
+@Builder
+export function PageDebugBuilder(name: string, param: Object) {
+  Debug()
+}
 
 @Entry
 @Component
 struct Debug {
+
+  // @Consume('pageInfos') pageInfos: NavPathStack;
+
   @State currentEnv: string = 'dev'
   @State versionName: string = '1.0.0'
   @State versionCode: string = '1.0.0'
@@ -82,6 +89,7 @@ struct Debug {
   onPageShow(): void {
     LogUtils.e(TAG, 'Lifecycle: onPageShow');
     this.hippyEngine?.onEngineResume()
+    // this.pageStack.pushPath({ name: "Debug", param: "PageOne Param" });
   }
 
   onPageHide(): void {
@@ -105,7 +113,8 @@ struct Debug {
     // if (this.isEngineInitialized) {
     //   this.destroyEngine()
     // }
-    return false;
+    // this.pageInfos.pop()
+    return true;
   }
 
   initEngine() {
@@ -145,80 +154,86 @@ struct Debug {
   }
 
   build() {
-    Stack() {
-      Row() {
-        Column() {
-          Text($r('app.string.debug_title'))
-            .fontSize(40)
-            .fontColor(Color.White)
-            .fontWeight(FontWeight.Bold)
-            .margin({ bottom: 80 })
+    Navigation() {
+      Stack() {
+        Row() {
           Column() {
-            Text($r('app.string.debug_runtime_version', this.versionName, this.versionCode))
-              .fontSize(20)
-              .fontColor($r('app.color.debug_font_color'))
-              .margin({ bottom: 15 })
-            Text(`IP地址: ${this.deviceIp}`)
-              .fontSize(20)
-              .fontColor($r('app.color.debug_font_color'))
-              .margin({ bottom: 15 })
-            Text($r('app.string.debug_server_ip_address', this.debugIp))
-              .fontSize(20)
-              .fontColor($r('app.color.debug_font_color'))
-          }.margin({ bottom: 50 })
-          .alignItems(HorizontalAlign.Start)
+            Text($r('app.string.debug_title'))
+              .fontSize(40)
+              .fontColor(Color.White)
+              .fontWeight(FontWeight.Bold)
+              .margin({ bottom: 80 })
+            Column() {
+              Text($r('app.string.debug_runtime_version', this.versionName, this.versionCode))
+                .fontSize(20)
+                .fontColor($r('app.color.debug_font_color'))
+                .margin({ bottom: 15 })
+              Text(`IP地址: ${this.deviceIp}`)
+                .fontSize(20)
+                .fontColor($r('app.color.debug_font_color'))
+                .margin({ bottom: 15 })
+              Text($r('app.string.debug_server_ip_address', this.debugIp))
+                .fontSize(20)
+                .fontColor($r('app.color.debug_font_color'))
+            }.margin({ bottom: 50 })
+            .alignItems(HorizontalAlign.Start)
 
-          Text($r('app.string.debug_app_tip'))
-            .fontSize(20)
-            .fontColor($r('app.color.debug_font_color'))
-            .margin({ bottom: 50 })
+            Text($r('app.string.debug_app_tip'))
+              .fontSize(20)
+              .fontColor($r('app.color.debug_font_color'))
+              .margin({ bottom: 50 })
+          }
+          .margin({ right: 150 })
+          .alignItems(HorizontalAlign.Start)
+          .justifyContent(FlexAlign.Start)
+
+          Column() {
+            Button($r('app.string.debug_start'))
+              .fontColor(Color.Black)
+              .fontSize(40)
+              .fontWeight(FontWeight.Bold)
+              .backgroundColor($r('app.color.debug_font_color'))
+              .type(ButtonType.Circle)
+              .width(300)
+              .height(300)
+              .onClick(() => {
+                this.initEngine()
+              })
+          }.margin({ right: 70 })
         }
-        .margin({ right: 150 })
-        .alignItems(HorizontalAlign.Start)
-        .justifyContent(FlexAlign.Start)
+        .alignItems(VerticalAlign.Center)
+        .justifyContent(FlexAlign.Center)
+        .width('100%')
+        .height('100%')
+        .expandSafeArea()
 
         Column() {
-          Button($r('app.string.debug_start'))
-            .fontColor(Color.Black)
-            .fontSize(40)
-            .fontWeight(FontWeight.Bold)
-            .backgroundColor($r('app.color.debug_font_color'))
-            .type(ButtonType.Circle)
-            .width(300)
-            .height(300)
-            .onClick(() => {
-              this.initEngine()
-            })
-        }.margin({ right: 70 })
+        }.width('100%')
+        .height(40)
+
+        if (this.isEngineInitialized) {
+          HippyRoot({
+            hippyEngine: this.hippyEngine,
+            rootViewWrapper: this.rootViewWrapper,
+            onRenderException: (exception: HippyException) => {
+              this.exception = `${exception.message}\n${exception.stack}`
+            },
+          }).layoutWeight(1)
+        }
+        if (this.exception) {
+          Text(this.exception)
+        }
       }
-      .alignItems(VerticalAlign.Center)
-      .justifyContent(FlexAlign.Center)
+      .alignContent(Alignment.TopStart)
       .width('100%')
       .height('100%')
+      .backgroundColor('#3A4251')
       .expandSafeArea()
-
-      Column() {
-      }.width('100%')
-      .height(40)
-
-      if (this.isEngineInitialized) {
-        HippyRoot({
-          hippyEngine: this.hippyEngine,
-          rootViewWrapper: this.rootViewWrapper,
-          onRenderException: (exception: HippyException) => {
-            this.exception = `${exception.message}\n${exception.stack}`
-          },
-        }).layoutWeight(1)
-      }
-      if (this.exception) {
-        Text(this.exception)
-      }
     }
-    .alignContent(Alignment.TopStart)
-    .width('100%')
-    .height('100%')
-    .backgroundColor('#3A4251')
-    .expandSafeArea()
+    .hideTitleBar(true)
+    .hideBackButton(true)
+    .hideToolBar(true)
+    .mode(NavigationMode.Stack)
   }
 }
 
