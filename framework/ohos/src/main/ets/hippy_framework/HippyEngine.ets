@@ -77,6 +77,8 @@ export interface HippyEngine {
 
   onBackPressed(handler: BackPressHandler): boolean
 
+  onLifecycleEvent(event: string, params?: HippyAny): boolean
+
   getHippyEngineContext(): HippyEngineContext | null
 
   sendEvent(event: string, params: HippyAny): void;

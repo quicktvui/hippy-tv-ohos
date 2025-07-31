@@ -66,6 +66,7 @@ import { HippyEngineLifecycleEventListener } from "./HippyEngineLifecycleEventLi
 import { Dimensions } from "./modules/javascript/Dimensions";
 import { window } from "@kit.ArkUI";
 import { HippyWindowInfo } from "./HippyWindowInfo";
+import { LifecycleEventModule } from "./modules/native/lifecycle/LifecycleEventModule";
 
 export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevServerCallBack {
   private static sEngineIdCounter = 0
@@ -212,6 +213,22 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
       let nativeModule = this.mEngineContext.getModuleManager().getNativeModule(DeviceEventModule.NAME, false)
       if (nativeModule instanceof DeviceEventModule) {
         return nativeModule.onBackPressed(handler);
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  onLifecycleEvent(event: string, params?: HippyAny): boolean {
+    if (this.mEngineContext != null
+      && this.mEngineContext.getModuleManager().getNativeModule(LifecycleEventModule.NAME, false)
+        != null) {
+      let nativeModule =
+        this.mEngineContext.getModuleManager().getNativeModule(LifecycleEventModule.NAME, false)
+      if (nativeModule instanceof LifecycleEventModule) {
+        return nativeModule.onLifecycleEvent(event, params);
       } else {
         return false;
       }

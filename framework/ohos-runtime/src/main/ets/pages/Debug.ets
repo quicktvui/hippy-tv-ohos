@@ -216,6 +216,46 @@ struct Debug {
     .onReady((context: NavDestinationContext) => {
       this.pageInfos = context.pathStack;
     })
+    .onWillAppear(() => {
+      LogUtils.e(TAG, 'Lifecycle: onWillAppear');
+      this.hippyEngine?.onLifecycleEvent("onWillAppear")
+    })
+    .onAttach(() => {
+      LogUtils.e(TAG, 'Lifecycle: onAttach');
+      this.hippyEngine?.onLifecycleEvent("onAttach")
+    })
+    .onAppear(() => {
+      LogUtils.e(TAG, 'Lifecycle: onAppear');
+      this.hippyEngine?.onLifecycleEvent("onAppear")
+    })
+    .onWillShow(() => {
+      LogUtils.e(TAG, 'Lifecycle: onWillShow');
+      this.hippyEngine?.onLifecycleEvent("onWillShow")
+    })
+    .onShown(() => {
+      LogUtils.e(TAG, 'Lifecycle: onShown');
+      this.hippyEngine?.onLifecycleEvent("onShown")
+    })
+    .onWillHide(() => {
+      LogUtils.e(TAG, 'Lifecycle: onWillHide');
+      this.hippyEngine?.onLifecycleEvent("onWillHide")
+    })
+    .onHidden(() => {
+      LogUtils.e(TAG, 'Lifecycle: onHidden');
+      this.hippyEngine?.onLifecycleEvent("onHidden")
+    })
+    .onWillDisappear(() => {
+      LogUtils.e(TAG, 'Lifecycle: onWillDisappear');
+      this.hippyEngine?.onLifecycleEvent("onWillDisappear")
+    })
+    .onDetach(() => {
+      LogUtils.e(TAG, 'Lifecycle: onDetach');
+      this.hippyEngine?.onLifecycleEvent("onDetach")
+    })
+    .onDisAppear(() => {
+      LogUtils.e(TAG, 'Lifecycle: onDisAppear');
+      this.hippyEngine?.onLifecycleEvent("onDisAppear")
+    })
     //返回键
     .onBackPressed(() => {
       this.hippyEngine?.onBackPressed(new RuntimeDefaultBackHandler())

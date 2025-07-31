@@ -45,6 +45,7 @@ import { BinaryReader } from '../../serialization/reader/BinaryReader'
 import { Deserializer } from '../serialization/Deserializer'
 import { ViewManagerModule } from './native/viewmanager/ViewManagerModule'
 import { HippyModuleUtils } from './HippyModuleUtils'
+import { LifecycleEventModule } from './native/lifecycle/LifecycleEventModule'
 
 export type HippyNativeModuleCreator = (ctx: HippyEngineContext) => HippyNativeModuleBase
 
@@ -64,6 +65,7 @@ export function hippyNativeModuleCreatorRegisterMap(): Map<string, HippyNativeMo
   registerMap.set(WebSocketModule.NAME, (ctx): HippyNativeModuleBase => new WebSocketModule(ctx))
   registerMap.set(UtilsModule.NAME, (ctx): HippyNativeModuleBase => new UtilsModule(ctx))
   registerMap.set(ViewManagerModule.NAME, (ctx): HippyNativeModuleBase => new ViewManagerModule(ctx))
+  registerMap.set(LifecycleEventModule.NAME, (ctx): HippyNativeModuleBase => new LifecycleEventModule(ctx))
   return registerMap
 }
 
