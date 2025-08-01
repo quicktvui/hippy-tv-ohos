@@ -345,8 +345,8 @@ class DefaultEngineListener implements EngineListener {
         null,
         null,
       )
-      loadParams.componentName = "EsApp"
-      loadParams.codeCacheTag = "EsApp"
+      loadParams.componentName = "Demo"
+      loadParams.codeCacheTag = "Demo"
       loadParams.jsParams = new Map<string, HippyValue>()
       loadParams.jsParams.set(
         "msgFromNative",

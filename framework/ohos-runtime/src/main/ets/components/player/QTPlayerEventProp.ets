@@ -1,6 +1,8 @@
 export enum QTPlayerEventProp {
+  //
+  PLAYER_ID = "id",
   //event
-  PLAYER_STATUS = "playerStatus",
+  PLAYER_STATE = "playerState",
   CURRENT_POSITION = "currentPosition",
   DURATION = "duration",
 

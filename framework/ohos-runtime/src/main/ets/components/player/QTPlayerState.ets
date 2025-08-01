@@ -44,5 +44,5 @@ export enum QTPlayerState {
   INITIALIZE_SUCCESS = 29, //初始化成功
   INITIALIZE_ERROR = 30, //初始化错误
 
-
+  RELEASE = 31, //
 }

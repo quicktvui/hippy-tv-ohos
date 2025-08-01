@@ -221,7 +221,7 @@ export struct QTVideoPlayer {
      */
     this.videoPlayer.on('seekDone', (seekDoneTime) => {
       const map = new Map<string, HippyAny>()
-      map.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.SEEK_COMPLETED)
+      map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.SEEK_COMPLETED)
       this.renderView.sendEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
     });
     /**
@@ -229,7 +229,7 @@ export struct QTVideoPlayer {
      */
     this.videoPlayer.on('speedDone', (speed) => {
       const map = new Map<string, HippyAny>()
-      map.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.SET_PLAY_RATE_SUCCESS)
+      map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.SET_PLAY_RATE_SUCCESS)
       this.renderView.sendEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
     });
     /**
@@ -254,11 +254,11 @@ export struct QTVideoPlayer {
       map.set(QTPlayerEventProp.BUFFER_PERCENT, value)
 
       if (type == media.BufferingInfoType.BUFFERING_START) {
-        map.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.BUFFER_START)
+        map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.BUFFER_START)
       } else if (type == media.BufferingInfoType.BUFFERING_END) {
-        map.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.BUFFER_END)
+        map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.BUFFER_END)
       } else if (type == media.BufferingInfoType.BUFFERING_PERCENT) {
-        map.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.BUFFERING_PERCENT)
+        map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.BUFFERING_PERCENT)
       }
       this.renderView.sendEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
     })
@@ -281,7 +281,7 @@ export struct QTVideoPlayer {
       switch (state) {
         case 'idle': {
           const map = new Map<string, HippyAny>()
-          map.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.IDLE)
+          map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.IDLE)
           this.renderView.sendEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
           break;
         }
@@ -294,7 +294,7 @@ export struct QTVideoPlayer {
         }
         case 'prepared': {
           const map = new Map<string, HippyAny>()
-          map.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.ERROR)
+          map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.ERROR)
           map.set(QTPlayerEventProp.CODE, -1)
           map.set(QTPlayerEventProp.MESSAGE, "AvPlayer has not init on state change")
           this.renderView.sendEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
@@ -305,38 +305,38 @@ export struct QTVideoPlayer {
         }
         case 'playing': {
           const map = new Map<string, HippyAny>()
-          map.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.PLAYING)
+          map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.PLAYING)
           this.renderView.sendEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
           break;
         }
 
         case 'completed': {
           const map = new Map<string, HippyAny>()
-          map.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.PLAYBACK_COMPLETED)
+          map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.PLAYBACK_COMPLETED)
           this.renderView.sendEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
           break;
         }
         case 'released': {
           const map = new Map<string, HippyAny>()
-          map.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.IDLE)
+          map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.IDLE)
           this.renderView.sendEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
           break
         }
         case 'stopped': {
           const map = new Map<string, HippyAny>()
-          map.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.STOP)
+          map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.STOP)
           this.renderView.sendEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
           break
         }
         case 'error': {
           const map = new Map<string, HippyAny>()
-          map.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.ERROR)
+          map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.ERROR)
           this.renderView.sendEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
           break
         }
         case 'paused': {
           const map = new Map<string, HippyAny>()
-          map.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.PAUSED)
+          map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.PAUSED)
           this.renderView.sendEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
           break
         }
@@ -469,11 +469,11 @@ export struct QTVideoPlayer {
         //
         if (this.surfaceId) {
           const map = new Map<string, HippyAny>()
-          map.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.INITIALIZE_SUCCESS)
+          map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.INITIALIZE_SUCCESS)
           this.renderView.sendEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
         } else {
           const map = new Map<string, HippyAny>()
-          map.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.INITIALIZE_ERROR)
+          map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.INITIALIZE_ERROR)
           this.renderView.sendEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
         }
       })

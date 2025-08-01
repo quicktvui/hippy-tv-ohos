@@ -60,7 +60,7 @@ export class ESSoundPoolPlayerModule extends BaseModule {
             })
             soundPool.on('playFinished', () => {
               const event = new Map<string, HippyAny>()
-              event.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.PLAYBACK_COMPLETED)
+              event.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.PLAYBACK_COMPLETED)
               this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, event)
             })
             soundPool.on('error', (error: BusinessError) => {
@@ -256,7 +256,7 @@ export class ESSoundPoolPlayerModule extends BaseModule {
   private notifyError(error: BusinessError) {
     // statusEvent
     const statusEvent = new Map<string, HippyAny>()
-    statusEvent.set(QTPlayerEventProp.PLAYER_STATUS, QTPlayerState.ERROR)
+    statusEvent.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.ERROR)
     statusEvent.set(QTPlayerEventProp.ERROR_CODE, error.code)
     statusEvent.set(QTPlayerEventProp.ERROR_MESSAGE, error.message)
     this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, statusEvent)
