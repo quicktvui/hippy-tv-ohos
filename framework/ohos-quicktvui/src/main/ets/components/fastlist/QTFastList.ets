@@ -31,7 +31,9 @@ export struct  QTFastList {
       Stack() {
         List(){
           LazyForEach(this.dataSource,(item : ItemView,index : number)=>{
-            renderItem(item)
+            ListItem() {
+              renderItem(item)
+            }
           })
         }
         .divider({

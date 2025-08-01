@@ -23,7 +23,7 @@ import {HippyMap,HippyArray,HippyAny} from 'hippy'
 import {ItemView,getItemType, ItemTemplate} from './ItemView'
 import {getNodeById,getRenderView} from '../../utils/NodeUtils'
 import assertNull from '@ohos/hypium/src/main/module/assert/assertNull';
-import {buildRenderViewByTemplateTraverse} from '../TemplateViewManager'
+import {buildRenderViewTraverse} from '../TemplateViewManager'
 
 
 // class ItemEntry{
@@ -82,7 +82,7 @@ export class FastListDataSource implements IDataSource {
       let it = this.templatesMap.get(type);
       item.template = it;
       if(it){
-        let rv = buildRenderViewByTemplateTraverse(this.ctx,it.templateView,it.props,item.raw as HippyMap,null,0)
+        let rv = buildRenderViewTraverse(this.ctx,it.templateView,it.props,item.raw as HippyMap,null,0)
         item.renderView = rv;
         if(!rv){
           console.error(QUICKTVUI_TAG,`buildRenderView null index:${index}`)

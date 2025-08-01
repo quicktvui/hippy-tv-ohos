@@ -1,5 +1,5 @@
 import {HippyRenderBaseView,HippyMap,HippyAny,buildHippyRenderView,HRDivView} from 'hippy'
-import {buildRenderViewByTemplateTraverse} from '../TemplateViewManager'
+import {buildRenderViewTraverse} from '../TemplateViewManager'
 import { QTPlaceholderView } from './QTPlaceholderView';
 
 export class ItemTemplate  {
@@ -64,7 +64,7 @@ export class ItemView{
 export function  renderItem(item : ItemView){
   if(item.template && item.raw){
     buildHippyRenderView(
-      buildRenderViewByTemplateTraverse(item.template.templateView.ctx,
+      buildRenderViewTraverse(item.template.templateView.ctx,
         item.template.templateView,
         item.template.props,
         item.raw,

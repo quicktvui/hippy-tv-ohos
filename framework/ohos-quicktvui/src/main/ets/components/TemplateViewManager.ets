@@ -6,7 +6,7 @@ import { getNodeById } from '../utils/NodeUtils'
 import { TemplateCodeParser } from './fastlist/TemplateCodeParser'
 
 
-export function buildRenderViewByTemplate(template:HippyRenderBaseView | null, templateProps:HippyMap,itemData : HippyMap): HippyRenderBaseView | null{
+export function buildRenderView(template:HippyRenderBaseView | null, templateProps:HippyMap,itemData : HippyMap): HippyRenderBaseView | null{
   if(!template){
     return null;
   }
@@ -21,17 +21,17 @@ export function buildRenderViewByTemplate(template:HippyRenderBaseView | null, t
   return rv
 }
 
-export function buildRenderViewByTemplateTraverse(ctx:NativeRenderContext | null, template:HippyRenderBaseView | null, templateProps:HippyMap,itemData : HippyMap,parent: HippyRenderBaseView | null,index:number): HippyRenderBaseView | null{
+export function buildRenderViewTraverse(ctx:NativeRenderContext | null, template:HippyRenderBaseView | null, templateProps:HippyMap,itemData : HippyMap,parent: HippyRenderBaseView | null,index:number): HippyRenderBaseView | null{
   if(!ctx){
     return null;
   }
-  let rv = buildRenderViewByTemplate(template,templateProps,itemData)
+  let rv = buildRenderView(template,templateProps,itemData)
   if(parent){
     parent.addSubRenderView(rv!!,index)
   }
   template?.children?.map((child,index)=>{
     let childNode = getNodeById(ctx,child.tag)
-    buildRenderViewByTemplateTraverse(ctx,child,childNode!!.props!!,itemData,rv!!,index)
+    buildRenderViewTraverse(ctx,child,childNode!!.props!!,itemData,rv!!,index)
   })
   return rv
 }
