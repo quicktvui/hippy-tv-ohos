@@ -19,8 +19,18 @@ import { ESPluginModule } from '../module/ESPluginModule';
 import { ESWindowModule } from '../module/ESWindowModule';
 import { ESPermissionModule } from '../module/ESPermissionModule';
 import { ESModule } from '../module/ESModule';
-import { QTAVPlayerView } from '../components/video/QTAVPlayerView';
+import { QTVideoPlayerView } from '../components/video/QTVideoPlayerView';
 import { ESLocalStorageModule } from '../module/ESLocalStorageModule';
+import { ESSoundPoolPlayerModule } from '../module/ESSoundPoolPlayerModule';
+import { ESAudioPlayerModule } from '../module/ESAudioPlayerModule';
+import { ESDownloadModule } from '../module/download/ESDownloadModule';
+import { ESFileModule } from '../module/ESFileModule';
+import { ESUploadModule } from '../module/upload/ESUploadModule';
+import { ESBundleModule } from '../module/ESBundleModule';
+import { QTPageRouterView } from '../components/router/QTPageRouterView';
+import { QTPageView } from '../components/router/QTPageView';
+import { ESAbilityModule } from '../module/ESAbilityModule';
+import { ESNativeRouterModule } from '../module/ESNativeRouterModule';
 
 /**
  * 自定义 module 和 component 入口
@@ -47,6 +57,22 @@ export class RuntimeAPIProvider extends HippyAPIProvider {
       (ctx): HippyNativeModuleBase => new ESModule(ctx))
     registerMap.set(ESLocalStorageModule.NAME,
       (ctx): HippyNativeModuleBase => new ESLocalStorageModule(ctx))
+    registerMap.set(ESSoundPoolPlayerModule.NAME,
+      (ctx): HippyNativeModuleBase => new ESSoundPoolPlayerModule(ctx))
+    registerMap.set(ESAudioPlayerModule.NAME,
+      (ctx): HippyNativeModuleBase => new ESAudioPlayerModule(ctx))
+    registerMap.set(ESDownloadModule.NAME,
+      (ctx): HippyNativeModuleBase => new ESDownloadModule(ctx))
+    registerMap.set(ESUploadModule.NAME,
+      (ctx): HippyNativeModuleBase => new ESUploadModule(ctx))
+    registerMap.set(ESFileModule.NAME,
+      (ctx): HippyNativeModuleBase => new ESFileModule(ctx))
+    registerMap.set(ESBundleModule.NAME,
+      (ctx): HippyNativeModuleBase => new ESBundleModule(ctx))
+    registerMap.set(ESAbilityModule.NAME,
+      (ctx): HippyNativeModuleBase => new ESAbilityModule(ctx))
+    registerMap.set(ESNativeRouterModule.NAME,
+      (ctx): HippyNativeModuleBase => new ESNativeRouterModule(ctx))
     //
     return registerMap;
   }
@@ -57,7 +83,9 @@ export class RuntimeAPIProvider extends HippyAPIProvider {
 
   getCustomRenderViewCreatorMap(): Map<string, HRRenderViewCreator> | null {
     let registerMap: Map<string, HRRenderViewCreator> = new Map()
-    registerMap.set("QTAVPlayerView", (ctx): HippyRenderBaseView => new QTAVPlayerView(ctx))
+    registerMap.set("QTVideoPlayerView", (ctx): HippyRenderBaseView => new QTVideoPlayerView(ctx))
+    registerMap.set("ESPageRouterView", (ctx): HippyRenderBaseView => new QTPageRouterView(ctx))
+    registerMap.set("ESPageRootView", (ctx): HippyRenderBaseView => new QTPageView(ctx))
     return registerMap
   }
 

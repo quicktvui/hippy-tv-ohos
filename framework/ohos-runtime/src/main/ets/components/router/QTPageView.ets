@@ -3,53 +3,58 @@ import {
   HippyObservedArray,
   NativeRenderContext,
   HippyAny,
-  HIPPY_COMPONENT_KEY_PREFIX,
   HippyRenderCallback,
+  HIPPY_COMPONENT_KEY_PREFIX,
+  buildHippyRenderView
 } from 'hippy'
-
 import { QTBaseComponentView } from 'quicktvui';
 
-
 @Observed
-export class QTAVPlayerView extends QTBaseComponentView {
-  public color: string = '#ffffff';
+export class QTPageView extends QTBaseComponentView {
+  public event: QTPage | null = null
 
   constructor(ctx: NativeRenderContext) {
     super(ctx)
   }
 
   setProp(propKey: string, propValue: HippyAny): boolean {
-    if (propKey === 'color') {
-      this.color = propValue as string;
-      return true;
-    }
     return super.setProp(propKey, propValue)
   }
 
   call(method: string, params: Array<HippyAny>, callback: HippyRenderCallback | null): void {
-    //
-    if (method == "loadUrl") {
-
+    if (this.event && this.event.call(method, params, callback)) {
+      return;
     }
     super.call(method, params, callback)
   }
 }
 
 @Component
-export struct QTAVPlayer {
-  @ObjectLink renderView: QTAVPlayerView
+export struct QTPage {
+  @ObjectLink renderView: QTPageView
   @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
 
-  aboutToAppear() {
+  public call(method: string, params: Array<HippyAny>,
+    callback: HippyRenderCallback | null): boolean {
+    return false
+  }
 
+  aboutToAppear(): void {
+    this.renderView.event = this
   }
 
   aboutToDisappear() {
-
+    this.renderView.event = null
   }
 
-  build() {
-    Stack().applyRenderViewBaseAttr(this.renderView)
+  build(): void {
+    Stack() {
+      ForEach(this.children, (item: HippyRenderBaseView) => {
+        buildHippyRenderView(item, null)
+      }, (item: HippyRenderBaseView) => item.tag + '')
+      ContentSlot(this.renderView.childSlot)
+    }
+    .applyRenderViewBaseAttr(this.renderView)
   }
 }
 
@@ -59,19 +64,10 @@ function applyRenderViewBaseAttr($$: HippyRenderBaseView) {
   .key(HIPPY_COMPONENT_KEY_PREFIX + $$.tag)
   .backgroundColor($$.cssBackgroundColor)
   .position({ x: $$.cssPositionX, y: $$.cssPositionY })
-  .size({
-    width:
-    typeof $$.cssWidth === 'number'
-      ? $$.cssWidth
-      : parseFloat($$.cssWidth) || 100,
-    height:
-    typeof $$.cssHeight === 'number'
-      ? $$.cssHeight
-      : parseFloat($$.cssHeight) || 100,
-  })
+  .size({ width: $$.cssWidth, height: $$.cssHeight })
   .opacity($$.cssOpacity)
   .clip($$.cssOverflow)
-  .visibility(($$ as HippyRenderBaseView).cssVisibility)
+  .visibility(($$ as HippyRenderBaseView).cssVisibility) // must add as, otherwise the compiler has error
   .zIndex($$.cssZIndex)
   .accessibilityText($$.cssAccessibilityLabel)
   .focusable($$.cssFocusable)
@@ -88,3 +84,4 @@ function applyRenderViewBaseAttr($$: HippyRenderBaseView) {
   .hitTestBehavior($$.hitTestBehavior)
   .onClick($$.eventClick)
 }
+

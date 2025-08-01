@@ -11,6 +11,7 @@ import { BaseModule } from './BaseModule';
 @HippyNativeModule({ name: "ESTestModule" })
 export class ESTestModule extends BaseModule {
   public static readonly NAME: string = 'ESTestModule'
+  public readonly TAG: string = 'ESTestModule'
 
   constructor(ctx: HippyEngineContext) {
     super(ctx)
@@ -22,7 +23,7 @@ export class ESTestModule extends BaseModule {
   public call(method: string, params: Array<HippyAny>, promise: HippyModulePromise): HippyAny {
     switch (method) {
       case 'test': {
-        LogUtils.d('ESTestModule', '=======test=========>>>>>');
+        LogUtils.d(this.TAG, '=======test=========>>>>>');
         break;
       }
       default:

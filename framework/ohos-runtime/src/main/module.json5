@@ -11,6 +11,7 @@
     "deliveryWithInstall": true,
     "installationFree": false,
     "pages": "$profile:main_pages",
+    "routerMap": "$profile:router_map",
     "abilities": [
       {
         "name": "RuntimeEntryAbility",
@@ -30,6 +31,9 @@
       {
         "name": "ohos.permission.GET_NETWORK_INFO"
       },
+//      {
+//        "name": "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED"
+//      },
       {
         "name": "ohos.permission.LOCATION",
         "reason": "$string:reason_location",
@@ -59,7 +63,7 @@
           ],
           "when": "always"
         }
-      },
+      }
     ]
   }
 }

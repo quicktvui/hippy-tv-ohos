@@ -36,22 +36,6 @@ export class QTSliderView extends QTBaseComponentView {
         this.maxProgress = propValue as number;
         return true;
       }
-      case 'max-progress': {
-        this.maxProgress = propValue as number;
-        return true;
-      }
-      case 'strokeWidth': {
-        this.strokeWidth = propValue as number;
-        return true;
-      }
-      case 'enableSmoothEffect': {
-        this.enableSmoothEffect = propValue as boolean;
-        return true;
-      }
-      case 'enableScanEffect': {
-        this.enableScanEffect = propValue as boolean;
-        return true;
-      }
     }
     return super.setProp(propKey, propValue)
   }
@@ -87,23 +71,16 @@ export struct QTSlider {
   }
 
   build() {
-    Progress({
-      value: this.renderView.progress,
-      total: this.renderView.maxProgress,
-      type: this.renderView.type as ProgressType
-    })
-      .style({
-        strokeWidth: this.renderView.strokeWidth,
-        enableScanEffect: this.renderView.enableScanEffect,
-        enableSmoothEffect: this.renderView.enableSmoothEffect
-      })
-      .applyRenderViewBaseAttr(this.renderView)
-      .color(this.renderView.color)
+    Slider({
+      value: 10,
+      step: 10,
+      style: SliderStyle.OutSet
+    }).applyRenderViewBaseAttr(this.renderView)
   }
 }
 
 // base props for all components
-@Extend(Progress)
+@Extend(Slider)
 function applyRenderViewBaseAttr($$: HippyRenderBaseView) {
   .key(HIPPY_COMPONENT_KEY_PREFIX + $$.tag)
   .backgroundColor($$.cssBackgroundColor)

@@ -35,19 +35,25 @@ import {
   QTSliderView,
   QTSlider,
 } from 'quicktvui';
-import { QTAVPlayer, QTAVPlayerView } from '../components/video/QTAVPlayerView';
+import { QTVideoPlayer, QTVideoPlayerView } from '../components/video/QTVideoPlayerView';
+import { QTPageRouter, QTPageRouterView } from '../components/router/QTPageRouterView';
+import { QTPage, QTPageView } from '../components/router/QTPageView';
 import { QTFastListView } from 'quicktvui/src/main/ets/components/fastlist/QTFastListView';
 import { QTFastList } from 'quicktvui/src/main/ets/components/fastlist/QTFastList';
 import { QTTextView,QTText } from 'quicktvui/src/main/ets/components/QTTextView';
 import { QTFallbackView,QTFallback } from 'quicktvui/src/main/ets/components/compat/QTFallbackView';
 import { QTDiv, QTDivView } from 'quicktvui/src/main/ets/components/QTDivView';
 
-const TAG: string = 'RuntimeDebug'
+const TAG: string = 'RuntimeDebugPage'
 
+@Builder
+export function PageDebugBuilder(name: string, param: Object) {
+  Debug()
+}
 
-@Entry
 @Component
 struct Debug {
+  pageInfos: NavPathStack = new NavPathStack();
   @State currentEnv: string = 'dev'
   @State versionName: string = '1.0.0'
   @State versionCode: string = '1.0.0'
@@ -66,6 +72,7 @@ struct Debug {
   @State isEngineInitialized: boolean = false
 
   async aboutToAppear() {
+    LogUtils.e(TAG, 'Lifecycle: aboutToAppear');
     // let version = await getAppVersion()
     // this.versionName = version.name
     // this.versionCode = version.code
@@ -81,27 +88,18 @@ struct Debug {
     //  });
   }
 
-  onBackPress(): boolean | void {
-    // const backPressHandler: BackPressHandler = {
-    //   handleBackPress(): void {
-    //     // 实现返回逻辑
-    //     console.log('Back button pressed');
-    //   }
-    // } as BackPressHandler;
-    this.hippyEngine?.onBackPressed(new RuntimeDefaultBackHandler())
-    // const ret = this.isEngineInitialized;
-    // if (this.isEngineInitialized) {
-    //   this.destroyEngine()
-    // }
-    return true;
-  }
-
   onPageShow(): void {
+    LogUtils.e(TAG, 'Lifecycle: onPageShow');
     this.hippyEngine?.onEngineResume()
   }
 
   onPageHide(): void {
+    LogUtils.e(TAG, 'Lifecycle: onPageHide');
     this.hippyEngine?.onEnginePause()
+  }
+
+  aboutToDisappear(): void {
+    LogUtils.e(TAG, 'Lifecycle: aboutToDisappear');
   }
 
   initEngine() {
@@ -141,80 +139,133 @@ struct Debug {
   }
 
   build() {
-    Stack() {
-      Row() {
-        Column() {
-          Text($r('app.string.debug_title'))
-            .fontSize(40)
-            .fontColor(Color.White)
-            .fontWeight(FontWeight.Bold)
-            .margin({ bottom: 80 })
+    NavDestination() {
+      Stack() {
+        Row() {
           Column() {
-            Text($r('app.string.debug_runtime_version', this.versionName, this.versionCode))
-              .fontSize(20)
-              .fontColor($r('app.color.debug_font_color'))
-              .margin({ bottom: 15 })
-            Text(`IP地址: ${this.deviceIp}`)
-              .fontSize(20)
-              .fontColor($r('app.color.debug_font_color'))
-              .margin({ bottom: 15 })
-            Text($r('app.string.debug_server_ip_address', this.debugIp))
-              .fontSize(20)
-              .fontColor($r('app.color.debug_font_color'))
-          }.margin({ bottom: 50 })
-          .alignItems(HorizontalAlign.Start)
+            Text($r('app.string.debug_title'))
+              .fontSize(40)
+              .fontColor(Color.White)
+              .fontWeight(FontWeight.Bold)
+              .margin({ bottom: 80 })
+            Column() {
+              Text($r('app.string.debug_runtime_version', this.versionName, this.versionCode))
+                .fontSize(20)
+                .fontColor($r('app.color.debug_font_color'))
+                .margin({ bottom: 15 })
+              Text(`IP地址: ${this.deviceIp}`)
+                .fontSize(20)
+                .fontColor($r('app.color.debug_font_color'))
+                .margin({ bottom: 15 })
+              Text($r('app.string.debug_server_ip_address', this.debugIp))
+                .fontSize(20)
+                .fontColor($r('app.color.debug_font_color'))
+            }.margin({ bottom: 50 })
+            .alignItems(HorizontalAlign.Start)
 
-          Text($r('app.string.debug_app_tip'))
-            .fontSize(20)
-            .fontColor($r('app.color.debug_font_color'))
-            .margin({ bottom: 50 })
+            Text($r('app.string.debug_app_tip'))
+              .fontSize(20)
+              .fontColor($r('app.color.debug_font_color'))
+              .margin({ bottom: 50 })
+          }
+          .margin({ right: 150 })
+          .alignItems(HorizontalAlign.Start)
+          .justifyContent(FlexAlign.Start)
+
+          Column() {
+            Button($r('app.string.debug_start'))
+              .fontColor(Color.Black)
+              .fontSize(40)
+              .fontWeight(FontWeight.Bold)
+              .backgroundColor($r('app.color.debug_font_color'))
+              .type(ButtonType.Circle)
+              .width(300)
+              .height(300)
+              .onClick(() => {
+                this.initEngine()
+              })
+          }.margin({ right: 70 })
         }
-        .margin({ right: 150 })
-        .alignItems(HorizontalAlign.Start)
-        .justifyContent(FlexAlign.Start)
+        .alignItems(VerticalAlign.Center)
+        .justifyContent(FlexAlign.Center)
+        .width('100%')
+        .height('100%')
+        .expandSafeArea()
 
         Column() {
-          Button($r('app.string.debug_start'))
-            .fontColor(Color.Black)
-            .fontSize(40)
-            .fontWeight(FontWeight.Bold)
-            .backgroundColor($r('app.color.debug_font_color'))
-            .type(ButtonType.Circle)
-            .width(300)
-            .height(300)
-            .onClick(() => {
-              this.initEngine()
-            })
-        }.margin({ right: 70 })
+        }.width('100%')
+        .height(40)
+
+        if (this.isEngineInitialized) {
+          HippyRoot({
+            hippyEngine: this.hippyEngine,
+            rootViewWrapper: this.rootViewWrapper,
+            onRenderException: (exception: HippyException) => {
+              this.exception = `${exception.message}\n${exception.stack}`
+            },
+          }).layoutWeight(1)
+        }
+        if (this.exception) {
+          Text(this.exception)
+        }
       }
-      .alignItems(VerticalAlign.Center)
-      .justifyContent(FlexAlign.Center)
+      .alignContent(Alignment.TopStart)
       .width('100%')
       .height('100%')
+      .backgroundColor('#3A4251')
       .expandSafeArea()
-
-      Column() {
-      }.width('100%')
-      .height(40)
-
-      if (this.isEngineInitialized) {
-        HippyRoot({
-          hippyEngine: this.hippyEngine,
-          rootViewWrapper: this.rootViewWrapper,
-          onRenderException: (exception: HippyException) => {
-            this.exception = `${exception.message}\n${exception.stack}`
-          },
-        }).layoutWeight(1)
-      }
-      if (this.exception) {
-        Text(this.exception)
-      }
     }
-    .alignContent(Alignment.TopStart)
-    .width('100%')
-    .height('100%')
-    .backgroundColor('#3A4251')
-    .expandSafeArea()
+    .hideTitleBar(true)
+    .hideBackButton(true)
+    .hideToolBar(true)
+    .onReady((context: NavDestinationContext) => {
+      this.pageInfos = context.pathStack;
+    })
+    .onWillAppear(() => {
+      LogUtils.e(TAG, 'Lifecycle: onWillAppear');
+      this.hippyEngine?.onLifecycleEvent("onWillAppear")
+    })
+    .onAttach(() => {
+      LogUtils.e(TAG, 'Lifecycle: onAttach');
+      this.hippyEngine?.onLifecycleEvent("onAttach")
+    })
+    .onAppear(() => {
+      LogUtils.e(TAG, 'Lifecycle: onAppear');
+      this.hippyEngine?.onLifecycleEvent("onAppear")
+    })
+    .onWillShow(() => {
+      LogUtils.e(TAG, 'Lifecycle: onWillShow');
+      this.hippyEngine?.onLifecycleEvent("onWillShow")
+    })
+    .onShown(() => {
+      LogUtils.e(TAG, 'Lifecycle: onShown');
+      this.hippyEngine?.onLifecycleEvent("onShown")
+    })
+    .onWillHide(() => {
+      LogUtils.e(TAG, 'Lifecycle: onWillHide');
+      this.hippyEngine?.onLifecycleEvent("onWillHide")
+    })
+    .onHidden(() => {
+      LogUtils.e(TAG, 'Lifecycle: onHidden');
+      this.hippyEngine?.onLifecycleEvent("onHidden")
+    })
+    .onWillDisappear(() => {
+      LogUtils.e(TAG, 'Lifecycle: onWillDisappear');
+      this.hippyEngine?.onLifecycleEvent("onWillDisappear")
+    })
+    .onDetach(() => {
+      LogUtils.e(TAG, 'Lifecycle: onDetach');
+      this.hippyEngine?.onLifecycleEvent("onDetach")
+    })
+    .onDisAppear(() => {
+      LogUtils.e(TAG, 'Lifecycle: onDisAppear');
+      this.hippyEngine?.onLifecycleEvent("onDisAppear")
+    })
+    //返回键
+    .onBackPressed(() => {
+      this.hippyEngine?.onBackPressed(new RuntimeDefaultBackHandler())
+      return true
+    })
   }
 }
 
@@ -224,11 +275,6 @@ class RuntimeDefaultBackHandler implements BackPressHandler {
   }
 }
 
-
-/**
- * 渲染
- * @param $$
- */
 @Builder
 function buildCustomRenderView($$: HippyRenderBaseView) {
   if ($$ instanceof QTLoadingView) {
@@ -246,22 +292,22 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
       renderView: $$ as QTProgressView,
       children: $$.children,
     })
-  }else if ($$ instanceof QTQRCodeView) {
+  } else if ($$ instanceof QTQRCodeView) {
     QTQRCode({
       renderView: $$ as QTQRCodeView,
       children: $$.children,
     })
-  }else if ($$ instanceof QTWebView) {
+  } else if ($$ instanceof QTWebView) {
     QTWeb({
       renderView: $$ as QTWebView,
       children: $$.children,
     })
-  }else if ($$ instanceof QTAVPlayerView) {
-    QTAVPlayer({
-      renderView: $$ as QTAVPlayerView,
+  } else if ($$ instanceof QTVideoPlayerView) {
+    QTVideoPlayer({
+      renderView: $$ as QTVideoPlayerView,
       children: $$.children,
     })
-  }else if ($$ instanceof QTSliderView) {
+  } else if ($$ instanceof QTSliderView) {
     QTSlider({
       renderView: $$ as QTSliderView,
       children: $$.children,
@@ -286,6 +332,20 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
   else{
     QTFallback({
       renderView: $$ as QTFallbackView,
+      children: $$.children,
+    })
+  }
+  //路由
+  else if ($$ instanceof QTPageRouterView) {
+    QTPageRouter({
+      renderView: $$ as QTPageRouterView,
+      children: $$.children,
+    })
+  }
+  //页面
+  else if ($$ instanceof QTPageView) {
+    QTPage({
+      renderView: $$ as QTPageView,
       children: $$.children,
     })
   }

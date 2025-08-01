@@ -3,18 +3,26 @@ import {
   HippyNativeModuleBase,
   EventDispatcher,
   HippyAny,
-  HippyModulePromise
+  HippyModulePromise,
+  LogUtils
 } from 'hippy';
 
-import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
 import { ESInfo } from '../api/ESInfo';
 
 export class BaseModule extends HippyNativeModuleBase {
+  private _idCounter: number = 0
 
   constructor(ctx: HippyEngineContext) {
     super(ctx)
   }
 
+  /**
+   * 调用方法
+   * @param method
+   * @param params
+   * @param promise
+   * @returns
+   */
   public call(method: string, params: Array<HippyAny>, promise: HippyModulePromise): HippyAny {
     switch (method) {
       case 'init': {
@@ -33,6 +41,11 @@ export class BaseModule extends HippyNativeModuleBase {
     return null;
   }
 
+  /**
+   * 发送事件
+   * @param eventName
+   * @param eventParam
+   */
   dispatchEvent(eventName: string, eventParam: HippyAny) {
     try {
       if (this.ctx != null && this.ctx.getModuleManager() != null) {
@@ -46,5 +59,13 @@ export class BaseModule extends HippyNativeModuleBase {
       LogUtils.e('BaseModule',
         'dispatchEvent: ' + eventName + ' eventParam:' + eventParam + " error!");
     }
+  }
+
+  /**
+   * 自增id
+   * @returns
+   */
+  public generateId(): number {
+    return ++this._idCounter
   }
 }

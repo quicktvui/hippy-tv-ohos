@@ -1,0 +1,12 @@
+{
+  "routerMap": [
+    {
+      "name": "Debug",
+      "pageSourceFile": "src/main/ets/pages/Debug.ets",
+      "buildFunction": "PageDebugBuilder",
+      "data": {
+        "description": "this is debug page"
+      }
+    }
+  ]
+}
