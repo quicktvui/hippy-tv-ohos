@@ -57,6 +57,8 @@ export class HRViewManager {
     this.rootTag = rootView.ctx.getRootId()
     this.rootRenderView = rootView
     this.viewRegistry.set(this.rootTag, rootView)
+
+    LogUtils.e('quicktvui',`HRViewManager crate !!!!!`)
   }
 
   getRootTag(): number {
@@ -118,6 +120,7 @@ export class HRViewManager {
   }
 
   private createRenderView(tag: number, viewName: string): void {
+    LogUtils.i('quicktvui',`createRenderView crate tag:${tag},viewName:${viewName}`)
     let existRenderView = this.viewRegistry.get(tag)
     if (existRenderView) {
       return
@@ -238,6 +241,7 @@ export class HRViewManager {
   }
 
   callViewMethod(tag: number, method: string, params: Array<HippyAny>, callback: HippyRenderCallback | null): void {
+    LogUtils.w('quicktvui',`tag:${tag}  methond :${method} params:${params}`)
     let renderView = this.viewRegistry.get(tag)
     if (renderView) {
       renderView.call(method, params, callback)

@@ -97,4 +97,9 @@ export * from "./src/main/ets/support/utils/PixelUtil"
  */
 export * from "./src/main/ets/renderer_native/components/view/HRDivView"
 export { default as HippyRenderBaseView} from "./src/main/ets/renderer_native/components/base/HippyRenderBaseView"
+export * from "./src/main/ets/renderer_native/node/HRVirtualNode"
+export * from "./src/main/ets/renderer_native/node/HRVirtualNodeManager"
+export * from "./src/main/ets/renderer_native/uimanager/HRViewManager"
+export * from "./src/main/ets/renderer_native/utils/HRTypes"
+
 

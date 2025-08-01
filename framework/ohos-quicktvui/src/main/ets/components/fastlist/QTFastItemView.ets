@@ -7,10 +7,12 @@ import {
   HippyRenderCallback
 } from 'hippy'
 import { QTBaseComponentView } from '../QTBaseComponentView';
+import QTRenderBaseView from '../QTRenderBaseView';
 
 
 @Observed
-export class QTFastItemView extends QTBaseComponentView {
+export class QTFastItemView extends QTRenderBaseView{
+
   constructor(ctx: NativeRenderContext) {
     super(ctx)
   }
@@ -68,7 +70,7 @@ export class QTFastItemView extends QTBaseComponentView {
 @Component
 export struct QTFastItem {
   @ObjectLink renderView: QTFastItemView
-  @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
+  @ObjectLink children: HippyObservedArray<QTRenderBaseView>
 
   build(): void {
     HRDiv({

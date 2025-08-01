@@ -38,6 +38,11 @@ import {
 import { QTVideoPlayer, QTVideoPlayerView } from '../components/video/QTVideoPlayerView';
 import { QTPageRouter, QTPageRouterView } from '../components/router/QTPageRouterView';
 import { QTPage, QTPageView } from '../components/router/QTPageView';
+import { QTFastListView } from 'quicktvui/src/main/ets/components/fastlist/QTFastListView';
+import { QTFastList } from 'quicktvui/src/main/ets/components/fastlist/QTFastList';
+import { QTTextView,QTText } from 'quicktvui/src/main/ets/components/QTTextView';
+import { QTFallbackView,QTFallback } from 'quicktvui/src/main/ets/components/compat/QTFallbackView';
+import { QTDiv, QTDivView } from 'quicktvui/src/main/ets/components/QTDivView';
 
 const TAG: string = 'RuntimeDebugPage'
 
@@ -52,8 +57,8 @@ struct Debug {
   @State currentEnv: string = 'dev'
   @State versionName: string = '1.0.0'
   @State versionCode: string = '1.0.0'
-  @State deviceIp: string = '192.168.0.88'
-  @State debugIp: string = '192.168.0.88' // 这里可以通过 storage 设置
+  @State deviceIp: string = '192.168.40.32'
+  @State debugIp: string = '192.168.40.32' // 这里可以通过 storage 设置
   envList: string[] = ['dev', 'test', 'prod']
   //----------------------------------------------------------------------
 
@@ -103,8 +108,8 @@ struct Debug {
     //
     let params = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext())
     params.coreJSAssetsPath = "vue2/vendor.ohos.js"
-    params.enableArkCApi = true
-    params.debugServerHost = '192.168.40.47:38989'
+    params.enableArkCApi = false
+    params.debugServerHost = this.deviceIp+':38989'
     params.debugMode = true
     params.enableLog = true
     //自定义 module 和 component 入口
@@ -308,7 +313,22 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
       children: $$.children,
     })
   }
-  //路由
+  if ($$ instanceof QTFastListView) {
+    QTFastList({
+      renderView: $$ as QTFastListView,
+      children: $$.children,
+    })
+  } else if ($$ instanceof QTTextView) {
+    QTText({
+      renderView: $$ as QTTextView,
+      children: $$.children,
+    })
+  }else if($$ instanceof QTDivView ){
+    QTDiv({
+      renderView: $$ as QTTextView,
+      children: $$.children,
+    })
+  }
   else if ($$ instanceof QTPageRouterView) {
     QTPageRouter({
       renderView: $$ as QTPageRouterView,
@@ -322,6 +342,14 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
       children: $$.children,
     })
   }
+  else{
+    QTFallback({
+      renderView: $$ as QTFallbackView,
+      children: $$.children,
+    })
+  }
+  //路由
+
 }
 
 class DefaultEngineListener implements EngineListener {

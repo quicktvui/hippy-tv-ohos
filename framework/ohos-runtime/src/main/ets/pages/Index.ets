@@ -14,27 +14,10 @@ import HippyRenderBaseView from 'hippy/src/main/ets/renderer_native/components/b
 import { HRRenderViewCreator } from 'hippy/src/main/ets/renderer_native/components/HippyRenderRegisterMap';
 import { HippyValue } from 'hippy/src/main/ets/support/common/HippyTypes';
 import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
+import { QTAPIProvider } from 'quicktvui';
 
-export class ExampleAPIProvider extends HippyAPIProvider {
-  getCustomNativeModuleCreatorMap(): Map<string, HippyNativeModuleCreator> | null {
-    return null
-  }
+export class ExampleAPIProvider extends QTAPIProvider {
 
-  getCustomJavaScriptModuleCreatorMap(): Map<string, HippyJSModuleCreator> | null {
-    return null
-  }
-
-  getCustomRenderViewCreatorMap(): Map<string, HRRenderViewCreator> | null {
-    return null
-  }
-
-  getCustomMeasureRenderViews(): Array<string> | null {
-    return null
-  }
-
-  getCustomMappingRenderViewMap(): Map<string, string> | null {
-    return null
-  }
 
 }
 

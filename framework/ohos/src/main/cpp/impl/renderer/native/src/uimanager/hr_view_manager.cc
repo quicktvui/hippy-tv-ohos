@@ -273,7 +273,7 @@ std::shared_ptr<BaseView> HRViewManager::CreateRenderView(uint32_t tag, std::str
     view_registry_[tag] = view;
     return view;
   } else {
-    FOOTSTONE_DLOG(INFO) << "CreateRenderView failed, " << view_name;
+    FOOTSTONE_DLOG(WARNING) << "CreateRenderView failed, " << view_name;
   }
   return nullptr;
 }
