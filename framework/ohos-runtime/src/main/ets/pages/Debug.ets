@@ -329,13 +329,6 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
       children: $$.children,
     })
   }
-  else{
-    QTFallback({
-      renderView: $$ as QTFallbackView,
-      children: $$.children,
-    })
-  }
-  //路由
   else if ($$ instanceof QTPageRouterView) {
     QTPageRouter({
       renderView: $$ as QTPageRouterView,
@@ -349,6 +342,14 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
       children: $$.children,
     })
   }
+  else{
+    QTFallback({
+      renderView: $$ as QTFallbackView,
+      children: $$.children,
+    })
+  }
+  //路由
+
 }
 
 class DefaultEngineListener implements EngineListener {

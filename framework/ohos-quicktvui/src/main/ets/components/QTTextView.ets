@@ -3,15 +3,18 @@ import {HippyRenderBaseView,HippyObservedArray,HRRect,HRPadding,NativeRenderCont
 import { QUICKTVUI_TAG } from '../Constant';
 import { HRValueUtils } from '../HRValueUtils';
 import QTRenderBaseView from './QTRenderBaseView';
+import { ColorMetrics } from '@ohos.arkui.node';
+import { ViewUtils } from '../utils/ViewUtils';
 
 
 @Observed
 export class QTTextView extends QTRenderBaseView{
   cssPadding: Padding = { top: 0, right: 0, bottom: 0, left: 0 }
   maxLines: number = 10000000
+  lines: number = 1
   text: string = "haha"
-  fontColor: number | null = null
-  fontSize: number = 20
+  fontColor: ResourceColor | null = null
+  fontSize: Dimension = 20
   lineHeight: number | null = null
   // fontStyle: FontStyle = FontStyle.Normal
   // fontWeight: number | FontWeight | string = FontWeight.Normal
@@ -47,9 +50,10 @@ export class QTTextView extends QTRenderBaseView{
         return true;
       case "gravity":
         // this. = HRValueUtils.getNumber(propValue)
+        this.textAlign = ViewUtils.getTextGravity(HRValueUtils.getString(propValue))
         return true;
       case "fontSize":
-
+        this.fontSize = HRValueUtils.getNumber(propValue)
         return true;
       case "paddingRect":
 
@@ -64,13 +68,13 @@ export class QTTextView extends QTRenderBaseView{
         this.ellipsisMode = HRValueUtils.getNumber(propValue)
         return true;
       case "lines":
-
+        this.maxLines = HRValueUtils.getNumber(propValue)
         return true;
       case "maxLines":
         this.maxLines = HRValueUtils.getNumber(propValue)
         return true;
       case "textColor":
-
+        this.fontColor = HRValueUtils.getString(propValue)
         return true;
       case "lineHeight":
         this.lineHeight = HRValueUtils.getNumber(propValue)
@@ -98,7 +102,7 @@ export class QTTextView extends QTRenderBaseView{
     return super.setProp(propKey, propValue)
   }
 
-  call(method: string, params: Array<HippyAny>, callback: HippyRenderCallback | null): void {
+  call(method: string, propValue: Array<HippyAny>, callback: HippyRenderCallback | null): void {
 
     if(callback){
       switch (method){
@@ -109,13 +113,13 @@ export class QTTextView extends QTRenderBaseView{
     }else{
       switch (method){
         case 'setText':
-
+          this.text = HRValueUtils.getString(propValue)
           break;
         case 'setTextSize':
-
+          this.fontSize = HRValueUtils.getNumber(propValue)
           break;
         case 'setTextColor':
-
+          this.fontColor = HRValueUtils.getString(propValue)
           break;
         case 'textSpan':
 
