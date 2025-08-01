@@ -5,6 +5,7 @@ import { HRValueUtils } from '../HRValueUtils';
 import QTRenderBaseView from './QTRenderBaseView';
 import { ColorMetrics } from '@ohos.arkui.node';
 import { ViewUtils } from '../utils/ViewUtils';
+import MeasureText from '@ohos.measure';
 
 
 @Observed
@@ -23,6 +24,7 @@ export class QTTextView extends QTRenderBaseView{
   letterSpacing: number = 0
   textAlign: TextAlign = TextAlign.Start
   ellipsisMode: EllipsisMode = EllipsisMode.END
+
 
   constructor(ctx: NativeRenderContext) {
     super(ctx)
@@ -141,8 +143,17 @@ export struct  QTText {
   @ObjectLink renderView: QTTextView
   @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
 
+
+  @State textSize: SizeOptions = MeasureText.measureTextSize({
+    textContent: this.renderView.text,
+    fontSize: this.renderView.fontSize,
+  })
+
+
   build(): void {
     Text(this.renderView.text)
+      .width(this.renderView.cssWidth > 0 ? this.renderView.cssWidth : this.textSize.width)
+      .height(this.renderView.cssHeight > 0 ? this.renderView.cssHeight :  this.textSize.height)
       .applyRenderViewBaseAttr(this.renderView)
       .fontSize(this.renderView.fontSize)
       .fontColor(this.renderView.fontColor)
@@ -160,7 +171,6 @@ function applyRenderViewBaseAttr($$: HippyRenderBaseView) {
   .key(HIPPY_COMPONENT_KEY_PREFIX + $$.tag)
   .backgroundColor($$.cssBackgroundColor)
   .position({x: $$.cssPositionX, y: $$.cssPositionY})
-  .size({width:$$.cssWidth, height: $$.cssHeight})
   .opacity($$.cssOpacity)
   .clip($$.cssOverflow)
   .visibility(($$ as HippyRenderBaseView).cssVisibility) // must add as, otherwise the compiler has error
