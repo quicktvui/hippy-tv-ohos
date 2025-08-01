@@ -1,6 +1,5 @@
 import {HippyRenderBaseView,NativeRenderContext,HippyAny,HippyRenderCallback,HippyCustomComponentView} from 'hippy'
 import { QUICKTVUI_TAG } from '../Constant'
-import { HRValueUtils } from '../HRValueUtils';
 import { QTBaseComponentView } from './QTBaseComponentView';
 
 type InsertListener = (childTag: number, childViewName: string, childIndex: number)=>void;
@@ -8,6 +7,7 @@ type InsertListener = (childTag: number, childViewName: string, childIndex: numb
 export default abstract class QTRenderBaseView extends  QTBaseComponentView{
 
   private listeners: InsertListener[] = [];
+  public templateView : HippyRenderBaseView | null = null;
 
   constructor(ctx: NativeRenderContext) {
     super(ctx)
@@ -38,6 +38,14 @@ export default abstract class QTRenderBaseView extends  QTBaseComponentView{
   }
 
   onChildRemoved(childTag: number, childViewName: string, childIndex: number): void {
+
+  }
+
+  onCreateByTemplate(templateView : HippyRenderBaseView){
+    this.templateView = templateView;
+  }
+
+  aboutToUpdate(){
 
   }
 

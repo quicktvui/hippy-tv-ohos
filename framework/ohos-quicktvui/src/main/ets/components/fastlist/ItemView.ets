@@ -1,5 +1,4 @@
 import {HippyRenderBaseView,HippyMap,HippyAny,buildHippyRenderView,HRDivView} from 'hippy'
-import {buildRenderViewTraverse} from '../TemplateViewManager'
 import { QTPlaceholderView } from './QTPlaceholderView';
 
 export class ItemTemplate  {
@@ -64,12 +63,7 @@ export class ItemView{
 export function  renderItem(item : ItemView){
   if(item.template && item.raw){
     buildHippyRenderView(
-      buildRenderViewTraverse(item.template.templateView.ctx,
-        item.template.templateView,
-        item.template.props,
-        item.raw,
-        null,
-        0) ?? new QTPlaceholderView(item.template.templateView.ctx),null
+      item.renderView ?? new QTPlaceholderView(item.template.templateView.ctx),null
     )
   }else{
     Text(`未实现:${item.position},viewName:${item.template?.viewType}`)

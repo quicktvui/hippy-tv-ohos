@@ -43,6 +43,9 @@ import { QTFastList } from 'quicktvui/src/main/ets/components/fastlist/QTFastLis
 import { QTTextView,QTText } from 'quicktvui/src/main/ets/components/QTTextView';
 import { QTFallbackView,QTFallback } from 'quicktvui/src/main/ets/components/compat/QTFallbackView';
 import { QTDiv, QTDivView } from 'quicktvui/src/main/ets/components/QTDivView';
+import {
+  QTFastFlex,
+  QTFastFlexView } from 'quicktvui/src/main/ets/components/fastlist/QTFastFlexView';
 
 const TAG: string = 'RuntimeDebugPage'
 
@@ -57,8 +60,8 @@ struct Debug {
   @State currentEnv: string = 'dev'
   @State versionName: string = '1.0.0'
   @State versionCode: string = '1.0.0'
-  @State deviceIp: string = '192.168.40.32'
-  @State debugIp: string = '192.168.40.32' // 这里可以通过 storage 设置
+  @State deviceIp: string = '192.168.80.60'
+  @State debugIp: string = '192.168.80.60' // 这里可以通过 storage 设置
   envList: string[] = ['dev', 'test', 'prod']
   //----------------------------------------------------------------------
 
@@ -342,6 +345,12 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
       children: $$.children,
     })
   }
+  else if ($$ instanceof QTFastFlexView) {
+    QTFastFlex({
+      renderView: $$ as QTFastFlexView,
+      children: $$.children,
+    })
+  }
   else{
     QTFallback({
       renderView: $$ as QTFallbackView,
@@ -373,8 +382,8 @@ class DefaultEngineListener implements EngineListener {
         null,
         null,
       )
-      loadParams.componentName = "Demo"
-      loadParams.codeCacheTag = "Demo"
+      loadParams.componentName = "EsApp"
+      loadParams.codeCacheTag = "EsApp"
       loadParams.jsParams = new Map<string, HippyValue>()
       loadParams.jsParams.set(
         "msgFromNative",

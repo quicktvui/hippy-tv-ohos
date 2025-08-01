@@ -1,8 +1,8 @@
 
-import {HippyRenderBaseView,HippyObservedArray,HRDiv,NativeRenderContext,HippyAny,HippyRenderCallback,HippyArray,HippyMap} from 'hippy'
+import {HippyObservedArray,NativeRenderContext,HippyAny,HippyRenderCallback,HippyArray,HippyMap} from 'hippy'
 import { QUICKTVUI_TAG } from '../../Constant';
 import { HRValueUtils } from '../../HRValueUtils';
-import {  HippyUtils } from '../../utils/HippyUtils';
+
 import QTRenderBaseView from '../QTRenderBaseView';
 import { ItemView } from './ItemView';
 import { QTFastList } from './QTFastList';
@@ -13,7 +13,6 @@ export class QTFastListView extends QTRenderBaseView{
 
   public uiCtx: UIContext | null = null
   public dataList: HippyObservedArray<ItemView> = new HippyObservedArray()
-  // public dataSource : FastListDataSource | null = null;
   public ui : QTFastList | null = null;
 
   constructor(ctx: NativeRenderContext) {

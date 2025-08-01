@@ -3,7 +3,6 @@ import {HippyRenderBaseView,HippyObservedArray,HRRect,HRPadding,NativeRenderCont
 import { QUICKTVUI_TAG } from '../Constant';
 import { HRValueUtils } from '../HRValueUtils';
 import QTRenderBaseView from './QTRenderBaseView';
-import { ColorMetrics } from '@ohos.arkui.node';
 import { ViewUtils } from '../utils/ViewUtils';
 import MeasureText from '@ohos.measure';
 

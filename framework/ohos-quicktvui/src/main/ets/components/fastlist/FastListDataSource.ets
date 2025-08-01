@@ -21,9 +21,10 @@ import {HippyRenderBaseView,HippyObservedArray,NativeRenderContext,NativeRender}
 import { QUICKTVUI_TAG } from '../../Constant';
 import {HippyMap,HippyArray,HippyAny} from 'hippy'
 import {ItemView,getItemType, ItemTemplate} from './ItemView'
-import {getNodeById,getRenderView} from '../../utils/NodeUtils'
 import assertNull from '@ohos/hypium/src/main/module/assert/assertNull';
-import {buildRenderViewTraverse} from '../TemplateViewManager'
+import {buildRenderViewTraverse, PathUpdate} from '../TemplateViewManager'
+import { NodeUtils } from '../../utils/NodeUtils';
+import QTRenderBaseView from '../QTRenderBaseView';
 
 
 // class ItemEntry{
@@ -58,7 +59,7 @@ export class FastListDataSource implements IDataSource {
   public registerTemplate(child: HippyRenderBaseView,childIndex: number){
     let childTag = child.tag
     let childViewName = child.viewType
-    let node = getNodeById(this.ctx,childTag)
+    let node = NodeUtils.getNodeById(this.ctx,childTag)
     // let renderView = getRenderView(this.ctx,childTag)
     if(child == null || node == null){
       console.error(QUICKTVUI_TAG,`registerTemplate error renderView:${child},node:${node},viewName:${childViewName}`)
@@ -74,26 +75,42 @@ export class FastListDataSource implements IDataSource {
     }
   }
 
-
-  public getData(index: number): ItemView {
-    let item = this.dataList[index]
+  public buildItem(item: ItemView): ItemView{
     let type = getItemType(item.raw)
     if(type){
       let it = this.templatesMap.get(type);
       item.template = it;
       if(it){
-        let rv = buildRenderViewTraverse(this.ctx,it.templateView,it.props,item.raw as HippyMap,null,0)
+        let  updates:Array<PathUpdate> = []
+        let rv = buildRenderViewTraverse(this.ctx,it.templateView,it.props,item.raw as HippyMap,null,0,updates)
+        updates?.map((p)=>{
+          if(p.renderView instanceof  QTRenderBaseView){
+            p.renderView.aboutToUpdate()
+          }
+          p.props.forEach((value,key)=>{
+            p.renderView.setProp(key,value)
+          })
+        })
         item.renderView = rv;
         if(!rv){
-          console.error(QUICKTVUI_TAG,`buildRenderView null index:${index}`)
+          console.error(QUICKTVUI_TAG,`buildRenderView null `)
         }
       }else{
-        console.error(QUICKTVUI_TAG,'getData error template is null: index'+index+",item:"+item.raw)
+        console.error(QUICKTVUI_TAG,'getData error template is null')
       }
     }else{
-      console.error(QUICKTVUI_TAG,'getData type is undefined, position:'+index+",data:"+item.raw)
+      console.error(QUICKTVUI_TAG,'getData type is undefined')
     }
     return item
+  }
+
+  public preCreateAll(){
+
+  }
+
+  public getData(index: number): ItemView {
+    let item = this.dataList[index]
+    return this.buildItem(item)
   }
 
   // public setListData(rawList : HippyArray){

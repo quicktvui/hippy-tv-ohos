@@ -1,11 +1,16 @@
-import {HippyRenderBaseView,HippyObservedArray,NativeRenderContext,NativeRender,HippyMap} from 'hippy'
-export function getNodeById(ctx : NativeRenderContext,tag : number){
-  return ctx.getNativeRender().getRenderManager().getVirtualNodeManager(ctx.getRootId())?.getVirtualNode(tag)
+import {NativeRenderContext} from 'hippy'
+export class NodeUtils{
+  static getNodeById(ctx : NativeRenderContext,tag : number){
+    return ctx.getNativeRender().getRenderManager().getVirtualNodeManager(ctx.getRootId())?.getVirtualNode(tag)
+  }
+
+  static getRenderView(ctx : NativeRenderContext,tag : number){
+    return ctx.getNativeRender().getRenderManager().getViewManager(ctx.getRootId())?.getRenderView(tag)
+  }
 }
 
-export function getRenderView(ctx : NativeRenderContext,tag : number){
-  return ctx.getNativeRender().getRenderManager().getViewManager(ctx.getRootId())?.getRenderView(tag)
-}
+
+
 
 
 

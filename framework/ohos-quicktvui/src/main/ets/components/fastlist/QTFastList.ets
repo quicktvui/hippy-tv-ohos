@@ -3,8 +3,7 @@ import {HippyObservedArray,HRDiv,HIPPY_COMPONENT_KEY_PREFIX,HippyRenderBaseView,
 import { QUICKTVUI_TAG } from "../../Constant";
 import { FastListDataSource } from "./FastListDataSource";
 import { ItemView, renderItem } from "./ItemView";
-import { getNodeById } from "../../utils/NodeUtils";
-import hilog from "@ohos.hilog";
+import { NodeUtils } from "../../utils/NodeUtils";
 
 @Component
 export struct  QTFastList {
@@ -58,7 +57,7 @@ export struct  QTFastList {
     this.bgColor = Color.Green
     console.log(QUICKTVUI_TAG,`QTFastList: handleOnChildrenUpdated children:${this.children.length}`)
     this.children.map((c,index)=>{
-      console.log(QUICKTVUI_TAG,`template: viewType：`+c.viewType+",node:"+getNodeById(this.renderView.ctx,c.tag))
+      console.log(QUICKTVUI_TAG,`template: viewType：`+c.viewType+",node:"+NodeUtils.getNodeById(this.renderView.ctx,c.tag))
       this.dataSource?.registerTemplate(c,index)
     })
 

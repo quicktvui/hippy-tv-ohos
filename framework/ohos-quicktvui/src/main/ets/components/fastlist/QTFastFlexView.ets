@@ -1,34 +1,87 @@
 import {
-  HippyRenderBaseView,
+  HIPPY_COMPONENT_KEY_PREFIX,
   HippyObservedArray,
-  HRDiv,
   NativeRenderContext,
   HippyAny,
-  HippyRenderCallback
+  HippyMap,
+  HippyArray,
+  HippyRenderCallback,
+  HippyEndBatchCallback,
+  HippyRenderBaseView
 } from 'hippy'
-import { QTBaseComponentView } from '../QTBaseComponentView';
+import { QUICKTVUI_TAG } from '../../Constant';
+import { HRValueUtils } from '../../HRValueUtils';
+import { NodeUtils } from '../../utils/NodeUtils';
 import QTRenderBaseView from '../QTRenderBaseView';
+import { FastListDataSource } from './FastListDataSource';
+import { ItemView, renderItem } from './ItemView';
 
 
 @Observed
-export class QTFastFlexView extends QTBaseComponentView {
+export class QTFastFlexView extends QTRenderBaseView {
+  public dataList: HippyObservedArray<ItemView> = new HippyObservedArray()
+  dataSource: FastListDataSource | null = null;
+
   constructor(ctx: NativeRenderContext) {
     super(ctx)
+    this.dataSource = new FastListDataSource(ctx,this.dataList)
+  }
+
+
+  onChildInserted(childTag: number, childViewName: string, childIndex: number): void {
+    console.error(QUICKTVUI_TAG,`QTFastFlexView onChildInserted tag :${childTag},childViewName:${childViewName},childIndex:${childIndex}`)
+  }
+
+  aboutToUpdate(): void {
+    let children = this.templateView?.children
+    console.error(QUICKTVUI_TAG,`QTFastFlexView aboutToUpdate!! children size:${children?.length}`)
+    children?.map((c,index)=>{
+      if(c.tag != -1){
+        console.log(QUICKTVUI_TAG,`QTFastFlexView template: viewType：`+c.viewType+",node:"+NodeUtils.getNodeById(this.ctx,c.tag))
+        this.dataSource?.registerTemplate(c,index)
+      }else{
+        console.error(QUICKTVUI_TAG,`QTFastFlexView registerTemplate error child id is -1`)
+      }
+
+    })
+  }
+
+  onDataChanged(data : HippyArray | null){
+    if(data && data.length > 0){
+      for(let  i = 0; i < data.length; i++){
+        let item : ItemView = new ItemView(i,data[i] as HippyMap);
+        this.dataSource?.buildItem(item)
+        this.dataList.push(item)
+        console.log(QUICKTVUI_TAG,`FastFlex put item index:${i}`)
+      }
+      // this.dataList.push(...
+      //   data?.map((item,index)=>{
+      //     return new ItemView(index,item as HippyMap)
+      //   })
+      // )
+    }else{
+      this.dataList = []
+    }
   }
 
   setProp(propKey: string, propValue: HippyAny): boolean {
     switch (propKey) {
       case "cachePool":
-
+        console.log(QUICKTVUI_TAG,`FastFlex:setCachePool :${propValue}`)
         return true;
       case "firstFocusChild":
-
+        console.log(QUICKTVUI_TAG,`FastFlex:firstFocusChild :${propValue}`)
         return true;
       case "list":
-
+        if(propValue instanceof Array){
+          console.log(QUICKTVUI_TAG,`FastFlex:setListData:${HRValueUtils.getArray(propValue)}`)
+          this.onDataChanged(HRValueUtils.getArray(propValue))
+        }else{
+          console.error(QUICKTVUI_TAG,`FastFlex:setListData error list is not array propValue:${propValue}`)
+        }
         return true;
       case "sharedItemStore":
-
+        console.log(QUICKTVUI_TAG,`FastFlex:sharedItemStore :${propValue}`)
         return true;
 
     }
@@ -60,10 +113,10 @@ export class QTFastFlexView extends QTBaseComponentView {
       case "useLayoutAnimation":
       case "useDiff":
       case "keyName":
-        console.error(`QTFastFlexView : 未实现propKey : ${propKey}`)
+        console.error(QUICKTVUI_TAG,`QTFastFlexView : 未实现propKey : ${propKey}`)
         return true;
       default:
-        console.warn(`QTFastFlexView : 未知的未实现propKey : ${propKey}`)
+        console.warn(QUICKTVUI_TAG,`QTFastFlexView : 未知的未实现propKey : ${propKey}`)
         break;
     }
     return super.setProp(propKey, propValue)
@@ -92,7 +145,7 @@ export class QTFastFlexView extends QTBaseComponentView {
       case 'setCustomStateEnableOnFocus':
       case 'setItemCustomState':
       case 'scheduleLayoutAnimation':
-        console.error(`QTFastFlexView : 未实现的function : ${method}`)
+        console.error(QUICKTVUI_TAG,`QTFastFlexView : 未实现的function : ${method}`)
         return;
     }
 
@@ -107,19 +160,64 @@ export class QTFastFlexView extends QTBaseComponentView {
 @Component
 export struct QTFastFlex {
   @ObjectLink renderView: QTFastFlexView
-  @ObjectLink children: HippyObservedArray<QTRenderBaseView>
+  @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
+  private endBatchCallback: HippyEndBatchCallback | null = null
 
-  build(): void {
-    HRDiv({
-      renderView: this.renderView,
-      children: this.children
-    }).onClick(() => {
+  private handleOnChildrenUpdated() {
+    console.log(QUICKTVUI_TAG,`QTFastFlexView: handleOnChildrenUpdated children:${this.children.length}`)
 
-    })
   }
 
-  aboutToAppear(): void {
+  build(): void {
+    Row() {
+      ForEach(this.renderView.dataList,(item : ItemView)=>{
+        renderItem(item)
+      })
+      // ContentSlot(this.renderView.childSlot)
+    }
+    .width('100%')
+    .height('100%')
+    .backgroundColor(Color.Blue)
+    .applyRenderViewBaseAttr(this.renderView)
+  }
 
+
+
+  aboutToAppear(): void {
+    // this.endBatchCallback = () =>{
+    // }
+    // this.renderView.ctx.getNativeRender().addEndBatchCallback(this.renderView.ctx.getRootId(),this.endBatchCallback)
+  }
+
+  aboutToDisappear(): void {
+    if(this.endBatchCallback){
+      this.renderView.ctx.getNativeRender().removeEndBatchCallback(this.renderView.ctx.getRootId(),this.endBatchCallback)
+    }
   }
 }
 
+@Extend(Row)
+function applyRenderViewBaseAttr($$: QTFastFlexView) {
+  .key(HIPPY_COMPONENT_KEY_PREFIX + $$.tag)
+  .backgroundColor($$.cssBackgroundColor)
+  .position({x: $$.cssPositionX, y: $$.cssPositionY})
+  .size({width:$$.cssWidth, height: $$.cssHeight})
+  .opacity($$.cssOpacity)
+  .clip($$.cssOverflow)
+  .visibility(($$ as QTFastFlexView).cssVisibility) // must add as, otherwise the compiler has error
+  .zIndex($$.cssZIndex)
+  .accessibilityText($$.cssAccessibilityLabel)
+  .focusable($$.cssFocusable)
+  .border($$.cssBorder)
+  .shadow($$.cssShadow)
+  .linearGradient($$.cssLinearGradient)
+  .backgroundImage($$.cssBackgroundImage)
+  .backgroundImageSize($$.cssBackgroundImageSize)
+  .backgroundImagePosition($$.cssBackgroundImagePosition)
+  .transform($$.cssMatrix)
+  .rotate($$.cssRotate)
+  .scale($$.cssScale)
+  .translate($$.cssTranslate)
+  .hitTestBehavior($$.hitTestBehavior)
+  .onClick($$.eventClick)
+}
