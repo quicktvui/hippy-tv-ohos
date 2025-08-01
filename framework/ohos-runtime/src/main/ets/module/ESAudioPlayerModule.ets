@@ -191,9 +191,11 @@ export class ESAudioPlayerModule extends BaseModule {
         break;
       }
       case 'isPlaying': {
+        promise?.reject?.(false);
         break;
       }
       case 'isPaused': {
+        promise?.reject?.(false);
         break;
       }
       case 'getDuration': {
