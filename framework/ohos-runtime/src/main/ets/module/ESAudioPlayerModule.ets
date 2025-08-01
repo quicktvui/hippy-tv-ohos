@@ -14,6 +14,10 @@ import { QTPlayerEvent } from '../components/player/QTPlayerEvent';
 import { QTPlayerEventProp } from '../components/player/QTPlayerEventProp';
 import { QTPlayerState } from '../components/player/QTPlayerState';
 import Url from '@ohos.url'
+import { audio } from '@kit.AudioKit';
+import { common } from '@kit.AbilityKit';
+import { fileIo as fs } from '@kit.CoreFileKit';
+import QTAppManager from '../quick/QTAppManager';
 
 /**
  * 音频播放
@@ -77,11 +81,11 @@ export class ESAudioPlayerModule extends BaseModule {
       }
       case 'play': {
         const playerId = params[0] as number
-        const streamingURL = params[1] as string
+        const sourcePath = params[1] as string
 
         const player = this.getMediaPlayer(playerId)
         if (player) {
-          player.url = Url.URL.parseURL(streamingURL).toString();
+          this.setPlayerSourceAuto(playerId, player, sourcePath)
           promise?.resolve?.(true);
         } else {
           promise?.reject?.(false);
@@ -285,6 +289,11 @@ export class ESAudioPlayerModule extends BaseModule {
           map.set(QTPlayerEventProp.PLAYER_ID, mediaPlayerId)
           map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.PREPARING)
           this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
+          mediaPlayer.audioRendererInfo = {
+            usage: audio.StreamUsage.STREAM_USAGE_MUSIC, // 音频流使用类型：音乐。根据业务场景配置，参考StreamUsage。
+            rendererFlags: 0 // 音频渲染器标志。
+          };
+          mediaPlayer.prepare();
           break;
         }
         case 'prepared': {
@@ -349,5 +358,49 @@ export class ESAudioPlayerModule extends BaseModule {
         }
       }
     })
+  }
+
+
+  async setPlayerSourceAuto(playerId: number, avPlayer: media.AVPlayer,
+    sourcePath: string): Promise<void> {
+    const context = getContext(this) as common.UIAbilityContext;
+
+    try {
+      if (sourcePath.startsWith('http://') || sourcePath.startsWith('https://')) {
+        // 网络播放
+        avPlayer.url = Url.URL.parseURL(sourcePath).toString();
+        LogUtils.d(this.TAG, `Set AVPlayer source to network stream: ${sourcePath}`);
+        return;
+      }
+
+      if (sourcePath.startsWith('/')) {
+        // 沙箱本地路径播放
+        const path = QTAppManager.getInstance().getESAppFilePath(context) + "/" + sourcePath;
+        const file = await fs.open(path);
+        const fdPath = 'fd://' + file.fd;
+        avPlayer.url = fdPath;
+        LogUtils.d(this.TAG, `Set AVPlayer source to sandbox file: ${path}`);
+        return;
+      }
+
+      // HAP 资源播放（如 '01.mp3'）
+      const rawFd = await context.resourceManager.getRawFd(sourcePath);
+      const avFileDescriptor: media.AVFileDescriptor = {
+        fd: rawFd.fd,
+        offset: rawFd.offset,
+        length: rawFd.length
+      };
+      avPlayer.fdSrc = avFileDescriptor;
+      LogUtils.d(this.TAG, `Set AVPlayer source to HAP resource: ${sourcePath}`);
+
+    } catch (err) {
+      LogUtils.e(this.TAG,
+        `Failed to set player source: ${sourcePath}, error: ${JSON.stringify(err)}`);
+      //
+      const map = new Map<string, HippyAny>()
+      map.set(QTPlayerEventProp.PLAYER_ID, playerId)
+      map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.INITIALIZE_ERROR)
+      this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
+    }
   }
 }
