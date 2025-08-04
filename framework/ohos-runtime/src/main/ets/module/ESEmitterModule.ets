@@ -39,60 +39,81 @@ export class ESEmitterModule extends BaseModule {
   public call(method: string, params: Array<HippyAny>, promise: HippyModulePromise): HippyAny {
     switch (method) {
       case 'emit': {
-        const eventId = params[0] as number
-        const priority = params[1] as number
-        const data = params[2] as HippyRecord
-        let event: emitter.InnerEvent = {
-          eventId: eventId,
-          priority: priority as emitter.EventPriority
-        };
-        let eventData: emitter.EventData = {
-          data: data
-        };
-        LogUtils.i(this.TAG,
-          `emit → eventId: ${eventId}, priority: ${priority}, data: ${JSON.stringify(data)}`);
-        emitter.emit(event, eventData);
+        try {
+          const eventId = params[0] as number
+          const priority = params[1] as number
+          const data = JSON.parse(params[2] as string) as HippyRecord
+          let event: emitter.InnerEvent = {
+            eventId: eventId,
+            priority: priority as emitter.EventPriority
+          };
+          let eventData: emitter.EventData = {
+            data: data
+          };
+          LogUtils.i(this.TAG,
+            `emit → eventId: ${eventId}, priority: ${priority}, data: ${JSON.stringify(data)}`);
+          emitter.emit(event, eventData);
+          promise?.resolve(true)
+        } catch (e) {
+          promise?.reject(e)
+        }
         break;
       }
       case 'off': {
-        const eventId = params[0] as number
-        LogUtils.i(this.TAG, `off → eventId: ${eventId}`);
-        emitter.off(eventId);
-        this.registeredEventIds.delete(eventId);
+        try {
+          const eventId = params[0] as number
+          LogUtils.i(this.TAG, `off → eventId: ${eventId}`);
+          emitter.off(eventId);
+          this.registeredEventIds.delete(eventId);
+          promise?.resolve(true)
+        } catch (e) {
+          promise?.reject(e)
+        }
         break;
       }
       case 'once': {
-        const eventId = params[0] as number
-        let event: emitter.InnerEvent = {
-          eventId: eventId
-        };
-        let callback: Callback<emitter.EventData> = (eventData: emitter.EventData) => {
-          LogUtils.i(this.TAG,
-            `once callback → eventId: ${eventId}, data: ${JSON.stringify(eventData.data ?? null)}`);
-          this.dispatchEvent(eventId + '', eventData.data ? eventData.data as HippyRecord : null);
+        try {
+          const eventId = params[0] as number
+          let event: emitter.InnerEvent = {
+            eventId: eventId
+          };
+          let callback: Callback<emitter.EventData> = (eventData: emitter.EventData) => {
+            LogUtils.i(this.TAG,
+              `once callback → eventId: ${eventId}, data: ${JSON.stringify(eventData.data ??
+                null)}`);
+            this.dispatchEvent(eventId + '', eventData.data ? eventData.data as HippyRecord : null);
+          }
+          LogUtils.i(this.TAG, `once → eventId: ${eventId}`);
+          emitter.once(event, callback);
+          this.registeredEventIds.add(eventId);
+          promise?.resolve(true)
+        } catch (e) {
+          promise?.reject(e)
         }
-        LogUtils.i(this.TAG, `once → eventId: ${eventId}`);
-        emitter.once(event, callback);
-        this.registeredEventIds.add(eventId);
         break;
       }
       case 'on': {
-        const eventId = params[0] as number
-        if (this.registeredEventIds.has(eventId)) {
-          LogUtils.w(this.TAG, `on ignored → eventId: ${eventId} already registered.`);
-          break;
+        try {
+          const eventId = params[0] as number
+          if (this.registeredEventIds.has(eventId)) {
+            LogUtils.w(this.TAG, `on ignored → eventId: ${eventId} already registered.`);
+            break;
+          }
+          let event: emitter.InnerEvent = {
+            eventId: eventId
+          };
+          let callback: Callback<emitter.EventData> = (eventData: emitter.EventData) => {
+            LogUtils.i(this.TAG,
+              `on callback → eventId: ${eventId}, data: ${JSON.stringify(eventData.data ?? null)}`);
+            this.dispatchEvent(eventId + '', eventData.data ? eventData.data as HippyRecord : null);
+          }
+          LogUtils.i(this.TAG, `on → eventId: ${eventId}`);
+          emitter.on(event, callback);
+          this.registeredEventIds.add(eventId);
+          promise?.resolve(true)
+        } catch (e) {
+          promise?.reject(e)
         }
-        let event: emitter.InnerEvent = {
-          eventId: eventId
-        };
-        let callback: Callback<emitter.EventData> = (eventData: emitter.EventData) => {
-          LogUtils.i(this.TAG,
-            `on callback → eventId: ${eventId}, data: ${JSON.stringify(eventData.data ?? null)}`);
-          this.dispatchEvent(eventId + '', eventData.data ? eventData.data as HippyRecord : null);
-        }
-        LogUtils.i(this.TAG, `on → eventId: ${eventId}`);
-        emitter.on(event, callback);
-        this.registeredEventIds.add(eventId);
         break;
       }
       default: {
