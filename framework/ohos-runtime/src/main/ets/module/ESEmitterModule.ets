@@ -17,12 +17,23 @@ import { emitter } from '@kit.BasicServicesKit';
 export class ESEmitterModule extends BaseModule {
   public static readonly NAME: string = 'ESEmitterModule'
   public readonly TAG: string = 'ESEmitterModule'
+  // 追踪已注册的事件 ID（用于防止重复注册、销毁时清理）
+  private registeredEventIds: Set<number> = new Set()
 
   constructor(ctx: HippyEngineContext) {
     super(ctx)
   }
 
   initialize(): void {
+  }
+
+  destroy(): void {
+    // 自动清理未手动 off 的事件
+    this.registeredEventIds.forEach((eventId) => {
+      LogUtils.i(this.TAG, `destroy → auto off eventId: ${eventId}`);
+      emitter.off(eventId);
+    });
+    this.registeredEventIds.clear();
   }
 
   public call(method: string, params: Array<HippyAny>, promise: HippyModulePromise): HippyAny {
@@ -47,6 +58,7 @@ export class ESEmitterModule extends BaseModule {
         const eventId = params[0] as number
         LogUtils.i(this.TAG, `off → eventId: ${eventId}`);
         emitter.off(eventId);
+        this.registeredEventIds.delete(eventId);
         break;
       }
       case 'once': {
@@ -61,10 +73,15 @@ export class ESEmitterModule extends BaseModule {
         }
         LogUtils.i(this.TAG, `once → eventId: ${eventId}`);
         emitter.once(event, callback);
+        this.registeredEventIds.add(eventId);
         break;
       }
       case 'on': {
         const eventId = params[0] as number
+        if (this.registeredEventIds.has(eventId)) {
+          LogUtils.w(this.TAG, `on ignored → eventId: ${eventId} already registered.`);
+          break;
+        }
         let event: emitter.InnerEvent = {
           eventId: eventId
         };
@@ -75,6 +92,7 @@ export class ESEmitterModule extends BaseModule {
         }
         LogUtils.i(this.TAG, `on → eventId: ${eventId}`);
         emitter.on(event, callback);
+        this.registeredEventIds.add(eventId);
         break;
       }
       default: {
