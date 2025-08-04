@@ -19,6 +19,13 @@ import { common } from '@kit.AbilityKit';
 import { fileIo as fs } from '@kit.CoreFileKit';
 import QTAppManager from '../quick/QTAppManager';
 
+interface AVCommand {
+  name: string;
+  args: HippyAny[];
+  execute: () => Promise<void>;
+  immediate?: boolean;
+}
+
 /**
  * 音频播放
  */
@@ -27,6 +34,8 @@ export class ESAudioPlayerModule extends BaseModule {
   public static readonly NAME: string = 'ESAudioPlayerModule'
   private readonly TAG: string = 'ESAudioPlayerModule'
   private mediaPlayerMap = new Map<number, media.AVPlayer>()
+  private commandQueueMap = new Map<number, AVCommand[]>();
+  private preparedMap = new Map<number, boolean>();
 
   constructor(ctx: HippyEngineContext) {
     super(ctx)
@@ -45,7 +54,11 @@ export class ESAudioPlayerModule extends BaseModule {
         const playerId = this.generateId();
         this.createMediaPlayer().then((mediaPlayer) => {
           if (mediaPlayer) {
+            //cache
             this.mediaPlayerMap.set(playerId, mediaPlayer);
+            this.commandQueueMap.set(playerId, []);
+            this.preparedMap.set(playerId, false);
+
             this.initMediaPlayer(playerId, mediaPlayer)
 
             LogUtils.d(this.TAG, `Player ${playerId} initialized and stored.`);
@@ -96,58 +109,78 @@ export class ESAudioPlayerModule extends BaseModule {
       case 'resume':
       case 'start': {
         const playerId = params[0] as number
-        const player = this.getMediaPlayer(playerId)
-        if (player) {
-          if (player.state == 'prepared'
-            || player.state == 'paused'
-            || player.state == 'completed'
-          ) {
-            player.play().then(() => {
-              LogUtils.i(this.TAG, 'media start')
-              promise?.resolve?.(true);
-            }).catch((err: HippyException) => {
-              LogUtils.e(this.TAG, `ERROR: ${err}`)
-              promise?.reject?.(JSON.stringify(err));
-            });
-          } else {
-
-          }
-        } else {
+        const currentPlayer = this.getMediaPlayer(playerId)
+        if (!currentPlayer) {
           promise?.reject?.(false);
+          break;
         }
+        this.enqueueOrExecute(playerId, {
+          name: 'start',
+          args: [],
+          immediate: false,
+          execute: this.wrapAsyncCommand(
+            'start',
+            async () => {
+              const validStates = ['prepared', 'paused', 'completed'];
+              if (validStates.includes(currentPlayer.state)) {
+                await currentPlayer.play();
+                return true;
+              } else {
+                throw new Error(`Invalid state: ${currentPlayer.state}`);
+              }
+            },
+            promise,
+            this.TAG
+          )
+        });
         break;
       }
       case 'pause': {
         const playerId = params[0] as number
-        const player = this.getMediaPlayer(playerId)
-        if (player) {
-          player.pause().then(() => {
-            LogUtils.i(this.TAG, 'media pause')
-            promise?.resolve?.(true);
-          }).catch((err: HippyException) => {
-            LogUtils.e(this.TAG, `ERROR: ${err}`)
-            promise?.reject?.(JSON.stringify(err));
-          });
-        } else {
+        const currentPlayer = this.getMediaPlayer(playerId)
+        if (!currentPlayer) {
           promise?.reject?.(false);
+          break;
         }
+        this.enqueueOrExecute(playerId, {
+          name: 'pause',
+          args: [],
+          immediate: false,
+          execute: this.wrapAsyncCommand(
+            'pause',
+            async () => {
+              await currentPlayer.pause();
+              return true
+            },
+            promise,
+            this.TAG
+          )
+        });
         break;
       }
       case 'seekTo': {
         const playerId = params[0] as number
         const newPosition = params[1] as number
-        const player = this.getMediaPlayer(playerId)
-        if (player) {
-          try {
-            player.seek(newPosition, media.SeekMode.SEEK_PREV_SYNC)
-            promise?.resolve?.(true);
-          } catch (err) {
-            LogUtils.e(this.TAG, `ERROR: ${err}`)
-            promise?.reject?.(JSON.stringify(err));
-          }
-        } else {
+        const currentPlayer = this.getMediaPlayer(playerId)
+        if (!currentPlayer) {
           promise?.reject?.(false);
+          break;
         }
+        this.enqueueOrExecute(playerId, {
+          name: 'seekTo',
+          args: [],
+          immediate: false,
+          execute: this.wrapAsyncCommand(
+            'seekTo',
+            async () => {
+              LogUtils.i(this.TAG, 'seekTo: newPosition: ' + newPosition)
+              currentPlayer.seek(newPosition, media.SeekMode.SEEK_PREV_SYNC)
+              return true
+            },
+            promise,
+            this.TAG
+          )
+        });
         break;
       }
       case 'stop': {
@@ -260,6 +293,50 @@ export class ESAudioPlayerModule extends BaseModule {
     return null;
   }
 
+  private enqueueOrExecute(id: number, command: AVCommand) {
+    const isPrepared = this.preparedMap.get(id);
+    if (command.immediate || isPrepared) {
+      command.execute().then((ret) => {
+      }).catch((err: HippyException) => {
+        LogUtils.e(this.TAG, `Command ${command.name} failed: ${err}`);
+      });
+    } else {
+      const queue = this.commandQueueMap.get(id);
+      queue?.push(command);
+    }
+  }
+
+  private flushCommandQueue(id: number) {
+    const queue = this.commandQueueMap.get(id);
+    while (queue && queue.length > 0) {
+      const cmd = queue.shift();
+      try {
+        cmd?.execute().then((ret) => {
+        });
+      } catch (e) {
+        LogUtils.e(this.TAG, `Command ${cmd?.name} failed in flush: ${e}`);
+      }
+    }
+  }
+
+  private wrapAsyncCommand(
+    name: string,
+    logic: () => Promise<HippyAny>,
+    promise?: HippyModulePromise,
+    logTag = 'PlayerManager'
+  ): () => Promise<void> {
+    return async () => {
+      try {
+        const result = await logic();
+        LogUtils.i(logTag, `[${name}] success`);
+        promise?.resolve?.(result);
+      } catch (err) {
+        LogUtils.e(logTag, `[${name}] error: ${err}`);
+        promise?.reject?.(JSON.stringify(err));
+      }
+    };
+  }
+
   private createMediaPlayer(): Promise<media.AVPlayer | null> {
     return media.createAVPlayer().then((video) => {
       if (video != null) {
@@ -312,6 +389,11 @@ export class ESAudioPlayerModule extends BaseModule {
           map.set(QTPlayerEventProp.PLAYER_ID, mediaPlayerId)
           map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.PREPARED)
           this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
+
+          //
+          this.preparedMap.set(mediaPlayerId, true);
+          this.flushCommandQueue(mediaPlayerId);
+
           break;
         }
         case 'playing': {
