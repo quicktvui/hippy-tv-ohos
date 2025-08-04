@@ -40,7 +40,6 @@ export class ESAudioPlayerModule extends BaseModule {
   }
 
   public call(method: string, params: Array<HippyAny>, promise: HippyModulePromise): HippyAny {
-    LogUtils.d(this.TAG, '=======call=======>>>>>method:' + method + " params:" + params);
     switch (method) {
       case 'init': {
         const playerId = this.generateId();
@@ -50,22 +49,24 @@ export class ESAudioPlayerModule extends BaseModule {
             this.initMediaPlayer(playerId, mediaPlayer)
 
             LogUtils.d(this.TAG, `Player ${playerId} initialized and stored.`);
+
+            //先返回，然后在发送初始化成功事件
+            promise?.resolve(playerId);
             //
             const map = new Map<string, HippyAny>()
             map.set(QTPlayerEventProp.PLAYER_ID, playerId)
             map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.INITIALIZE_SUCCESS)
             this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
-
-            promise?.resolve(playerId);
           } else {
             LogUtils.d(this.TAG, `Failed to create player`);
+
+            //先返回，然后在发送初始化失败事件
+            promise?.reject?.(-1);
 
             const map = new Map<string, HippyAny>()
             map.set(QTPlayerEventProp.PLAYER_ID, playerId)
             map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.INITIALIZE_ERROR)
             this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
-
-            promise?.reject?.(-1);
           }
         }).catch((err: BusinessError) => {
           LogUtils.d(this.TAG, 'init error.' + JSON.stringify(err));
@@ -82,7 +83,7 @@ export class ESAudioPlayerModule extends BaseModule {
       case 'play': {
         const playerId = params[0] as number
         const sourcePath = params[1] as string
-
+        LogUtils.d(this.TAG, `call player ${playerId} play method`);
         const player = this.getMediaPlayer(playerId)
         if (player) {
           this.setPlayerSourceAuto(playerId, player, sourcePath)
@@ -97,13 +98,20 @@ export class ESAudioPlayerModule extends BaseModule {
         const playerId = params[0] as number
         const player = this.getMediaPlayer(playerId)
         if (player) {
-          player.play().then(() => {
-            LogUtils.i(this.TAG, 'media resume')
-            promise?.resolve?.(true);
-          }).catch((err: HippyException) => {
-            LogUtils.e(this.TAG, `ERROR: ${err}`)
-            promise?.reject?.(JSON.stringify(err));
-          });
+          if (player.state == 'prepared'
+            || player.state == 'paused'
+            || player.state == 'completed'
+          ) {
+            player.play().then(() => {
+              LogUtils.i(this.TAG, 'media start')
+              promise?.resolve?.(true);
+            }).catch((err: HippyException) => {
+              LogUtils.e(this.TAG, `ERROR: ${err}`)
+              promise?.reject?.(JSON.stringify(err));
+            });
+          } else {
+
+          }
         } else {
           promise?.reject?.(false);
         }
@@ -278,7 +286,7 @@ export class ESAudioPlayerModule extends BaseModule {
     mediaPlayer.on('stateChange', async (state, reason) => {
       switch (state) {
         case 'idle': {
-          LogUtils.e(this.TAG, 'state idle called')
+          LogUtils.d(this.TAG, 'state idle called')
           const map = new Map<string, HippyAny>()
           map.set(QTPlayerEventProp.PLAYER_ID, mediaPlayerId)
           map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.IDLE)
@@ -286,7 +294,7 @@ export class ESAudioPlayerModule extends BaseModule {
           break;
         }
         case 'initialized': {
-          LogUtils.e(this.TAG, 'initialized prepared called')
+          LogUtils.d(this.TAG, 'initialized prepared called')
           const map = new Map<string, HippyAny>()
           map.set(QTPlayerEventProp.PLAYER_ID, mediaPlayerId)
           map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.PREPARING)
@@ -299,7 +307,7 @@ export class ESAudioPlayerModule extends BaseModule {
           break;
         }
         case 'prepared': {
-          LogUtils.e(this.TAG, 'state prepared called')
+          LogUtils.d(this.TAG, 'state prepared called')
           const map = new Map<string, HippyAny>()
           map.set(QTPlayerEventProp.PLAYER_ID, mediaPlayerId)
           map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.PREPARED)
@@ -307,7 +315,7 @@ export class ESAudioPlayerModule extends BaseModule {
           break;
         }
         case 'playing': {
-          LogUtils.e(this.TAG, 'state playing called')
+          LogUtils.d(this.TAG, 'state playing called')
           const map = new Map<string, HippyAny>()
           map.set(QTPlayerEventProp.PLAYER_ID, mediaPlayerId)
           map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.PREPARING)
@@ -315,7 +323,7 @@ export class ESAudioPlayerModule extends BaseModule {
           break;
         }
         case 'paused': {
-          LogUtils.e(this.TAG, 'state paused called')
+          LogUtils.d(this.TAG, 'state paused called')
           const map = new Map<string, HippyAny>()
           map.set(QTPlayerEventProp.PLAYER_ID, mediaPlayerId)
           map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.PAUSED)
@@ -323,7 +331,7 @@ export class ESAudioPlayerModule extends BaseModule {
           break;
         }
         case 'completed': {
-          LogUtils.e(this.TAG, 'state completed called')
+          LogUtils.d(this.TAG, 'state completed called')
           const map = new Map<string, HippyAny>()
           map.set(QTPlayerEventProp.PLAYER_ID, mediaPlayerId)
           map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.PLAYBACK_COMPLETED)
@@ -331,7 +339,7 @@ export class ESAudioPlayerModule extends BaseModule {
           break;
         }
         case 'stopped': {
-          LogUtils.e(this.TAG, 'state stopped called')
+          LogUtils.d(this.TAG, 'state stopped called')
           const map = new Map<string, HippyAny>()
           map.set(QTPlayerEventProp.PLAYER_ID, mediaPlayerId)
           map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.STOP)
@@ -339,7 +347,7 @@ export class ESAudioPlayerModule extends BaseModule {
           break;
         }
         case 'released': {
-          LogUtils.e(this.TAG, 'state released called')
+          LogUtils.d(this.TAG, 'state released called')
           const map = new Map<string, HippyAny>()
           map.set(QTPlayerEventProp.PLAYER_ID, mediaPlayerId)
           map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.RELEASE)
@@ -347,7 +355,7 @@ export class ESAudioPlayerModule extends BaseModule {
           break;
         }
         case 'error': {
-          LogUtils.e(this.TAG, 'state error called')
+          LogUtils.e(this.TAG, 'state error called: ' + reason)
           const map = new Map<string, HippyAny>()
           map.set(QTPlayerEventProp.PLAYER_ID, mediaPlayerId)
           map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.ERROR)
@@ -360,6 +368,10 @@ export class ESAudioPlayerModule extends BaseModule {
         }
       }
     })
+    mediaPlayer.on('error', (err: BusinessError) => {
+      LogUtils.e(this.TAG, `Invoke avPlayer failed, code is ${err.code}, message is ${err.message}`)
+      mediaPlayer.reset(); // 调用reset重置资源，触发idle状态。
+    });
   }
 
 

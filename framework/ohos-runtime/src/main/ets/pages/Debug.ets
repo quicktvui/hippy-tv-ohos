@@ -40,12 +40,16 @@ import { QTPageRouter, QTPageRouterView } from '../components/router/QTPageRoute
 import { QTPage, QTPageView } from '../components/router/QTPageView';
 import { QTFastListView } from 'quicktvui/src/main/ets/components/fastlist/QTFastListView';
 import { QTFastList } from 'quicktvui/src/main/ets/components/fastlist/QTFastList';
-import { QTTextView,QTText } from 'quicktvui/src/main/ets/components/QTTextView';
-import { QTFallbackView,QTFallback } from 'quicktvui/src/main/ets/components/compat/QTFallbackView';
+import { QTTextView, QTText } from 'quicktvui/src/main/ets/components/QTTextView';
+import {
+  QTFallbackView,
+  QTFallback
+} from 'quicktvui/src/main/ets/components/compat/QTFallbackView';
 import { QTDiv, QTDivView } from 'quicktvui/src/main/ets/components/QTDivView';
 import {
   QTFastFlex,
-  QTFastFlexView } from 'quicktvui/src/main/ets/components/fastlist/QTFastFlexView';
+  QTFastFlexView
+} from 'quicktvui/src/main/ets/components/fastlist/QTFastFlexView';
 
 const TAG: string = 'RuntimeDebugPage'
 
@@ -60,8 +64,8 @@ struct Debug {
   @State currentEnv: string = 'dev'
   @State versionName: string = '1.0.0'
   @State versionCode: string = '1.0.0'
-  @State deviceIp: string = '192.168.80.60'
-  @State debugIp: string = '192.168.80.60' // 这里可以通过 storage 设置
+  @State deviceIp: string = '192.168.40.80'
+  @State debugIp: string = '192.168.40.32' // 这里可以通过 storage 设置
   envList: string[] = ['dev', 'test', 'prod']
   //----------------------------------------------------------------------
 
@@ -112,7 +116,7 @@ struct Debug {
     let params = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext())
     params.coreJSAssetsPath = "vue2/vendor.ohos.js"
     params.enableArkCApi = false
-    params.debugServerHost = this.deviceIp+':38989'
+    params.debugServerHost = this.deviceIp + ':38989'
     params.debugMode = true
     params.enableLog = true
     //自定义 module 和 component 入口
@@ -326,13 +330,12 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
       renderView: $$ as QTTextView,
       children: $$.children,
     })
-  }else if($$ instanceof QTDivView ){
+  } else if ($$ instanceof QTDivView) {
     QTDiv({
       renderView: $$ as QTTextView,
       children: $$.children,
     })
-  }
-  else if ($$ instanceof QTPageRouterView) {
+  } else if ($$ instanceof QTPageRouterView) {
     QTPageRouter({
       renderView: $$ as QTPageRouterView,
       children: $$.children,
@@ -344,14 +347,12 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
       renderView: $$ as QTPageView,
       children: $$.children,
     })
-  }
-  else if ($$ instanceof QTFastFlexView) {
+  } else if ($$ instanceof QTFastFlexView) {
     QTFastFlex({
       renderView: $$ as QTFastFlexView,
       children: $$.children,
     })
-  }
-  else{
+  } else {
     QTFallback({
       renderView: $$ as QTFallbackView,
       children: $$.children,
