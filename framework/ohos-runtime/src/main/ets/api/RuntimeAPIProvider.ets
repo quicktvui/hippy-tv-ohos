@@ -31,6 +31,7 @@ import { QTPageRouterView } from '../components/router/QTPageRouterView';
 import { QTPageView } from '../components/router/QTPageView';
 import { ESAbilityModule } from '../module/ESAbilityModule';
 import { ESNativeRouterModule } from '../module/ESNativeRouterModule';
+import { ESEmitterModule } from '../module/ESEmitterModule';
 
 /**
  * 自定义 module 和 component 入口
@@ -73,6 +74,8 @@ export class RuntimeAPIProvider extends HippyAPIProvider {
       (ctx): HippyNativeModuleBase => new ESAbilityModule(ctx))
     registerMap.set(ESNativeRouterModule.NAME,
       (ctx): HippyNativeModuleBase => new ESNativeRouterModule(ctx))
+    registerMap.set(ESEmitterModule.NAME,
+      (ctx): HippyNativeModuleBase => new ESEmitterModule(ctx))
     //
     return registerMap;
   }
