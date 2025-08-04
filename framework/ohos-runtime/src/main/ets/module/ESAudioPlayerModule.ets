@@ -457,20 +457,27 @@ export class ESAudioPlayerModule extends BaseModule {
   }
 
 
+  /**
+   * 设置播放地址
+   * @param playerId
+   * @param avPlayer
+   * @param sourcePath
+   * @returns
+   */
   async setPlayerSourceAuto(playerId: number, avPlayer: media.AVPlayer,
     sourcePath: string): Promise<void> {
     const context = getContext(this) as common.UIAbilityContext;
 
     try {
+      // 1.网络播放
       if (sourcePath.startsWith('http://') || sourcePath.startsWith('https://')) {
-        // 网络播放
         avPlayer.url = Url.URL.parseURL(sourcePath).toString();
         LogUtils.d(this.TAG, `Set AVPlayer source to network stream: ${sourcePath}`);
         return;
       }
 
+      // 2.沙箱本地路径播放
       if (sourcePath.startsWith('/')) {
-        // 沙箱本地路径播放
         const path = QTAppManager.getInstance().getESAppFilePath(context) + "/" + sourcePath;
         const file = await fs.open(path);
         const fdPath = 'fd://' + file.fd;
@@ -479,7 +486,7 @@ export class ESAudioPlayerModule extends BaseModule {
         return;
       }
 
-      // HAP 资源播放（如 '01.mp3'）
+      // 3.HAP 资源播放（如 '01.mp3'）
       const rawFd = await context.resourceManager.getRawFd(sourcePath);
       const avFileDescriptor: media.AVFileDescriptor = {
         fd: rawFd.fd,
