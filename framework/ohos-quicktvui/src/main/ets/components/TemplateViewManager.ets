@@ -1,10 +1,10 @@
 import {HippyRenderBaseView,HippyMap,HippyAny,NativeRenderContext} from 'hippy'
 import { QUICKTVUI_TAG } from '../Constant';
 import {createRenderViewFromCreator} from '../polifill/QTViewManager'
-import { HippyUtils } from '../utils/HippyUtils';
+import { CommonUtils } from '../utils/CommonUtils';
 import { NodeUtils } from '../utils/NodeUtils';
 import { TemplateCodeParser } from './fastlist/TemplateCodeParser'
-import QTRenderBaseView from './QTRenderBaseView';
+import { QTBaseComponentView } from './QTBaseComponentView';
 
 export class BuildResult{
   renderView : HippyRenderBaseView | null = null;
@@ -22,7 +22,7 @@ export class PathUpdate{
 
 
 
-export function buildRenderView(template:HippyRenderBaseView | null, templateProps:HippyMap,itemData : HippyMap) : PathUpdate | null{
+export function buildRenderView(template:HippyRenderBaseView | null, templateProps:HippyMap,itemData : HippyMap,index:number) : PathUpdate | null{
   if(!template){
     return null;
   }
@@ -30,17 +30,28 @@ export function buildRenderView(template:HippyRenderBaseView | null, templatePro
   if(!rv){
     return null;
   }
-  if(rv instanceof QTRenderBaseView){
-    rv.onCreateByTemplate(template)
-  }
+  applyInit(rv,template,index)
+
+
   let toUpdate = gatherToUpdateMap(templateProps,itemData)
   // toUpdate.forEach((value,key)=>{
-  //   console.log(QUICKTVUI_TAG,`gatherToUpdateMap key:${key},value:${value}`)
+  //   console.log(QUICKTVUI_TAG,`gatherToUpdateMap viewType:${rv?.viewType} key:${key},value:${CommonUtils.hippyAny2String(value)}`)
   // })
   // toUpdate?.forEach((value,key)=>{
   //   rv?.setProp(key,value)
   // })
   return new PathUpdate(rv,toUpdate)
+}
+
+
+function applyInit(renderView : HippyRenderBaseView,template: HippyRenderBaseView,childIndex:number) : HippyRenderBaseView{
+  renderView.viewType = template.viewType
+  renderView.tag = childIndex
+  console.log(QUICKTVUI_TAG,`applyInit viewType:${template.viewType},size:{${template.cssWidth},${template.cssHeight}}`)
+  if(renderView instanceof QTBaseComponentView){
+    renderView.onCreateByTemplate(template)
+  }
+  return renderView
 }
 
 export function buildRenderViewTraverse(ctx:NativeRenderContext | null, template : HippyRenderBaseView | null, templateProps:HippyMap,itemData : HippyMap,parent: HippyRenderBaseView | null,index:number,
@@ -49,7 +60,7 @@ export function buildRenderViewTraverse(ctx:NativeRenderContext | null, template
   if(!ctx){
     return null;
   }
-  let patch = buildRenderView(template,templateProps,itemData)
+  let patch = buildRenderView(template,templateProps,itemData,index)
   if(!patch){
     return null;
   }
@@ -75,11 +86,12 @@ export function gatherToUpdateMap(templateProps:HippyMap,itemData : HippyMap){
         let pendingProp = TemplateCodeParser.parsePlaceholderProp(key,templateProps)
         if(pendingProp){
           let dataFromValue = TemplateCodeParser.getValueFromCode(itemData,pendingProp)
-          console.info(QUICKTVUI_TAG,`++put pendingProp key:${key},dataFromValue:${dataFromValue},pendingProp:${pendingProp} ,value:${value},data:${HippyUtils.hippyMap2String(itemData)}`)
+          // console.info(QUICKTVUI_TAG,`++put pendingProp key:${key},dataFromValue:${dataFromValue},pendingProp:${pendingProp} ,value:${value},data:${CommonUtils.hippyAny2String(dataFromValue)}`)
           toUpdate.set(key,dataFromValue)
         }else{
-          console.log(QUICKTVUI_TAG,`--put origin key:${key},value:${value}`)
-          toUpdate.set(key,value)
+          //nothing here
+          // console.log(QUICKTVUI_TAG,`--gatherToUpdateMap discard key:${key},data:${CommonUtils.hippyAny2String(value)}`)
+          // toUpdate.set(key,value)
         }
       }
     }

@@ -1,5 +1,6 @@
 import {HippyRenderBaseView,NativeRenderContext,hippyRenderViewCreatorRegisterMap,HRRenderViewCreator,HippyMap} from 'hippy'
 import { QTDivView } from '../components/QTDivView';
+import QTRenderBaseView from '../components/QTRenderBaseView';
 
 let myHippyRenderViewCreatorRegisterMap :Map<string, HRRenderViewCreator> | null
 let myCustomRenderViewCreatorRegisterMap :Map<string, HRRenderViewCreator> | null
@@ -23,5 +24,23 @@ export function createRenderViewFromCreator(ctx:NativeRenderContext | null, view
   }
   return null
 }
+
+
+
+// private createRenderView(tag: number, viewName: string): void {
+//   LogUtils.i('quicktvui',`createRenderView crate tag:${tag},viewName:${viewName}`)
+// let existRenderView = this.viewRegistry.get(tag)
+// if (existRenderView) {
+//   return
+// }
+// let renderView = this.createRenderViewFromCreator(viewName)
+// if (renderView) {
+//   renderView.tag = tag
+//   renderView.viewType = viewName
+//   this.viewRegistry.set(tag, renderView)
+// } else {
+//   LogUtils.d(this.TAG, "createRenderView: failed:  " + viewName)
+// }
+// }
 
 

@@ -7,7 +7,7 @@ type InsertListener = (childTag: number, childViewName: string, childIndex: numb
 export default abstract class QTRenderBaseView extends  QTBaseComponentView{
 
   private listeners: InsertListener[] = [];
-  public templateView : HippyRenderBaseView | null = null;
+
 
   constructor(ctx: NativeRenderContext) {
     super(ctx)
@@ -41,9 +41,7 @@ export default abstract class QTRenderBaseView extends  QTBaseComponentView{
 
   }
 
-  onCreateByTemplate(templateView : HippyRenderBaseView){
-    this.templateView = templateView;
-  }
+
 
   aboutToUpdate(){
 

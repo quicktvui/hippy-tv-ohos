@@ -97,7 +97,7 @@ export class QTTextView extends QTRenderBaseView{
         return true;
       case "text":
         this.text = HRValueUtils.getString(propValue)
-        console.log(QUICKTVUI_TAG,`setText:${this.text}`)
+        // console.log(QUICKTVUI_TAG,`setText:${this.text}`)
         return true;
     }
     return super.setProp(propKey, propValue)

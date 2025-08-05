@@ -25,6 +25,7 @@ import assertNull from '@ohos/hypium/src/main/module/assert/assertNull';
 import {buildRenderViewTraverse, PathUpdate} from '../TemplateViewManager'
 import { NodeUtils } from '../../utils/NodeUtils';
 import QTRenderBaseView from '../QTRenderBaseView';
+import { inspector } from '@kit.ArkUI';
 
 
 // class ItemEntry{
@@ -75,8 +76,28 @@ export class FastListDataSource implements IDataSource {
     }
   }
 
+  static getIdFromData(item : HippyAny) : string | null{
+    let id : string | null = null
+    if(item instanceof Map){
+      if(item.has('_id')){
+        id = item.get('_id') as string
+      }
+      if(!id && item.has('sid')){
+        id = item.get('sid') as string
+      }
+    }
+    return id
+  }
+
   public buildItem(item: ItemView): ItemView{
     let type = getItemType(item.raw)
+    if(item.raw instanceof  Map){
+        item.id = FastListDataSource.getIdFromData(item.raw)
+    }
+    if(!item.id){
+      item.id = item.position +''
+      console.error(QUICKTVUI_TAG,`put fallback id :${item.position}`)
+    }
     if(type){
       let it = this.templatesMap.get(type);
       item.template = it;
@@ -87,7 +108,10 @@ export class FastListDataSource implements IDataSource {
           if(p.renderView instanceof  QTRenderBaseView){
             p.renderView.aboutToUpdate()
           }
+        })
+        updates?.map((p)=>{
           p.props.forEach((value,key)=>{
+            // console.log(QUICKTVUI_TAG,`updates p :${p.renderView.viewType},prop:${key},value:${value}`)
             p.renderView.setProp(key,value)
           })
         })
@@ -110,7 +134,12 @@ export class FastListDataSource implements IDataSource {
 
   public getData(index: number): ItemView {
     let item = this.dataList[index]
-    return this.buildItem(item)
+    this.buildItem(item)
+    console.log(QUICKTVUI_TAG,`getData index:${index}`)
+    if(item.renderView){
+      NodeUtils.printViewTreePretty(item.renderView,'',false)
+    }
+    return item
   }
 
   // public setListData(rawList : HippyArray){

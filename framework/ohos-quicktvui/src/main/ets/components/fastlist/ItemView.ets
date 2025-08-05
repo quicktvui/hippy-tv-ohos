@@ -18,6 +18,7 @@ export class ItemView{
   // template: HippyRenderBaseView | undefined = undefined;
   template:ItemTemplate | undefined = undefined
   position: number;
+  id : String | null = null;
   raw:HippyMap | null;
   renderView:HippyRenderBaseView | null = null;
   constructor(position: number, raw : HippyMap | null) {

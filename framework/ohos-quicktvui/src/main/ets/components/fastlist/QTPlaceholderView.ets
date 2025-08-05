@@ -32,7 +32,7 @@ export struct  QTFallback {
         .height('100%')
     }
     .applyRenderViewBaseAttr(this.renderView)
-    .backgroundColor(Color.Pink)
+    .backgroundColor(Color.Red)
   }
 
   aboutToAppear(): void {

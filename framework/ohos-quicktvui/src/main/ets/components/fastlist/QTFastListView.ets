@@ -2,6 +2,7 @@
 import {HippyObservedArray,NativeRenderContext,HippyAny,HippyRenderCallback,HippyArray,HippyMap} from 'hippy'
 import { QUICKTVUI_TAG } from '../../Constant';
 import { HRValueUtils } from '../../HRValueUtils';
+import { CommonUtils } from '../../utils/CommonUtils';
 
 import QTRenderBaseView from '../QTRenderBaseView';
 import { ItemView } from './ItemView';
@@ -196,7 +197,7 @@ export class QTFastListView extends QTRenderBaseView{
       // default :
       //   console.warn(QUICKTVUI_TAG,`QTFastListView : 未知的未实现propKey : ${propKey}`)
       default:
-        console.warn(`QTFastFlexView : 未知的未实现propKey : ${propKey}`)
+        console.warn(`QTFastListView : 未知的未实现propKey : ${propKey}`)
     }
     return super.setProp(propKey, propValue)
   }
@@ -206,7 +207,8 @@ export class QTFastListView extends QTRenderBaseView{
     if(data && data.length > 0){
       this.dataList.push(...
         data?.map((item,index)=>{
-          // console.log(QUICKTVUI_TAG,`onDataChanged crate item :${JSON.stringify(HippyUtils.hippyMap2String(item as HippyMap))}`)
+          console.log(QUICKTVUI_TAG,`onDataChanged crate item :`)
+          CommonUtils.printMapPretty(item as HippyMap,'FastListView:',false)
           return new ItemView(index,item as HippyMap)
         })
       )

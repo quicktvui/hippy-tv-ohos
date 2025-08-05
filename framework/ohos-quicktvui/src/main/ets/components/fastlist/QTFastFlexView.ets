@@ -11,6 +11,7 @@ import {
 } from 'hippy'
 import { QUICKTVUI_TAG } from '../../Constant';
 import { HRValueUtils } from '../../HRValueUtils';
+import { CommonUtils } from '../../utils/CommonUtils';
 import { NodeUtils } from '../../utils/NodeUtils';
 import QTRenderBaseView from '../QTRenderBaseView';
 import { FastListDataSource } from './FastListDataSource';
@@ -35,6 +36,7 @@ export class QTFastFlexView extends QTRenderBaseView {
   aboutToUpdate(): void {
     let children = this.templateView?.children
     console.error(QUICKTVUI_TAG,`QTFastFlexView aboutToUpdate!! children size:${children?.length}`)
+    NodeUtils.printViewTreePretty(this,'',false)
     children?.map((c,index)=>{
       if(c.tag != -1){
         console.log(QUICKTVUI_TAG,`QTFastFlexView template: viewType：`+c.viewType+",node:"+NodeUtils.getNodeById(this.ctx,c.tag))
@@ -52,7 +54,8 @@ export class QTFastFlexView extends QTRenderBaseView {
         let item : ItemView = new ItemView(i,data[i] as HippyMap);
         this.dataSource?.buildItem(item)
         this.dataList.push(item)
-        console.log(QUICKTVUI_TAG,`FastFlex put item index:${i}`)
+        // console.log(QUICKTVUI_TAG,`FastFlex put item index:${i},data:`)
+        // CommonUtils.printMapPretty(item.raw as HippyMap,'FastFlex:',false)
       }
       // this.dataList.push(...
       //   data?.map((item,index)=>{
@@ -172,11 +175,13 @@ export struct QTFastFlex {
     Row() {
       ForEach(this.renderView.dataList,(item : ItemView)=>{
         renderItem(item)
+      },(item : ItemView,index)=>{
+        return item.id as string
       })
       // ContentSlot(this.renderView.childSlot)
     }
-    .width('100%')
-    .height('100%')
+    .width(800)
+    .height(300)
     .backgroundColor(Color.Blue)
     .applyRenderViewBaseAttr(this.renderView)
   }
@@ -184,9 +189,14 @@ export struct QTFastFlex {
 
 
   aboutToAppear(): void {
+    console.error(QUICKTVUI_TAG,`QTFastFlex aboutToAppear`)
     // this.endBatchCallback = () =>{
     // }
     // this.renderView.ctx.getNativeRender().addEndBatchCallback(this.renderView.ctx.getRootId(),this.endBatchCallback)
+  }
+
+  getSid(){
+    return ''
   }
 
   aboutToDisappear(): void {
@@ -194,6 +204,7 @@ export struct QTFastFlex {
       this.renderView.ctx.getNativeRender().removeEndBatchCallback(this.renderView.ctx.getRootId(),this.endBatchCallback)
     }
   }
+
 }
 
 @Extend(Row)

@@ -33,6 +33,8 @@ export struct  QTFastList {
             ListItem() {
               renderItem(item)
             }
+            .width('auto')
+            .height('auto')
           })
         }
         .divider({
@@ -56,8 +58,9 @@ export struct  QTFastList {
   private handleOnChildrenUpdated() {
     this.bgColor = Color.Green
     console.log(QUICKTVUI_TAG,`QTFastList: handleOnChildrenUpdated children:${this.children.length}`)
+    NodeUtils.printViewTreePretty(this.renderView,'',false)
     this.children.map((c,index)=>{
-      console.log(QUICKTVUI_TAG,`template: viewType：`+c.viewType+",node:"+NodeUtils.getNodeById(this.renderView.ctx,c.tag))
+      // console.log(QUICKTVUI_TAG,`template: viewType：`+c.viewType+",node:"+NodeUtils.getNodeById(this.renderView.ctx,c.tag))
       this.dataSource?.registerTemplate(c,index)
     })
 
