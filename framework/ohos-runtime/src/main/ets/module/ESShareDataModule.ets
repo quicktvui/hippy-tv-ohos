@@ -7,9 +7,35 @@ import {
 } from 'hippy';
 
 import { BaseModule } from './BaseModule';
-import { BusinessError } from '@kit.BasicServicesKit';
 import { preferences, ValueType } from '@kit.ArkData';
+import QTAppManager from '../quick/QTAppManager';
 
+export enum ESShareDataType {
+  BOOLEAN = 1,
+  INT = 2,
+  LONG = 3,
+  FLOAT = 4,
+  STRING = 5,
+  STRING_ARRAY = 6,
+  MAP = 7
+}
+
+export enum ESShareDataMode {
+  PRIVATE = 0, // 仅模块自身访问
+  READABLE = 1, // 可被其他模块读取
+  READ_WRITE = 2 // 可读可写
+}
+
+export interface ESShareData {
+  type: ESShareDataType;
+  mode: ESShareDataMode;
+  secretKey?: string;
+  data: HippyAny;
+}
+
+/**
+ *
+ */
 @HippyNativeModule({ name: "ESShareDataModule" })
 export class ESShareDataModule extends BaseModule {
   public static readonly NAME: string = 'ESShareDataModule'
@@ -23,193 +49,203 @@ export class ESShareDataModule extends BaseModule {
   initialize(): void {
   }
 
+  /**
+   *
+   */
   public call(method: string, params: Array<HippyAny>, promise: HippyModulePromise): HippyAny {
     switch (method) {
-      case 'initPreferences': {
-        const name = params[0] as string
-        let options: preferences.Options = { name: name };
-        preferences.getPreferences(this.ctx.getAbilityContext(), options,
-          (err: BusinessError, preferences: preferences.Preferences) => {
-            if (err) {
-              promise.reject(JSON.stringify(err))
-            } else {
-              this.dataPreferences = preferences
-              promise.resolve(true)
-            }
-          });
-        break;
-      }
-      case 'deletePreferences': {
-        const name = params[0] as string
-        preferences.deletePreferences(this.ctx.getAbilityContext(), name, (err: BusinessError) => {
-          if (err) {
-            promise.reject(JSON.stringify(err))
-          } else {
-            promise.resolve(true)
-          }
-        })
-        break;
-      }
-    //----------------------------------------------------------------------------------------------------
       case 'get': {
-        const key = params[0] as string
-        const value = params[1] as ValueType
-        if (this.dataPreferences) {
-          this.dataPreferences.get(key, value, (err: BusinessError, ret: preferences.ValueType) => {
-            if (err) {
-              promise.reject(JSON.stringify(err))
-            } else {
-              promise.resolve(ret as HippyAny)
-            }
-          })
-        } else {
-          promise.reject("Please call the initPreferences method before using this feature.")
+        try {
+          const packageName = params[0] as string
+          const secretKey = params[1] as string
+          const key = params[1] as string
+          const defValue = params[1] as HippyAny
+          const shareData =
+            this.getShareData(this.getSelfPackageName(), packageName, secretKey, key, defValue)
+          promise.resolve(shareData)
+        } catch (error) {
+          LogUtils.e(this.TAG, `get error message:${error.message}`);
+          if (promise) {
+            promise.reject(JSON.stringify(error))
+          }
         }
         break;
       }
-      case 'getSync': {
-        const key = params[0] as string
-        const value = params[1] as ValueType
-        if (this.dataPreferences) {
-          const ret: preferences.ValueType = this.dataPreferences.getSync(key, value)
-          promise.resolve(ret as HippyAny)
-        } else {
-          promise.reject("Please call the initPreferences method before using this feature.")
-        }
-        break;
-      }
-    //--------------------------------------------------------------
       case 'put': {
-        const key = params[0] as string
-        const value = params[1] as ValueType
-        if (this.dataPreferences) {
-          this.dataPreferences.put(key, value, (err: BusinessError) => {
-            if (err) {
-              promise.reject(JSON.stringify(err))
-            } else {
-              promise.resolve(true)
-            }
-          })
-        } else {
-          promise.reject("Please call the initPreferences method before using this feature.")
+        try {
+          const packageName = params[0] as string
+          const secretKey = params[1] as string
+          const key = params[1] as string
+          const value = params[1] as HippyAny
+          const mode = params[1] as number
+          const dataType = params[1] as number
+          const ret =
+            this.putShareData(this.getSelfPackageName(), packageName, secretKey, key, value,
+              dataType, mode)
+          promise.resolve(ret)
+        } catch (error) {
+          LogUtils.e(this.TAG, `get error message:${error.message}`);
+          if (promise) {
+            promise.reject(JSON.stringify(error))
+          }
         }
         break;
       }
-      case 'putSync': {
-        const key = params[0] as string
-        const value = params[1] as ValueType
-        if (this.dataPreferences) {
-          this.dataPreferences.putSync(key, value)
-          promise.resolve(true)
-        } else {
-          promise.reject("Please call the initPreferences method before using this feature.")
-        }
-        break;
-      }
-    //--------------------------------------------------------------
-      case 'has': {
-        const key = params[0] as string
-        if (this.dataPreferences) {
-          this.dataPreferences.has(key, (err: BusinessError, ret: boolean) => {
-            if (err) {
-              promise.reject(JSON.stringify(err))
-            } else {
-              promise.resolve(ret)
-            }
-          })
-        } else {
-          promise.reject("Please call the initPreferences method before using this feature.")
-        }
-        break;
-      }
-      case 'hasSync': {
-        const key = params[0] as string
-        if (this.dataPreferences) {
-          let has: boolean = this.dataPreferences.hasSync(key)
-          promise.resolve(has)
-        } else {
-          promise.reject("Please call the initPreferences method before using this feature.")
-        }
-        break;
-      }
-    //--------------------------------------------------------------
-      case 'delete': {
-        const key = params[0] as string
-        if (this.dataPreferences) {
-          this.dataPreferences.delete(key, (err: BusinessError) => {
-            if (err) {
-              promise.reject(JSON.stringify(err))
-            } else {
-              promise.resolve(true)
-            }
-          })
-        } else {
-          promise.reject("Please call the initPreferences method before using this feature.")
-        }
-        break;
-      }
-      case 'deleteSync': {
-        const key = params[0] as string
-        if (this.dataPreferences) {
-          this.dataPreferences.deleteSync(key)
-          promise.resolve(true)
-        } else {
-          promise.reject("Please call the initPreferences method before using this feature.")
-        }
-        break;
-      }
-    //--------------------------------------------------------------
-      case 'flush': {
-        if (this.dataPreferences) {
-          this.dataPreferences.flush((err: BusinessError) => {
-            if (err) {
-              promise.reject(JSON.stringify(err))
-            } else {
-              promise.resolve(true)
-            }
-          })
-        } else {
-          promise.reject("Please call the initPreferences method before using this feature.")
-        }
-        break;
-      }
-      case 'flushSync': {
-        if (this.dataPreferences) {
-          this.dataPreferences.flushSync()
-          promise.resolve(true)
-        } else {
-          promise.reject("Please call the initPreferences method before using this feature.")
-        }
-        break;
-      }
-    //--------------------------------------------------------------
-      case 'clear': {
-        if (this.dataPreferences) {
-          this.dataPreferences.clear((err: BusinessError) => {
-            if (err) {
-              promise.reject(JSON.stringify(err))
-            } else {
-              promise.resolve(true)
-            }
-          })
-        } else {
-          promise.reject("Please call the initPreferences method before using this feature.")
-        }
-        break;
-      }
-      case 'clearSync': {
-        if (this.dataPreferences) {
-          this.dataPreferences.clearSync()
-          promise.resolve(true)
-        } else {
-          promise.reject("Please call the initPreferences method before using this feature.")
-        }
-        break;
-      }
-      //--------------------------------------------------------------
       default:
         super.call(method, params, promise);
     }
     return null;
+  }
+
+
+  private putShareData(selfPackageName: string, sharedPackageName: string,
+    secretKey: string, key: string, value: HippyAny, shareDataType: ESShareDataType,
+    shareDataMode: ESShareDataMode
+  ): boolean {
+    try {
+      if (this.dataPreferences == null) {
+        this.initShareData(sharedPackageName)
+      }
+      if (this.dataPreferences == null) {
+        return false
+      }
+      const sharedDataString: preferences.ValueType = this.dataPreferences.getSync(key, null)
+
+      //没有数据
+      if (sharedDataString == null) {
+        if (this.isSelfData(selfPackageName, sharedPackageName)) {
+          const shareData: ESShareData = {
+            type: shareDataType,
+            mode: shareDataMode,
+            data: value,
+            secretKey: secretKey
+          }
+          this.dataPreferences.putSync(key, JSON.stringify(shareData))
+          this.dataPreferences.flushSync()
+          return true
+        } else {
+          LogUtils.e(this.TAG, `ohters data can not write!have no permissions`);
+          return false
+        }
+      }
+      //已有数据
+      else {
+        const shareData: ESShareData = JSON.parse(sharedDataString as string)
+        //修改已有的自己的数据
+        if (this.isSelfData(selfPackageName, sharedPackageName)) {
+          shareData.type = shareDataType
+          shareData.mode = shareDataMode //自己改权限
+          shareData.data = value //自己改数据
+          shareData.secretKey = secretKey //自己改秘钥
+
+          this.dataPreferences.putSync(key, JSON.stringify(shareData))
+          this.dataPreferences.flushSync()
+          return true
+        }
+        //修改已有其他人的数据
+        else {
+          if (shareData.type >= ESShareDataMode.READ_WRITE) {
+            if (shareData.secretKey != undefined
+              && shareData.secretKey != null
+            ) {
+              //秘钥匹配
+              if (shareData.secretKey == secretKey) {
+                shareData.data = value
+                this.dataPreferences.putSync(key, JSON.stringify(shareData))
+                this.dataPreferences.flushSync()
+                return true
+              }
+              //秘钥不匹配
+              else {
+                LogUtils.e(this.TAG, `ohters data can not write!have no permissions`);
+                return false
+              }
+            }
+            //没有秘钥
+            else {
+              shareData.data = value
+              this.dataPreferences.putSync(key, JSON.stringify(shareData))
+              this.dataPreferences.flushSync()
+              return true
+            }
+          } else {
+            LogUtils.e(this.TAG, `ohters data can not write!have no permissions`);
+            return false
+          }
+        }
+      }
+    } catch (error) {
+      LogUtils.e(this.TAG, `init error message:${error.message}`);
+    }
+    return false
+  }
+
+  private getShareData(selfPackageName: string, sharedPackageName: string,
+    secretKey: string, key: string, defValue: HippyAny
+  ): HippyAny {
+    try {
+      if (this.dataPreferences == null) {
+        this.initShareData(sharedPackageName)
+      }
+      if (this.dataPreferences == null) {
+        return defValue
+      }
+      const sharedDataString: preferences.ValueType = this.dataPreferences.getSync(key, null)
+      //没有数据
+      if (sharedDataString == null) {
+        return defValue
+      }
+      //已有数据
+      else {
+        const shareData: ESShareData = JSON.parse(sharedDataString as string)
+        //已有的自己的数据
+        if (this.isSelfData(selfPackageName, sharedPackageName)) {
+          return shareData.data
+        }
+        //已有其他人的数据
+        else {
+          if (shareData.type >= ESShareDataMode.READABLE) {
+            if (shareData.secretKey != undefined
+              && shareData.secretKey != null
+            ) {
+              //秘钥匹配
+              if (shareData.secretKey == secretKey) {
+                return shareData.data
+              }
+              //秘钥不匹配
+              else {
+                LogUtils.e(this.TAG, `ohters data can not write!have no permissions`);
+                return defValue
+              }
+            }
+            //没有秘钥
+            else {
+              return shareData.data
+            }
+          } else {
+            LogUtils.e(this.TAG, `ohters data can not write!have no permissions`);
+            return defValue
+          }
+        }
+      }
+    } catch (error) {
+      LogUtils.e(this.TAG, `init error message:${error.message}`);
+    }
+    return defValue
+  }
+
+  private initShareData(sharedPackageName: string) {
+    let options: preferences.Options = { name: sharedPackageName + "_share_data" };
+    const pref = preferences.getPreferencesSync(this.ctx.getAbilityContext(), options);
+    this.dataPreferences = pref
+  }
+
+  private isSelfData(selfPackageName: string, sharedPackageName: string): boolean {
+    return selfPackageName == sharedPackageName &&
+      sharedPackageName != null && sharedPackageName != undefined;
+  }
+
+  private getSelfPackageName(): string {
+    return QTAppManager.getInstance().getPackageName();
   }
 }
