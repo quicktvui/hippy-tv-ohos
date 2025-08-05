@@ -133,7 +133,7 @@ export class ESShareDataModule extends BaseModule {
         return true
       }
       //修改已有其他人的数据
-      if (parsedData.type >= ESShareDataMode.READ_WRITE) {
+      if (parsedData.mode >= ESShareDataMode.READ_WRITE) {
         //秘钥匹配
         if (!parsedData.secretKey || parsedData.secretKey === secretKey) {
           parsedData.data = value
@@ -173,7 +173,7 @@ export class ESShareDataModule extends BaseModule {
       if (this.isSelfData(selfPackageName, sharedPackageName)) {
         return parsedData.data
       }
-      if (parsedData.type >= ESShareDataMode.READABLE) {
+      if (parsedData.mode >= ESShareDataMode.READABLE) {
         if (!parsedData.secretKey || parsedData.secretKey === secretKey) {
           return parsedData.data;
         } else {
