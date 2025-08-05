@@ -7,7 +7,7 @@ import {
 } from 'hippy';
 
 import { BaseModule } from './BaseModule';
-import { preferences, ValueType } from '@kit.ArkData';
+import { preferences } from '@kit.ArkData';
 import QTAppManager from '../quick/QTAppManager';
 
 export enum ESShareDataType {
@@ -53,46 +53,41 @@ export class ESShareDataModule extends BaseModule {
    *
    */
   public call(method: string, params: Array<HippyAny>, promise: HippyModulePromise): HippyAny {
-    switch (method) {
-      case 'get': {
-        try {
+    try {
+      switch (method) {
+        case 'get': {
           const packageName = params[0] as string
           const secretKey = params[1] as string
-          const key = params[1] as string
-          const defValue = params[1] as HippyAny
+          const key = params[2] as string
+          const defValue = params[3] as HippyAny
           const shareData =
             this.getShareData(this.getSelfPackageName(), packageName, secretKey, key, defValue)
+          LogUtils.d(this.TAG, `call ${method} success: ${shareData}`);
           promise.resolve(shareData)
-        } catch (error) {
-          LogUtils.e(this.TAG, `get error message:${error.message}`);
-          if (promise) {
-            promise.reject(JSON.stringify(error))
-          }
+          break;
         }
-        break;
-      }
-      case 'put': {
-        try {
+        case 'put': {
           const packageName = params[0] as string
           const secretKey = params[1] as string
-          const key = params[1] as string
-          const value = params[1] as HippyAny
-          const mode = params[1] as number
-          const dataType = params[1] as number
-          const ret =
+          const key = params[2] as string
+          const value = params[3] as HippyAny
+          const mode = params[4] as number
+          const dataType = params[5] as number
+          LogUtils.d(this.TAG,
+            `call ${method} packageName: ${packageName} secretKey: ${secretKey} key: ${key} value: ${value}  mode: ${mode} dataType: ${dataType}`);
+          const success =
             this.putShareData(this.getSelfPackageName(), packageName, secretKey, key, value,
               dataType, mode)
-          promise.resolve(ret)
-        } catch (error) {
-          LogUtils.e(this.TAG, `get error message:${error.message}`);
-          if (promise) {
-            promise.reject(JSON.stringify(error))
-          }
+          LogUtils.d(this.TAG, `call ${method} success: ${success}`);
+          promise.resolve(success)
+          break;
         }
-        break;
+        default:
+          super.call(method, params, promise);
       }
-      default:
-        super.call(method, params, promise);
+    } catch (error) {
+      LogUtils.e(this.TAG, `call ${method} failed: ${error.message}`);
+      promise.reject(`Call failed: ${error.message}`);
     }
     return null;
   }
@@ -103,16 +98,13 @@ export class ESShareDataModule extends BaseModule {
     shareDataMode: ESShareDataMode
   ): boolean {
     try {
-      if (this.dataPreferences == null) {
-        this.initShareData(sharedPackageName)
+      this.initShareData(sharedPackageName);
+      if (!this.dataPreferences) {
+        return false;
       }
-      if (this.dataPreferences == null) {
-        return false
-      }
-      const sharedDataString: preferences.ValueType = this.dataPreferences.getSync(key, null)
-
+      const existing: preferences.ValueType = this.dataPreferences.getSync(key, null)
       //没有数据
-      if (sharedDataString == null) {
+      if (!existing) {
         if (this.isSelfData(selfPackageName, sharedPackageName)) {
           const shareData: ESShareData = {
             type: shareDataType,
@@ -124,58 +116,41 @@ export class ESShareDataModule extends BaseModule {
           this.dataPreferences.flushSync()
           return true
         } else {
-          LogUtils.e(this.TAG, `ohters data can not write!have no permissions`);
+          LogUtils.w(this.TAG, `Permission denied: cannot write to other's PRIVATE data.`);
           return false
         }
       }
       //已有数据
-      else {
-        const shareData: ESShareData = JSON.parse(sharedDataString as string)
-        //修改已有的自己的数据
-        if (this.isSelfData(selfPackageName, sharedPackageName)) {
-          shareData.type = shareDataType
-          shareData.mode = shareDataMode //自己改权限
-          shareData.data = value //自己改数据
-          shareData.secretKey = secretKey //自己改秘钥
-
-          this.dataPreferences.putSync(key, JSON.stringify(shareData))
+      const parsedData: ESShareData = JSON.parse(existing as string)
+      //修改已有的自己的数据
+      if (this.isSelfData(selfPackageName, sharedPackageName)) {
+        parsedData.type = shareDataType
+        parsedData.mode = shareDataMode //自己改权限
+        parsedData.data = value //自己改数据
+        parsedData.secretKey = secretKey //自己改秘钥
+        this.dataPreferences.putSync(key, JSON.stringify(parsedData))
+        this.dataPreferences.flushSync()
+        return true
+      }
+      //修改已有其他人的数据
+      if (parsedData.type >= ESShareDataMode.READ_WRITE) {
+        //秘钥匹配
+        if (!parsedData.secretKey || parsedData.secretKey === secretKey) {
+          parsedData.data = value
+          this.dataPreferences.putSync(key, JSON.stringify(parsedData))
           this.dataPreferences.flushSync()
           return true
         }
-        //修改已有其他人的数据
+        //秘钥不匹配
         else {
-          if (shareData.type >= ESShareDataMode.READ_WRITE) {
-            if (shareData.secretKey != undefined
-              && shareData.secretKey != null
-            ) {
-              //秘钥匹配
-              if (shareData.secretKey == secretKey) {
-                shareData.data = value
-                this.dataPreferences.putSync(key, JSON.stringify(shareData))
-                this.dataPreferences.flushSync()
-                return true
-              }
-              //秘钥不匹配
-              else {
-                LogUtils.e(this.TAG, `ohters data can not write!have no permissions`);
-                return false
-              }
-            }
-            //没有秘钥
-            else {
-              shareData.data = value
-              this.dataPreferences.putSync(key, JSON.stringify(shareData))
-              this.dataPreferences.flushSync()
-              return true
-            }
-          } else {
-            LogUtils.e(this.TAG, `ohters data can not write!have no permissions`);
-            return false
-          }
+          LogUtils.w(this.TAG, `Permission denied: incorrect secret key.`);
+          return false
         }
+      } else {
+        LogUtils.w(this.TAG, `Permission denied: not writable.`);
       }
     } catch (error) {
-      LogUtils.e(this.TAG, `init error message:${error.message}`);
+      LogUtils.e(this.TAG, `putShareData failed: ${error.message}`);
     }
     return false
   }
@@ -184,65 +159,47 @@ export class ESShareDataModule extends BaseModule {
     secretKey: string, key: string, defValue: HippyAny
   ): HippyAny {
     try {
-      if (this.dataPreferences == null) {
-        this.initShareData(sharedPackageName)
+      this.initShareData(sharedPackageName);
+      if (!this.dataPreferences) {
+        return defValue;
       }
-      if (this.dataPreferences == null) {
-        return defValue
+
+      const existing: preferences.ValueType = this.dataPreferences.getSync(key, null)
+      if (!existing) {
+        return defValue;
       }
-      const sharedDataString: preferences.ValueType = this.dataPreferences.getSync(key, null)
-      //没有数据
-      if (sharedDataString == null) {
-        return defValue
+
+      const parsedData: ESShareData = JSON.parse(existing as string)
+      if (this.isSelfData(selfPackageName, sharedPackageName)) {
+        return parsedData.data
       }
-      //已有数据
-      else {
-        const shareData: ESShareData = JSON.parse(sharedDataString as string)
-        //已有的自己的数据
-        if (this.isSelfData(selfPackageName, sharedPackageName)) {
-          return shareData.data
+      if (parsedData.type >= ESShareDataMode.READABLE) {
+        if (!parsedData.secretKey || parsedData.secretKey === secretKey) {
+          return parsedData.data;
+        } else {
+          LogUtils.w(this.TAG, `Permission denied: incorrect secret key.`);
         }
-        //已有其他人的数据
-        else {
-          if (shareData.type >= ESShareDataMode.READABLE) {
-            if (shareData.secretKey != undefined
-              && shareData.secretKey != null
-            ) {
-              //秘钥匹配
-              if (shareData.secretKey == secretKey) {
-                return shareData.data
-              }
-              //秘钥不匹配
-              else {
-                LogUtils.e(this.TAG, `ohters data can not write!have no permissions`);
-                return defValue
-              }
-            }
-            //没有秘钥
-            else {
-              return shareData.data
-            }
-          } else {
-            LogUtils.e(this.TAG, `ohters data can not write!have no permissions`);
-            return defValue
-          }
-        }
+      } else {
+        LogUtils.w(this.TAG, `Permission denied: not readable.`);
+        return defValue
       }
     } catch (error) {
-      LogUtils.e(this.TAG, `init error message:${error.message}`);
+      LogUtils.e(this.TAG, `getShareData failed: ${error.message}`);
     }
     return defValue
   }
 
   private initShareData(sharedPackageName: string) {
-    let options: preferences.Options = { name: sharedPackageName + "_share_data" };
-    const pref = preferences.getPreferencesSync(this.ctx.getAbilityContext(), options);
-    this.dataPreferences = pref
+    try {
+      const options: preferences.Options = { name: `${sharedPackageName}_share_data` };
+      this.dataPreferences = preferences.getPreferencesSync(this.ctx.getAbilityContext(), options);
+    } catch (error) {
+      LogUtils.e(this.TAG, `initShareData failed: ${error.message}`);
+    }
   }
 
   private isSelfData(selfPackageName: string, sharedPackageName: string): boolean {
-    return selfPackageName == sharedPackageName &&
-      sharedPackageName != null && sharedPackageName != undefined;
+    return selfPackageName === sharedPackageName && !!sharedPackageName;
   }
 
   private getSelfPackageName(): string {
