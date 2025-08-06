@@ -50,6 +50,9 @@ import {
   QTFastFlex,
   QTFastFlexView
 } from 'quicktvui/src/main/ets/components/fastlist/QTFastFlexView';
+import {
+  QTFastItem,
+  QTFastItemView } from 'quicktvui/src/main/ets/components/fastlist/QTFastItemView';
 
 const TAG: string = 'RuntimeDebugPage'
 
@@ -64,8 +67,8 @@ struct Debug {
   @State currentEnv: string = 'dev'
   @State versionName: string = '1.0.0'
   @State versionCode: string = '1.0.0'
-  @State deviceIp: string = '192.168.40.80'
-  @State debugIp: string = '192.168.40.32' // 这里可以通过 storage 设置
+  @State deviceIp: string = '192.168.80.60'
+  @State debugIp: string = '192.168.80.60' // 这里可以通过 storage 设置
   envList: string[] = ['dev', 'test', 'prod']
   //----------------------------------------------------------------------
 
@@ -330,7 +333,14 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
       renderView: $$ as QTTextView,
       children: $$.children,
     })
-  } else if ($$ instanceof QTDivView) {
+  }
+  else if ($$ instanceof QTFastItemView) {
+    QTFastItem({
+      renderView: $$ as QTFastItemView,
+      children: $$.children,
+    })
+  }
+  else if ($$ instanceof QTDivView) {
     QTDiv({
       renderView: $$ as QTTextView,
       children: $$.children,
@@ -347,7 +357,7 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
       renderView: $$ as QTPageView,
       children: $$.children,
     })
-  } else if ($$ instanceof QTFastFlexView) {
+  }else if ($$ instanceof QTFastFlexView) {
     QTFastFlex({
       renderView: $$ as QTFastFlexView,
       children: $$.children,

@@ -26,6 +26,7 @@ import {buildRenderViewTraverse, PathUpdate} from '../TemplateViewManager'
 import { NodeUtils } from '../../utils/NodeUtils';
 import QTRenderBaseView from '../QTRenderBaseView';
 import { inspector } from '@kit.ArkUI';
+import { QTFastItemView } from './QTFastItemView';
 
 
 // class ItemEntry{
@@ -89,6 +90,19 @@ export class FastListDataSource implements IDataSource {
     return id
   }
 
+  wrappedItemIfNeed(renderView : HippyRenderBaseView) : HippyRenderBaseView{
+    if(renderView.viewType == 'FastItemView'){
+      return renderView;
+    }else{
+      let wi = new QTFastItemView(this.ctx)
+      wi.tag = -1
+      wi.isVirtual = true;
+      wi.viewType = 'FastItemView'
+      wi.addSubRenderView(renderView,0)
+      return wi;
+    }
+  }
+
   public buildItem(item: ItemView): ItemView{
     let type = getItemType(item.raw)
     if(item.raw instanceof  Map){
@@ -109,13 +123,16 @@ export class FastListDataSource implements IDataSource {
             p.renderView.aboutToUpdate()
           }
         })
+        if(rv){
+          rv = this.wrappedItemIfNeed(rv);
+        }
+        item.renderView = rv;
         updates?.map((p)=>{
           p.props.forEach((value,key)=>{
             // console.log(QUICKTVUI_TAG,`updates p :${p.renderView.viewType},prop:${key},value:${value}`)
             p.renderView.setProp(key,value)
           })
         })
-        item.renderView = rv;
         if(!rv){
           console.error(QUICKTVUI_TAG,`buildRenderView null `)
         }

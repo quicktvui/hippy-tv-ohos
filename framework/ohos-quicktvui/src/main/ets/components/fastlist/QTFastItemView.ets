@@ -7,11 +7,12 @@ import {
   HippyRenderCallback
 } from 'hippy'
 import { QTBaseComponentView } from '../QTBaseComponentView';
+import { QTDiv, QTDivView } from '../QTDivView';
 import QTRenderBaseView from '../QTRenderBaseView';
 
 
 @Observed
-export class QTFastItemView extends QTRenderBaseView{
+export class QTFastItemView extends QTDivView{
 
   constructor(ctx: NativeRenderContext) {
     super(ctx)
@@ -66,18 +67,16 @@ export class QTFastItemView extends QTRenderBaseView{
 
   }
 }
-
+@Reusable
 @Component
 export struct QTFastItem {
   @ObjectLink renderView: QTFastItemView
-  @ObjectLink children: HippyObservedArray<QTRenderBaseView>
+  @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
 
   build(): void {
-    HRDiv({
+    QTDiv({
       renderView: this.renderView,
       children: this.children
-    }).onClick(() => {
-
     })
   }
 

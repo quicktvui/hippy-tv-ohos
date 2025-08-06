@@ -17,6 +17,7 @@ export class QTBaseComponentView extends HippyCustomComponentView {
   public templateView : HippyRenderBaseView | null = null;
   sid : String | null = null;
   name: String | null = null;
+  public isVirtual : boolean = false;
   constructor(ctx: NativeRenderContext) {
     super(ctx)
   }
@@ -30,9 +31,15 @@ export class QTBaseComponentView extends HippyCustomComponentView {
     switch (propKey){
       case 'width':
         this.cssWidth = HRValueUtils.getNumber(propValue)
+        if(this.isVirtual && this.parentView?.viewType == 'FastItemView'){
+          this.parentView.cssWidth = this.cssWidth
+        }
         return true;
       case 'height':
         this.cssHeight = HRValueUtils.getNumber(propValue);
+        if(this.isVirtual && this.parentView?.viewType == 'FastItemView'){
+          this.parentView.cssHeight = this.cssHeight
+        }
         return true;
       case 'sid':
         this.sid = HRValueUtils.getString(propValue)
@@ -71,32 +78,33 @@ export class QTBaseComponentView extends HippyCustomComponentView {
     style?.forEach((value,key)=>{
       console.log(QUICKTVUI_TAG,`setFlexStyle key:${key},value:${value} type:${typeof value}`)
       let numberValue = HRValueUtils.getNumber(value)
-      switch (key) {
-        case 'width':
-          if(numberValue != this.cssWidth){
-            this.cssWidth = numberValue
-          }
-          break;
-        case 'height':
-          if(numberValue != this.cssHeight){
-            console.log(QUICKTVUI_TAG,`setFlexStyle height:${value}`)
-            this.cssHeight = numberValue
-          }
-          break ;
-        case 'left':
-          if(numberValue != this.cssPositionX){
-            this.cssPositionX = numberValue
-          }
-          break ;
-        case 'top':
-          if(numberValue != this.cssPositionY){
-            this.cssPositionY = numberValue
-          }
-          break ;
-        default :
-          console.warn(QUICKTVUI_TAG,`setStyle error 未实现的key:${key},value:${value}`)
-          break;
-      }
+      this.setProp(key,value)
+      // switch (key) {
+      //   case 'width':
+      //     if(numberValue != this.cssWidth){
+      //       this.cssWidth = numberValue
+      //     }
+      //     break;
+      //   case 'height':
+      //     if(numberValue != this.cssHeight){
+      //       console.log(QUICKTVUI_TAG,`setFlexStyle height:${value}`)
+      //       this.cssHeight = numberValue
+      //     }
+      //     break ;
+      //   case 'left':
+      //     if(numberValue != this.cssPositionX){
+      //       this.cssPositionX = numberValue
+      //     }
+      //     break ;
+      //   case 'top':
+      //     if(numberValue != this.cssPositionY){
+      //       this.cssPositionY = numberValue
+      //     }
+      //     break ;
+      //   default :
+      //     console.warn(QUICKTVUI_TAG,`setStyle error 未实现的key:${key},value:${value}`)
+      //     break;
+      // }
     })
   }
 

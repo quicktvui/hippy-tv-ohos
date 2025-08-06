@@ -1,7 +1,6 @@
 import {HippyRenderBaseView,HippyMap,HippyAny,NativeRenderContext} from 'hippy'
 import { QUICKTVUI_TAG } from '../Constant';
 import {createRenderViewFromCreator} from '../polifill/QTViewManager'
-import { CommonUtils } from '../utils/CommonUtils';
 import { NodeUtils } from '../utils/NodeUtils';
 import { TemplateCodeParser } from './fastlist/TemplateCodeParser'
 import { QTBaseComponentView } from './QTBaseComponentView';
@@ -49,6 +48,7 @@ function applyInit(renderView : HippyRenderBaseView,template: HippyRenderBaseVie
   renderView.tag = childIndex
   console.log(QUICKTVUI_TAG,`applyInit viewType:${template.viewType},size:{${template.cssWidth},${template.cssHeight}}`)
   if(renderView instanceof QTBaseComponentView){
+    renderView.isVirtual = true;
     renderView.onCreateByTemplate(template)
   }
   return renderView
