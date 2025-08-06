@@ -28,49 +28,49 @@ export class QTBaseComponentView extends HippyCustomComponentView {
 
   setProp(propKey: string, propValue: HippyAny): boolean {
     // console.info(QUICKTVUI_TAG,`QTRenderBaseView setProp:${propKey},propValue:${propValue}`)
-    switch (propKey){
-      case 'width':
-        this.cssWidth = HRValueUtils.getNumber(propValue)
-        if(this.isVirtual && this.parentView?.viewType == 'FastItemView'){
-          this.parentView.cssWidth = this.cssWidth
-        }
-        return true;
-      case 'height':
-        this.cssHeight = HRValueUtils.getNumber(propValue);
-        if(this.isVirtual && this.parentView?.viewType == 'FastItemView'){
-          this.parentView.cssHeight = this.cssHeight
-        }
-        return true;
-      case 'sid':
-        this.sid = HRValueUtils.getString(propValue)
-        if(this.sid){
-          console.log(QUICKTVUI_TAG,`setSid:${this.sid},viewType:${this.viewType},tag:${this.tag}`)
-        }
-        return true;
-      case 'name':
-        this.name = HRValueUtils.getString(propValue)
-        if(this.name){
-          console.log(QUICKTVUI_TAG,`setName:${this.name},viewType:${this.viewType},tag:${this.tag}`)
-        }
-        return true;
-      case 'size':
-        let size = HRValueUtils.getArray(propValue as HippyArray)
-        this.cssWidth = size ?  size[0] as number : 0
-        this.cssHeight = size ?  size[1] as number : 0
-        return true;
-      case 'layout':
-        let layout = HRValueUtils.getArray(propValue as HippyArray)
-        this.cssPositionX = layout ?  layout[0] as number : 0
-        this.cssPositionY = layout ?  layout[1] as number : 0
-        this.cssWidth = layout ?  layout[2] as number : 0
-        this.cssHeight = layout ?  layout[3] as number : 0
-        return true;
-      case 'flexStyle':
-      case 'style':
-        console.log(QUICKTVUI_TAG,`setStyle by :${propKey}，viewType:${this.viewType}},data:${CommonUtils.hippyMap2String(HRValueUtils.getMap(propValue))}`)
-        this.setFlexStyle(HRValueUtils.getMap(propValue))
-        return true;
-    }
+    // switch (propKey){
+    //   case 'width':
+    //     this.cssWidth = HRValueUtils.getNumber(propValue)
+    //     if(this.isVirtual && this.parentView?.viewType == 'FastItemView'){
+    //       this.parentView.cssWidth = this.cssWidth
+    //     }
+    //     return true;
+    //   case 'height':
+    //     this.cssHeight = HRValueUtils.getNumber(propValue);
+    //     if(this.isVirtual && this.parentView?.viewType == 'FastItemView'){
+    //       this.parentView.cssHeight = this.cssHeight
+    //     }
+    //     return true;
+    //   case 'sid':
+    //     this.sid = HRValueUtils.getString(propValue)
+    //     if(this.sid){
+    //       console.log(QUICKTVUI_TAG,`setSid:${this.sid},viewType:${this.viewType},tag:${this.tag}`)
+    //     }
+    //     return true;
+    //   case 'name':
+    //     this.name = HRValueUtils.getString(propValue)
+    //     if(this.name){
+    //       console.log(QUICKTVUI_TAG,`setName:${this.name},viewType:${this.viewType},tag:${this.tag}`)
+    //     }
+    //     return true;
+    //   case 'size':
+    //     let size = HRValueUtils.getArray(propValue as HippyArray)
+    //     this.cssWidth = size ?  size[0] as number : 0
+    //     this.cssHeight = size ?  size[1] as number : 0
+    //     return true;
+    //   case 'layout':
+    //     let layout = HRValueUtils.getArray(propValue as HippyArray)
+    //     this.cssPositionX = layout ?  layout[0] as number : 0
+    //     this.cssPositionY = layout ?  layout[1] as number : 0
+    //     this.cssWidth = layout ?  layout[2] as number : 0
+    //     this.cssHeight = layout ?  layout[3] as number : 0
+    //     return true;
+    //   case 'flexStyle':
+    //   case 'style':
+    //     console.log(QUICKTVUI_TAG,`setStyle by :${propKey}，viewType:${this.viewType}},data:${CommonUtils.hippyMap2String(HRValueUtils.getMap(propValue))}`)
+    //     this.setFlexStyle(HRValueUtils.getMap(propValue))
+    //     return true;
+    // }
     return super.setProp(propKey, propValue)
   }
 

@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {HippyRenderBaseView,HippyObservedArray,NativeRenderContext,NativeRender} from 'hippy'
+import {HippyRenderBaseView,HippyObservedArray,NativeRenderContext,NativeRender,HRRect} from 'hippy'
 import { QUICKTVUI_TAG } from '../../Constant';
 import {HippyMap,HippyArray,HippyAny} from 'hippy'
 import {ItemView,getItemType, ItemTemplate} from './ItemView'
@@ -98,6 +98,8 @@ export class FastListDataSource implements IDataSource {
       wi.tag = -1
       wi.isVirtual = true;
       wi.viewType = 'FastItemView'
+      let layout = new HRRect(0,0,renderView.cssWidth,renderView.cssHeight)
+      wi.setRenderViewFrame(layout,null)
       wi.addSubRenderView(renderView,0)
       return wi;
     }
@@ -119,10 +121,14 @@ export class FastListDataSource implements IDataSource {
         let  updates:Array<PathUpdate> = []
         let rv = buildRenderViewTraverse(this.ctx,it.templateView,it.props,item.raw as HippyMap,null,0,updates)
         updates?.map((p)=>{
+          //更新尺寸
+          let layout = new HRRect(p.layout[0],p.layout[1],p.layout[2],p.layout[3]);
+          p.renderView.setRenderViewFrame(layout,null)
           if(p.renderView instanceof  QTRenderBaseView){
             p.renderView.aboutToUpdate()
           }
         })
+        //包裹一层fastItem，如果用户没有写的话
         if(rv){
           rv = this.wrappedItemIfNeed(rv);
         }
@@ -130,6 +136,7 @@ export class FastListDataSource implements IDataSource {
         updates?.map((p)=>{
           p.props.forEach((value,key)=>{
             // console.log(QUICKTVUI_TAG,`updates p :${p.renderView.viewType},prop:${key},value:${value}`)
+            //更新所有属性
             p.renderView.setProp(key,value)
           })
         })
