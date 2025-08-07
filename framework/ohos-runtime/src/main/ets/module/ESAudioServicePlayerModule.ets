@@ -19,6 +19,10 @@ import { common } from '@kit.AbilityKit';
 import { fileIo as fs } from '@kit.CoreFileKit';
 import QTAppManager from '../quick/QTAppManager';
 
+import { backgroundTaskManager } from '@kit.BackgroundTasksKit';
+import { wantAgent, WantAgent } from '@kit.AbilityKit';
+
+
 interface AVCommand {
   name: string;
   args: HippyAny[];
@@ -50,6 +54,16 @@ export class ESAudioServicePlayerModule extends BaseModule {
 
   public call(method: string, params: Array<HippyAny>, promise: HippyModulePromise): HippyAny {
     switch (method) {
+      //不做任何操作
+      case 'startBackgroundRunning': {
+        promise?.resolve(true)
+        break;
+      }
+    //停止后台任务
+      case 'stopBackgroundRunning': {
+        this.stopContinuousTask(promise)
+        break;
+      }
       case 'init': {
         const playerId = this.generateId();
         this.createMediaPlayer().then((mediaPlayer) => {
@@ -123,7 +137,8 @@ export class ESAudioServicePlayerModule extends BaseModule {
             async () => {
               const validStates = ['prepared', 'paused', 'completed'];
               if (validStates.includes(currentPlayer.state)) {
-                await currentPlayer.play();
+                //开启后台任务
+                await this.startContinuousTask(currentPlayer)
                 return true;
               } else {
                 throw new Error(`Invalid state: ${currentPlayer.state}`);
@@ -505,5 +520,98 @@ export class ESAudioServicePlayerModule extends BaseModule {
       map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.INITIALIZE_ERROR)
       this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
     }
+  }
+
+  //---------------------------------------------------------------------------
+  callback(info: backgroundTaskManager.ContinuousTaskCancelInfo) {
+    // 长时任务id
+    LogUtils.i(this.TAG, 'OnContinuousTaskCancel callback id ' + info.id);
+    // 长时任务取消原因
+    LogUtils.i(this.TAG, 'OnContinuousTaskCancel callback reason ' + info.reason);
+  }
+
+  OnContinuousTaskCancel() {
+    try {
+      backgroundTaskManager.on("continuousTaskCancel", this.callback);
+      LogUtils.i(this.TAG, `Succeeded in operationing OnContinuousTaskCancel.`);
+    } catch (error) {
+      LogUtils.e(this.TAG,
+        `Operation OnContinuousTaskCancel failed. code is ${(error as BusinessError).code} message is ${(error as BusinessError).message}`);
+    }
+  }
+
+  OffContinuousTaskCancel() {
+    try {
+      // callback参数不传，则取消所有已注册的回调
+      backgroundTaskManager.off("continuousTaskCancel", this.callback);
+      LogUtils.i(this.TAG, `Succeeded in operationing OffContinuousTaskCancel.`);
+    } catch (error) {
+      LogUtils.e(this.TAG,
+        `Operation OffContinuousTaskCancel failed. code is ${(error as BusinessError).code} message is ${(error as BusinessError).message}`);
+    }
+  }
+
+  async startContinuousTask(player: media.AVPlayer) {
+    let wantAgentInfo: wantAgent.WantAgentInfo = {
+      // 点击通知后，将要执行的动作列表
+      // 添加需要被拉起应用的bundleName和abilityName
+      wants: [
+        {
+          bundleName: "com.extscreen.runtime",
+          abilityName: "RuntimeEntryAbility"
+        }
+      ],
+      // 指定点击通知栏消息后的动作是拉起ability
+      actionType: wantAgent.OperationType.START_ABILITY,
+      // 使用者自定义的一个私有值
+      requestCode: 0,
+      // 点击通知后，动作执行属性
+      actionFlags: [wantAgent.WantAgentFlags.UPDATE_PRESENT_FLAG],
+      // 车钥匙长时任务子类型。只有申请bluetoothInteraction类型的长时任务，车钥匙子类型才能生效。
+      // 确保extraInfo参数中的Key值为backgroundTaskManager.BackgroundModeType.SUB_MODE，否则子类型不生效。
+      // extraInfo: { [backgroundTaskManager.BackgroundModeType.SUB_MODE] : backgroundTaskManager.BackgroundSubMode.CAR_KEY }
+    };
+
+    try {
+      // 通过wantAgent模块下getWantAgent方法获取WantAgent对象
+      wantAgent.getWantAgent(wantAgentInfo).then((wantAgentObj: WantAgent) => {
+        try {
+          let list: Array<string> = ["audioPlayback"];
+          // let list: Array<string> = ["bluetoothInteraction"]; 长时任务类型包含bluetoothInteraction，CAR_KEY子类型合法
+          backgroundTaskManager.startBackgroundRunning(this.ctx.getAbilityContext(), list,
+            wantAgentObj)
+            .then(async (res: backgroundTaskManager.ContinuousTaskNotification) => {
+              LogUtils.i(this.TAG, "Operation startBackgroundRunning succeeded");
+              // 此处执行具体的长时任务逻辑，如录音，录制等。
+              //进行播放
+              await player.play();
+            })
+            .catch((error: BusinessError) => {
+              LogUtils.e(this.TAG,
+                `Failed to Operation startBackgroundRunning. code is ${error.code} message is ${error.message}`);
+            });
+        } catch (error) {
+          LogUtils.e(this.TAG,
+            `Failed to Operation startBackgroundRunning. code is ${(error as BusinessError).code} message is ${(error as BusinessError).message}`)
+        }
+      });
+    } catch (error) {
+      LogUtils.e(this.TAG,
+        `Failed to Operation getWantAgent. code is ${(error as BusinessError).code} message is ${(error as BusinessError).message}`)
+    }
+  }
+
+  /**
+   * 停止后台任务
+   */
+  stopContinuousTask(promise: HippyModulePromise) {
+    backgroundTaskManager.stopBackgroundRunning(this.ctx.getAbilityContext()).then(() => {
+      LogUtils.i(this.TAG, `Succeeded in operationing stopBackgroundRunning.`)
+      promise?.resolve(true)
+    }).catch((err: BusinessError) => {
+      promise?.reject(JSON.stringify(err))
+      LogUtils.e(this.TAG,
+        `Failed to operation stopBackgroundRunning. Code is ${err.code}, message is ${err.message}`)
+    });
   }
 }
