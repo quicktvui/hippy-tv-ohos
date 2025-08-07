@@ -75,6 +75,10 @@
     {
       "name": "reason_notifications",
       "value": "用于接收通知提醒，确保及时获取重要信息。"
+    },
+    {
+      "name": "reason_background_audio",
+      "value": "应用需要在后台持续运行，以完成音频播放任务。"
     }
   ]
 }
