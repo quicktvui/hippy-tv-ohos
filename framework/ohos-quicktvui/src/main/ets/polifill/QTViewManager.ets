@@ -1,5 +1,5 @@
 import {HippyRenderBaseView,NativeRenderContext,hippyRenderViewCreatorRegisterMap,HRRenderViewCreator,HippyMap} from 'hippy'
-import { QTDivView } from '../components/QTDivView';
+import { QTDivView } from '../components/div/QTDivView';
 import QTRenderBaseView from '../components/QTRenderBaseView';
 
 let myHippyRenderViewCreatorRegisterMap :Map<string, HRRenderViewCreator> | null

@@ -13,12 +13,12 @@ import {
   HRRenderViewCreator
 } from 'hippy/src/main/ets/renderer_native/components/HippyRenderRegisterMap';
 
-import { QTDivView } from './QTDivView';
+import { QTDivView } from './div/QTDivView';
 import { QTFastListView } from './fastlist/QTFastListView';
 import { QTFastFlexView } from './fastlist/QTFastFlexView';
 import { QTFastItemView } from './fastlist/QTFastItemView';
 import { QUICKTVUI_TAG } from '../Constant';
-import { QTTextView } from './QTTextView';
+import { QTTextView } from './text/QTTextView';
 import { QTFallback, QTFallbackView } from './compat/QTFallbackView';
 import { QTLoadingView } from './loading/QTLoadingView';
 import { QTEventView } from './event/QTEventView';
@@ -26,6 +26,7 @@ import { QTProgressView } from './progress/QTProgressView';
 import { QTQRCodeView } from './qrcode/QTQRCodeView';
 import { QTWebView } from './web/QTWebView';
 import { QTSliderView } from './slider/QTSliderView';
+import { QTAnimationView } from './animation/QTAnimationView';
 
 export class QTAPIProvider extends HippyAPIProvider {
   getCustomNativeModuleCreatorMap(): Map<string, HippyNativeModuleCreator> | null {
@@ -53,6 +54,7 @@ export class QTAPIProvider extends HippyAPIProvider {
     registerMap.set("TVProgressBarViewComponent", (ctx): HippyRenderBaseView => new QTProgressView(ctx))
     registerMap.set("EsEventComponent", (ctx): HippyRenderBaseView => new QTEventView(ctx))
     registerMap.set("QTSliderView", (ctx): HippyRenderBaseView => new QTSliderView(ctx))
+    registerMap.set("AnimationViewComponent", (ctx): HippyRenderBaseView => new QTAnimationView(ctx))
 
     registerMap.set("TextView", (ctx): HippyRenderBaseView => new QTTextView(ctx))
 

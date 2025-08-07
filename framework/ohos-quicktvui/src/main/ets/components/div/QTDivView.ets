@@ -19,7 +19,7 @@
  */
 import deviceInfo  from '@ohos.deviceInfo';
 import {HippyAny,buildHippyRenderView,NativeRenderContext,HippyRenderBaseView,HippyObservedArray,HIPPY_COMPONENT_KEY_PREFIX} from 'hippy'
-import QTRenderBaseView from './QTRenderBaseView';
+import QTRenderBaseView from '../QTRenderBaseView';
 
 
 const HippyGestureTag = 'HippyGestureTag'

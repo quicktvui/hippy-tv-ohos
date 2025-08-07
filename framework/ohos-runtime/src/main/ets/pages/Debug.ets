@@ -34,6 +34,16 @@ import {
   QTWeb,
   QTSliderView,
   QTSlider,
+  QTText,
+  QTTextView,
+  QTFastListView,
+  QTFastList,
+  QTDiv,
+  QTDivView,
+  QTFastFlex,
+  QTFastFlexView,
+  QTAnimation,
+  QTAnimationView
 } from 'quicktvui';
 import { QTVideoPlayer, QTVideoPlayerView } from '../components/video/QTVideoPlayerView';
 import { QTPageRouter, QTPageRouterView } from '../components/router/QTPageRouterView';
@@ -348,6 +358,11 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
   } else if ($$ instanceof QTPageRouterView) {
     QTPageRouter({
       renderView: $$ as QTPageRouterView,
+      children: $$.children,
+    })
+  } else if ($$ instanceof QTAnimationView) {
+    QTAnimation({
+      renderView: $$ as QTAnimationView,
       children: $$.children,
     })
   }

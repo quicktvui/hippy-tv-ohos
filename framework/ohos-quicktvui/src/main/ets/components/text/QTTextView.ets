@@ -1,9 +1,9 @@
 
 import {HippyRenderBaseView,HippyObservedArray,HRRect,HRPadding,NativeRenderContext,HippyAny,HippyRenderCallback,HIPPY_COMPONENT_KEY_PREFIX} from 'hippy'
-import { QUICKTVUI_TAG } from '../Constant';
-import { HRValueUtils } from '../HRValueUtils';
-import QTRenderBaseView from './QTRenderBaseView';
-import { ViewUtils } from '../utils/ViewUtils';
+import { QUICKTVUI_TAG } from '../../Constant';
+import { HRValueUtils } from '../../HRValueUtils';
+import QTRenderBaseView from '../QTRenderBaseView';
+import { ViewUtils } from '../../utils/ViewUtils';
 import MeasureText from '@ohos.measure';
 
 

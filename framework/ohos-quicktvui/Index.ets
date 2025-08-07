@@ -14,3 +14,14 @@ export { QTSliderView, QTSlider } from './src/main/ets/components/slider/QTSlide
 
 export { QTBaseComponentView } from './src/main/ets/components/QTBaseComponentView'
 
+export { QTText, QTTextView } from './src/main/ets/components/text/QTTextView'
+
+export { QTDiv, QTDivView } from './src/main/ets/components/div/QTDivView'
+
+export { QTFastListView } from './src/main/ets/components/fastlist/QTFastListView'
+
+export { QTFastList } from './src/main/ets/components/fastlist/QTFastList'
+
+export { QTFastFlex, QTFastFlexView } from './src/main/ets/components/fastlist/QTFastFlexView'
+
+export { QTAnimation, QTAnimationView } from './src/main/ets/components/animation/QTAnimationView'
