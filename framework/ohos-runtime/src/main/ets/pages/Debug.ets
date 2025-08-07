@@ -34,22 +34,24 @@ import {
   QTWeb,
   QTSliderView,
   QTSlider,
+  QTText,
+  QTTextView,
+  QTFastListView,
+  QTFastList,
+  QTDiv,
+  QTDivView,
+  QTFastFlex,
+  QTFastFlexView,
+  QTAnimation,
+  QTAnimationView
 } from 'quicktvui';
 import { QTVideoPlayer, QTVideoPlayerView } from '../components/video/QTVideoPlayerView';
 import { QTPageRouter, QTPageRouterView } from '../components/router/QTPageRouterView';
 import { QTPage, QTPageView } from '../components/router/QTPageView';
-import { QTFastListView } from 'quicktvui/src/main/ets/components/fastlist/QTFastListView';
-import { QTFastList } from 'quicktvui/src/main/ets/components/fastlist/QTFastList';
-import { QTTextView, QTText } from 'quicktvui/src/main/ets/components/QTTextView';
 import {
   QTFallbackView,
   QTFallback
 } from 'quicktvui/src/main/ets/components/compat/QTFallbackView';
-import { QTDiv, QTDivView } from 'quicktvui/src/main/ets/components/QTDivView';
-import {
-  QTFastFlex,
-  QTFastFlexView
-} from 'quicktvui/src/main/ets/components/fastlist/QTFastFlexView';
 
 const TAG: string = 'RuntimeDebugPage'
 
@@ -64,7 +66,7 @@ struct Debug {
   @State currentEnv: string = 'dev'
   @State versionName: string = '1.0.0'
   @State versionCode: string = '1.0.0'
-  @State deviceIp: string = '192.168.40.80'
+  @State deviceIp: string = '192.168.40.57'
   @State debugIp: string = '192.168.40.32' // 这里可以通过 storage 设置
   envList: string[] = ['dev', 'test', 'prod']
   //----------------------------------------------------------------------
@@ -338,6 +340,11 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
   } else if ($$ instanceof QTPageRouterView) {
     QTPageRouter({
       renderView: $$ as QTPageRouterView,
+      children: $$.children,
+    })
+  } else if ($$ instanceof QTAnimationView) {
+    QTAnimation({
+      renderView: $$ as QTAnimationView,
       children: $$.children,
     })
   }
