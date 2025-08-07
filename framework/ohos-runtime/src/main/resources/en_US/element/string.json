@@ -75,6 +75,10 @@
     {
       "name": "reason_notifications",
       "value": "Used to receive notifications to ensure timely access to important information."
+    },
+    {
+      "name": "reason_background_audio",
+      "value": "The app needs to keep running in the background to continue audio playback."
     }
   ]
 }

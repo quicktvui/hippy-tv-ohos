@@ -56,6 +56,9 @@ export class ESAudioServicePlayerModule extends BaseModule {
     switch (method) {
       //不做任何操作
       case 'startBackgroundRunning': {
+        const map = new Map<string, HippyAny>()
+        map.set(QTPlayerEventProp.VALUE, true)
+        this.dispatchEvent(QTPlayerEvent.ON_AUDIO_PLAYER_SERVICE_BIND, map)
         promise?.resolve(true)
         break;
       }
@@ -607,8 +610,14 @@ export class ESAudioServicePlayerModule extends BaseModule {
   stopContinuousTask(promise: HippyModulePromise) {
     backgroundTaskManager.stopBackgroundRunning(this.ctx.getAbilityContext()).then(() => {
       LogUtils.i(this.TAG, `Succeeded in operationing stopBackgroundRunning.`)
+      const map = new Map<string, HippyAny>()
+      map.set(QTPlayerEventProp.VALUE, false)
+      this.dispatchEvent(QTPlayerEvent.ON_AUDIO_PLAYER_SERVICE_BIND, map)
       promise?.resolve(true)
     }).catch((err: BusinessError) => {
+      const map = new Map<string, HippyAny>()
+      map.set(QTPlayerEventProp.VALUE, false)
+      this.dispatchEvent(QTPlayerEvent.ON_AUDIO_PLAYER_SERVICE_BIND, map)
       promise?.reject(JSON.stringify(err))
       LogUtils.e(this.TAG,
         `Failed to operation stopBackgroundRunning. Code is ${err.code}, message is ${err.message}`)

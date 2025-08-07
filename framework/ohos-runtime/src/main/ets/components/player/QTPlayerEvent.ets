@@ -29,5 +29,15 @@ export enum QTPlayerEvent {
   //音量
   ON_PLAYER_VOLUME_CHANGED = "onPlayerVolumeChanged",
   //
-  ON_ANDROID_INVOKE_VUE = "onAndroidInvokeVue"
+  ON_ANDROID_INVOKE_VUE = "onAndroidInvokeVue",
+
+
+  //---------------------------------音频相关-------------------------------------------
+  //
+  ON_AUDIO_PLAYER_SERVICE_BIND = "onESAudioPlayerServiceBind",
+  ON_AUDIO_PLAYER_STATUS_CHANGED = "onESAudioPlayerStatusChanged",
+  ON_AUDIO_PLAYER_ERROR = "onESAudioPlayerError",
+  ON_AUDIO_PLAYER_INFO = "onESAudioPlayerInfo",
+  ON_AUDIO_PLAYER_RATE_CHANGED = "onESAudioPlayRateChanged",
+  ON_AUDIO_PLAYER_INIT = "onESAudioPlayerInit",
 }

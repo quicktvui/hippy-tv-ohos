@@ -1,4 +1,6 @@
 export enum QTPlayerEventProp {
+
+  VALUE = "value",
   //
   PLAYER_ID = "id",
   //event
@@ -47,4 +49,5 @@ export enum QTPlayerEventProp {
 
   //百分比
   BUFFER_PERCENT = "percent",
+
 }
