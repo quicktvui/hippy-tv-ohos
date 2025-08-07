@@ -25,8 +25,8 @@ import assertNull from '@ohos/hypium/src/main/module/assert/assertNull';
 import {buildRenderViewTraverse, PathUpdate} from '../TemplateViewManager'
 import { NodeUtils } from '../../utils/NodeUtils';
 import QTRenderBaseView from '../QTRenderBaseView';
-import { inspector } from '@kit.ArkUI';
 import { QTFastItemView } from './QTFastItemView';
+import { QTBaseComponentView } from '../QTBaseComponentView';
 
 
 // class ItemEntry{
@@ -58,8 +58,13 @@ export class FastListDataSource implements IDataSource {
     console.info(QUICKTVUI_TAG, `setTemplates total:${templates.length}`)
   }
 
-  public registerTemplate(child: HippyRenderBaseView,childIndex: number){
-    let childTag = child.tag
+  public registerTemplate(child: HippyRenderBaseView,childIndex: number,isVirtual : boolean  = false){
+    let childTag =  child.tag
+
+    // if(isVirtual && child instanceof QTBaseComponentView){
+    //   console.error(QUICKTVUI_TAG,`registerTemplat isVirtual template ,childTag:${child.templateView?.tag},viewName:${child.viewType}`)
+    //   childTag = child.templateView!!.tag
+    // }
     let childViewName = child.viewType
     let node = NodeUtils.getNodeById(this.ctx,childTag)
     // let renderView = getRenderView(this.ctx,childTag)
@@ -137,7 +142,17 @@ export class FastListDataSource implements IDataSource {
           p.props.forEach((value,key)=>{
             // console.log(QUICKTVUI_TAG,`updates p :${p.renderView.viewType},prop:${key},value:${value}`)
             //更新所有属性
-            p.renderView.setProp(key,value)
+            let handle = false
+            switch (key){
+              case 'showIf':
+                p.renderView.cssVisibility = value ? Visibility.Visible : Visibility.Hidden
+                // console.log(QUICKTVUI_TAG,`showIf executed value:${value},viweType:${p.renderView.viewType}`)
+                handle = true;
+                break;
+            }
+            if(!handle){
+              p.renderView.setProp(key,value)
+            }
           })
         })
         if(!rv){

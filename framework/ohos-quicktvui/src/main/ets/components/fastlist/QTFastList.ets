@@ -17,54 +17,50 @@ export struct  QTFastList {
 
 
   build(): void {
-    if(this.test){
-      Stack() {
-        ForEach(this.children, (item: HippyRenderBaseView) => {
-          buildHippyRenderView(item, null)
-        }, (item: HippyRenderBaseView) => item.tag + '')
-        // ContentSlot(this.renderView.childSlot)
-      }
-      .applyRenderViewBaseAttr(this.renderView)
-      .backgroundColor(this.bgColor)
-    }else{
-      Stack() {
-        List(){
-          LazyForEach(this.dataSource,(item : ItemView,index : number)=>{
-            ListItem() {
-              renderItem(item)
-            }
-            .width('auto')
-            .height('auto')
-          })
-        }
-        .divider({
-          strokeWidth: 2,  // 分隔线宽度
-          color: 'white',  // 分隔线颜色
+    Stack() {
+      List(){
+        LazyForEach(this.dataSource,(item : ItemView,index : number)=>{
+          ListItem() {
+            renderItem(item)
+          }
+          .width('auto')
+          .height('auto')
         })
-        .width('100%')
-        .height('100%')
-        // ContentSlot(this.renderView.childSlot)
       }
-      .applyRenderViewBaseAttr(this.renderView)
-      .backgroundColor(this.bgColor)
+      .divider({
+        strokeWidth: 2,  // 分隔线宽度
+        color: 'white',  // 分隔线颜色
+      })
+      .listDirection(this.renderView.isHorizontal ? Axis.Horizontal : Axis.Vertical)
+      .width('100%')
+      .height('100%')
+      // ContentSlot(this.renderView.childSlot)
     }
-
+    .applyRenderViewBaseAttr(this.renderView)
+    .backgroundColor(this.bgColor)
   }
 
   public notifyReload(){
     this.dataSource?.notifyReload()
   }
 
-  private handleOnChildrenUpdated() {
+  public handleOnChildrenUpdated() {
     this.bgColor = Color.Green
     console.log(QUICKTVUI_TAG,`QTFastList: handleOnChildrenUpdated children:${this.children.length}`)
     NodeUtils.printViewTreePretty(this.renderView,'',false)
-    this.children.map((c,index)=>{
-      // console.log(QUICKTVUI_TAG,`template: viewType：`+c.viewType+",node:"+NodeUtils.getNodeById(this.renderView.ctx,c.tag))
-      this.dataSource?.registerTemplate(c,index)
-    })
-
+    if(this.renderView.isVirtual){
+      console.error(QUICKTVUI_TAG,`handleOnChildrenUpdated registerTemplate for virtual FastList`)
+      this.renderView.templateView?.children.map((c,index)=>{
+        this.dataSource?.registerTemplate(c,index,true)
+      })
+    }else{
+      this.children.map((c,index)=>{
+        // console.log(QUICKTVUI_TAG,`template: viewType：`+c.viewType+",node:"+NodeUtils.getNodeById(this.renderView.ctx,c.tag))
+        this.dataSource?.registerTemplate(c,index,this.renderView.isVirtual)
+      })
+    }
   }
+
 
 
   aboutToAppear(): void {

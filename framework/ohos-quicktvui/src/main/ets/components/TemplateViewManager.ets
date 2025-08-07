@@ -1,3 +1,4 @@
+import { IllegalStateException } from '@ohos/zxing';
 import {HippyRenderBaseView,HippyMap,HippyAny,NativeRenderContext,HRRect} from 'hippy'
 import { QUICKTVUI_TAG } from '../Constant';
 import { HRValueUtils } from '../HRValueUtils';
@@ -54,6 +55,7 @@ function applyInit(renderView : HippyRenderBaseView,template: HippyRenderBaseVie
   console.log(QUICKTVUI_TAG,`applyInit viewType:${template.viewType},size:{${template.cssWidth},${template.cssHeight}}`)
   if(renderView instanceof QTBaseComponentView){
     renderView.isVirtual = true;
+    renderView.templateView = template;
     renderView.onCreateByTemplate(template)
   }
   // CommonUtils.printObject(templateProps,'applyBasicStyle')
@@ -96,6 +98,9 @@ export function buildRenderViewTraverse(ctx:NativeRenderContext | null, template
   }
   template?.children?.map((child,index)=>{
     let childNode = NodeUtils.getNodeById(ctx,child.tag)
+    if(!childNode){
+      throw new IllegalStateException(`child node is null tag :${child.tag},viewType:${child.viewType}`)
+    }
     buildRenderViewTraverse(ctx,child,childNode!!.props!!,itemData,patch!!.renderView,index,updates)
   })
   return patch.renderView
@@ -123,7 +128,9 @@ export function gatherToUpdateMap(rendView:HippyRenderBaseView ,templateProps:Hi
           //nothing here
           // console.log(QUICKTVUI_TAG,`--gatherToUpdateMap discard key:${key},data:${CommonUtils.hippyAny2String(value)}`)
           // toUpdate.set(key,value)
-          updateLayoutStyle(key,value,patch)
+          if(!updateLayoutStyle(key,value,patch)){
+            toUpdate.set(key,value)
+          }
         }
       }
     }
@@ -138,6 +145,13 @@ function updateLayoutStyle(key:String,value:HippyAny,p:PathUpdate) : boolean{
       return true;
     case 'height':
       p.layout[3] = HRValueUtils.getNumber(value);
+      return true;
+    case 'translation':
+      let ts = HRValueUtils.getMap(value)
+      if(ts){
+        p.layout[0] = ts[0]
+        p.layout[1] = ts[1]
+      }
       return true;
     case 'style':
     case 'flexStyle':

@@ -40,7 +40,7 @@ export class QTFastFlexView extends QTRenderBaseView {
     children?.map((c,index)=>{
       if(c.tag != -1){
         console.log(QUICKTVUI_TAG,`QTFastFlexView template: viewType：`+c.viewType+",node:"+NodeUtils.getNodeById(this.ctx,c.tag))
-        this.dataSource?.registerTemplate(c,index)
+        this.dataSource?.registerTemplate(c,index,this.isVirtual)
       }else{
         console.error(QUICKTVUI_TAG,`QTFastFlexView registerTemplate error child id is -1`)
       }

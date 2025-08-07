@@ -23,7 +23,7 @@ export class QTBaseComponentView extends HippyCustomComponentView {
   }
 
   onCreateByTemplate(templateView : HippyRenderBaseView){
-    this.templateView = templateView;
+
   }
 
   setProp(propKey: string, propValue: HippyAny): boolean {

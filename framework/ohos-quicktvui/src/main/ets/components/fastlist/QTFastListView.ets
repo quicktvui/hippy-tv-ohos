@@ -15,6 +15,7 @@ export class QTFastListView extends QTRenderBaseView{
   public uiCtx: UIContext | null = null
   public dataList: HippyObservedArray<ItemView> = new HippyObservedArray()
   public ui : QTFastList | null = null;
+  isHorizontal : boolean = false;
 
   constructor(ctx: NativeRenderContext) {
     super(ctx)
@@ -22,7 +23,10 @@ export class QTFastListView extends QTRenderBaseView{
 
 
   setProp(propKey: string, propValue: HippyAny): boolean {
-    // console.log(QUICKTVUI_TAG,`FastList:propKey:${propKey},value:${propValue}`)
+    console.log(QUICKTVUI_TAG,`FastList:propKey:${propKey},value:${propValue}`)
+    // if(propKey === 'attributes'){
+    //   CommonUtils.printObject(propValue,'FastList setAttributes')
+    // }
     switch (propKey){
       case "scrollOffset":
 
@@ -159,10 +163,15 @@ export class QTFastListView extends QTRenderBaseView{
 
         return true;
       case "list":
-
+        let data = HRValueUtils.getArray(propValue as HippyArray)
+        this.onDataChanged(data)
         return true;
       case "sharedItemStore":
 
+        return true;
+      case "horizontal":
+        this.isHorizontal  = HRValueUtils.getBoolean(propValue,true)
+        console.error(QUICKTVUI_TAG,`FastList set Horizontal:${this.isHorizontal}`)
         return true;
 
     }
@@ -216,6 +225,13 @@ export class QTFastListView extends QTRenderBaseView{
     }else{
       this.dataList = []
       this.ui?.notifyReload()
+    }
+  }
+
+  aboutToUpdate(): void {
+    super.aboutToUpdate()
+    if(this.ui){
+      this.ui.handleOnChildrenUpdated()
     }
   }
 
