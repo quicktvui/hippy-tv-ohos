@@ -86,7 +86,7 @@ export class ESAudioServicePlayerModule extends BaseModule {
             const map = new Map<string, HippyAny>()
             map.set(QTPlayerEventProp.PLAYER_ID, playerId)
             map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.INITIALIZE_SUCCESS)
-            this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
+            this.dispatchEvent(QTPlayerEvent.ON_AUDIO_PLAYER_STATUS_CHANGED, map)
           } else {
             LogUtils.d(this.TAG, `Failed to create player`);
 
@@ -96,7 +96,7 @@ export class ESAudioServicePlayerModule extends BaseModule {
             const map = new Map<string, HippyAny>()
             map.set(QTPlayerEventProp.PLAYER_ID, playerId)
             map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.INITIALIZE_ERROR)
-            this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
+            this.dispatchEvent(QTPlayerEvent.ON_AUDIO_PLAYER_STATUS_CHANGED, map)
           }
         }).catch((err: BusinessError) => {
           LogUtils.d(this.TAG, 'init error.' + JSON.stringify(err));
@@ -104,7 +104,7 @@ export class ESAudioServicePlayerModule extends BaseModule {
           const map = new Map<string, HippyAny>()
           map.set(QTPlayerEventProp.PLAYER_ID, playerId)
           map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.INITIALIZE_ERROR)
-          this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
+          this.dispatchEvent(QTPlayerEvent.ON_AUDIO_PLAYER_STATUS_CHANGED, map)
 
           promise?.reject(-1)
         });
@@ -224,6 +224,10 @@ export class ESAudioServicePlayerModule extends BaseModule {
         if (player) {
           try {
             player.setSpeed(speed)
+
+            this.dispatchEvent(QTPlayerEvent.ON_AUDIO_PLAYER_RATE_CHANGED, speed)
+            //
+            promise?.resolve(true);
           } catch (err) {
             LogUtils.e(this.TAG, `ERROR: ${err}`)
             promise?.reject?.(JSON.stringify(err));
@@ -385,7 +389,7 @@ export class ESAudioServicePlayerModule extends BaseModule {
           const map = new Map<string, HippyAny>()
           map.set(QTPlayerEventProp.PLAYER_ID, mediaPlayerId)
           map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.IDLE)
-          this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
+          this.dispatchEvent(QTPlayerEvent.ON_AUDIO_PLAYER_STATUS_CHANGED, map)
           break;
         }
         case 'initialized': {
@@ -393,7 +397,7 @@ export class ESAudioServicePlayerModule extends BaseModule {
           const map = new Map<string, HippyAny>()
           map.set(QTPlayerEventProp.PLAYER_ID, mediaPlayerId)
           map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.PREPARING)
-          this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
+          this.dispatchEvent(QTPlayerEvent.ON_AUDIO_PLAYER_STATUS_CHANGED, map)
           mediaPlayer.audioRendererInfo = {
             usage: audio.StreamUsage.STREAM_USAGE_MUSIC, // 音频流使用类型：音乐。根据业务场景配置，参考StreamUsage。
             rendererFlags: 0 // 音频渲染器标志。
@@ -406,7 +410,7 @@ export class ESAudioServicePlayerModule extends BaseModule {
           const map = new Map<string, HippyAny>()
           map.set(QTPlayerEventProp.PLAYER_ID, mediaPlayerId)
           map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.PREPARED)
-          this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
+          this.dispatchEvent(QTPlayerEvent.ON_AUDIO_PLAYER_STATUS_CHANGED, map)
 
           //
           this.preparedMap.set(mediaPlayerId, true);
@@ -418,8 +422,8 @@ export class ESAudioServicePlayerModule extends BaseModule {
           LogUtils.d(this.TAG, 'state playing called')
           const map = new Map<string, HippyAny>()
           map.set(QTPlayerEventProp.PLAYER_ID, mediaPlayerId)
-          map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.PREPARING)
-          this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
+          map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.PLAYING)
+          this.dispatchEvent(QTPlayerEvent.ON_AUDIO_PLAYER_STATUS_CHANGED, map)
           break;
         }
         case 'paused': {
@@ -427,7 +431,7 @@ export class ESAudioServicePlayerModule extends BaseModule {
           const map = new Map<string, HippyAny>()
           map.set(QTPlayerEventProp.PLAYER_ID, mediaPlayerId)
           map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.PAUSED)
-          this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
+          this.dispatchEvent(QTPlayerEvent.ON_AUDIO_PLAYER_STATUS_CHANGED, map)
           break;
         }
         case 'completed': {
@@ -435,7 +439,7 @@ export class ESAudioServicePlayerModule extends BaseModule {
           const map = new Map<string, HippyAny>()
           map.set(QTPlayerEventProp.PLAYER_ID, mediaPlayerId)
           map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.PLAYBACK_COMPLETED)
-          this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
+          this.dispatchEvent(QTPlayerEvent.ON_AUDIO_PLAYER_STATUS_CHANGED, map)
           break;
         }
         case 'stopped': {
@@ -443,7 +447,7 @@ export class ESAudioServicePlayerModule extends BaseModule {
           const map = new Map<string, HippyAny>()
           map.set(QTPlayerEventProp.PLAYER_ID, mediaPlayerId)
           map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.STOP)
-          this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
+          this.dispatchEvent(QTPlayerEvent.ON_AUDIO_PLAYER_STATUS_CHANGED, map)
           break;
         }
         case 'released': {
@@ -451,7 +455,7 @@ export class ESAudioServicePlayerModule extends BaseModule {
           const map = new Map<string, HippyAny>()
           map.set(QTPlayerEventProp.PLAYER_ID, mediaPlayerId)
           map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.RELEASE)
-          this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
+          this.dispatchEvent(QTPlayerEvent.ON_AUDIO_PLAYER_STATUS_CHANGED, map)
           break;
         }
         case 'error': {
@@ -459,7 +463,7 @@ export class ESAudioServicePlayerModule extends BaseModule {
           const map = new Map<string, HippyAny>()
           map.set(QTPlayerEventProp.PLAYER_ID, mediaPlayerId)
           map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.ERROR)
-          this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
+          this.dispatchEvent(QTPlayerEvent.ON_AUDIO_PLAYER_STATUS_CHANGED, map)
           break;
         }
         default: {
@@ -470,6 +474,12 @@ export class ESAudioServicePlayerModule extends BaseModule {
     })
     mediaPlayer.on('error', (err: BusinessError) => {
       LogUtils.e(this.TAG, `Invoke avPlayer failed, code is ${err.code}, message is ${err.message}`)
+
+      const map = new Map<string, HippyAny>()
+      map.set(QTPlayerEventProp.CODE, err.code)
+      map.set(QTPlayerEventProp.MESSAGE, err.message)
+      this.dispatchEvent(QTPlayerEvent.ON_AUDIO_PLAYER_ERROR, map)
+
       mediaPlayer.reset(); // 调用reset重置资源，触发idle状态。
     });
   }
@@ -521,7 +531,7 @@ export class ESAudioServicePlayerModule extends BaseModule {
       const map = new Map<string, HippyAny>()
       map.set(QTPlayerEventProp.PLAYER_ID, playerId)
       map.set(QTPlayerEventProp.PLAYER_STATE, QTPlayerState.INITIALIZE_ERROR)
-      this.dispatchEvent(QTPlayerEvent.ON_PLAYER_STATUS_CHANGED, map)
+      this.dispatchEvent(QTPlayerEvent.ON_AUDIO_PLAYER_STATUS_CHANGED, map)
     }
   }
 
