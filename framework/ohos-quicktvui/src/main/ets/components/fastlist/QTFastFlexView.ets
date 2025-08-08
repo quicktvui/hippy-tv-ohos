@@ -55,7 +55,7 @@ export class QTFastFlexView extends QTRenderBaseView {
         this.dataSource?.buildItem(item)
         this.dataList.push(item)
         // console.log(QUICKTVUI_TAG,`FastFlex put item index:${i},data:`)
-        // CommonUtils.printMapPretty(item.raw as HippyMap,'FastFlex:',false)
+        CommonUtils.printMapPretty(item.raw as HippyMap,'FastFlex:',false)
       }
       // this.dataList.push(...
       //   data?.map((item,index)=>{
@@ -180,8 +180,6 @@ export struct QTFastFlex {
       })
       // ContentSlot(this.renderView.childSlot)
     }
-    .width(800)
-    .height(300)
     .backgroundColor(Color.Blue)
     .applyRenderViewBaseAttr(this.renderView)
   }

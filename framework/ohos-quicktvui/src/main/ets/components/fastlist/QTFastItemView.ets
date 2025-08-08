@@ -1,18 +1,16 @@
 import {
   HippyRenderBaseView,
   HippyObservedArray,
-  HRDiv,
   NativeRenderContext,
   HippyAny,
-  HippyRenderCallback
+  HippyRenderCallback,
 } from 'hippy'
-import { QTBaseComponentView } from '../QTBaseComponentView';
-import { QTDiv, QTDivView } from '../QTDivView';
-import QTRenderBaseView from '../QTRenderBaseView';
+import { QTDiv, QTDivView } from '../div/QTDivView';
 
 
 @Observed
 export class QTFastItemView extends QTDivView{
+
 
   constructor(ctx: NativeRenderContext) {
     super(ctx)

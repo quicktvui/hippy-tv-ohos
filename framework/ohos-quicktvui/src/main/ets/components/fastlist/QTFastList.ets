@@ -23,14 +23,10 @@ export struct  QTFastList {
           ListItem() {
             renderItem(item)
           }
-          .width('auto')
-          .height('auto')
+          .width(item.renderView?.cssWidth)
+          .height(item.renderView?.cssHeight)
         })
       }
-      .divider({
-        strokeWidth: 2,  // 分隔线宽度
-        color: 'white',  // 分隔线颜色
-      })
       .listDirection(this.renderView.isHorizontal ? Axis.Horizontal : Axis.Vertical)
       .width('100%')
       .height('100%')

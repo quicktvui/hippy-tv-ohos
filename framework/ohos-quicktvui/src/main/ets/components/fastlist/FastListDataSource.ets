@@ -95,6 +95,8 @@ export class FastListDataSource implements IDataSource {
     return id
   }
 
+
+
   wrappedItemIfNeed(renderView : HippyRenderBaseView) : HippyRenderBaseView{
     if(renderView.viewType == 'FastItemView'){
       return renderView;
@@ -125,19 +127,26 @@ export class FastListDataSource implements IDataSource {
       if(it){
         let  updates:Array<PathUpdate> = []
         let rv = buildRenderViewTraverse(this.ctx,it.templateView,it.props,item.raw as HippyMap,null,0,updates)
+        let wrapped = this.wrappedItemIfNeed(rv!!);
         updates?.map((p)=>{
           //更新尺寸
           let layout = new HRRect(p.layout[0],p.layout[1],p.layout[2],p.layout[3]);
-          p.renderView.setRenderViewFrame(layout,null)
+          if(p.renderView === rv){
+            //根view
+            wrapped.setRenderViewFrame(layout,null)
+            p.renderView.setRenderViewFrame(new HRRect(0,0,p.layout[2],p.layout[3]),null)
+          }else{
+            p.renderView.setRenderViewFrame(layout,null)
+          }
           if(p.renderView instanceof  QTRenderBaseView){
             p.renderView.aboutToUpdate()
           }
         })
         //包裹一层fastItem，如果用户没有写的话
-        if(rv){
-          rv = this.wrappedItemIfNeed(rv);
-        }
-        item.renderView = rv;
+        // if(rv){
+        //   rv = this.wrappedItemIfNeed(rv);
+        // }
+        item.renderView = wrapped;
         updates?.map((p)=>{
           p.props.forEach((value,key)=>{
             // console.log(QUICKTVUI_TAG,`updates p :${p.renderView.viewType},prop:${key},value:${value}`)
@@ -149,13 +158,14 @@ export class FastListDataSource implements IDataSource {
                 // console.log(QUICKTVUI_TAG,`showIf executed value:${value},viweType:${p.renderView.viewType}`)
                 handle = true;
                 break;
+
             }
             if(!handle){
               p.renderView.setProp(key,value)
             }
           })
         })
-        if(!rv){
+        if(!wrapped){
           console.error(QUICKTVUI_TAG,`buildRenderView null `)
         }
       }else{
