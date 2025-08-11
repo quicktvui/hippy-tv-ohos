@@ -142,7 +142,14 @@ export struct QTAnimation {
         const animation = this.animationMap.get(id);
         if (animation) {
           const clonedAnimation = this.cloneAnimation(animation)
-          const reversedKeyframes: Array<KeyframeState> = [...clonedAnimation.keyframes].reverse();
+          // 1) 提取原始 durations（只做一次）
+          const originalDurations = clonedAnimation.keyframes.map(f => f.duration);
+          // 2) 克隆每个 keyframe（避免修改原对象），然后反转数组
+          const reversedKeyframes: Array<KeyframeState> = [...clonedAnimation.keyframes]
+            .reverse()
+          reversedKeyframes.forEach((frame, i) => {
+            frame.duration = originalDurations[i];
+          });
           this.logInfo('reverse',
             `Reverse animation | ID: ${id} KeyframeAnimate: ${JSON.stringify(reversedKeyframes)}}`);
           this.getUIContext()?.keyframeAnimateTo(clonedAnimation.param, reversedKeyframes);
