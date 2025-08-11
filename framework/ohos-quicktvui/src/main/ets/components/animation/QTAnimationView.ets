@@ -38,13 +38,24 @@ export struct QTAnimation {
   private readonly TAG = "QTAnimation"
   @ObjectLink renderView: QTAnimationView
   @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
+  //------------------------------------------------------
   @State rotateValue: number = 0; // 组件一旋转角度
+  //
   @State translateX: number | string = 0; // 组件二偏移量
+  @State translateY: number | string = 0; // 组件二偏移量
+  @State translateZ: number | string = 0; // 组件二偏移量
+  //
   @State opacityValue: number = 1; // 组件二透明度
+  //
+  @State scaleX: number = 1; //
+  @State scaleY: number = 1; //
+  @State scaleZ: number = 1; //
+  @State centerX: number = -1; //
+  @State centerY: number = -1; //
+  //------------------------------------------------------
+
   private animationMap: Map<string, KeyframeAnimate> = new Map();
   private animationSetMap: Map<string, Array<KeyframeAnimate>> = new Map();
-  private pivotX: number = -1
-  private pivotY: number = -1
 
   /**
    */
@@ -52,16 +63,18 @@ export struct QTAnimation {
     callback: HippyRenderCallback | null): boolean {
     switch (method) {
       case 'setPivotX': {
-        this.pivotX = -1
+        const value: number = params[0] as number;
+        this.centerX = value
         break
       }
       case 'setPivotY': {
-        this.pivotY = -1
+        const value: number = params[0] as number;
+        this.centerY = value
         break
       }
       case 'resetPivot': {
-        this.pivotX = -1
-        this.pivotY = -1
+        this.centerX = -1
+        this.centerY = -1
         break
       }
       case 'animator': {
@@ -133,7 +146,7 @@ export struct QTAnimation {
           const id: string = params[0] as string;
           this.animationMap.delete(id)
           this.logInfo('cancel', `Cancel animation | ID: ${id}`);
-        }catch (e) {
+        } catch (e) {
         }
         break
       }
@@ -166,8 +179,8 @@ export struct QTAnimation {
       case 'reset': {
         this.logInfo('reset', `Reset animations`);
         this.animationMap.clear();
-        this.pivotX = -1
-        this.pivotY = -1
+        this.centerX = -1
+        this.centerY = -1
         break
       }
     //----------------------------------------------------------------------------
@@ -293,17 +306,18 @@ export struct QTAnimation {
   aboutToAppear(): void {
     this.renderView.animation = this
 
-    // this.rotateValue = this.renderView?.cssRotate?.x ?? 0
-    // this.translateX = this.renderView?.cssTranslate?.x ?? 0
+    //translate
+    this.translateX = this.renderView?.cssTranslate?.x ?? 0
+    this.translateY = this.renderView?.cssTranslate?.y ?? 0
+    this.translateZ = this.renderView?.cssTranslate?.z ?? 0
+
+    //opacity
     this.opacityValue = this.renderView?.cssOpacity ?? 1
 
-    // .rotate($$.cssRotate)
-    // .scale($$.cssScale)
-    // .translate($$.cssTranslate)
-
-    // @State rotateValue: number = 0; // 组件一旋转角度
-    // @State translateX: number = 0; // 组件二偏移量
-    // @State opacityValue: number = 1; // 组件二透明度
+    //scale
+    this.scaleX = this.renderView?.cssScale?.x ?? 1
+    this.scaleY = this.renderView?.cssScale?.y ?? 1
+    this.scaleZ = this.renderView?.cssScale?.z ?? 1
   }
 
   aboutToDisappear() {
@@ -319,8 +333,19 @@ export struct QTAnimation {
     }
     .applyRenderViewBaseAttr(this.renderView)
     .opacity(this.opacityValue)
-    .translate({ x: this.translateX })
+    .translate({
+      x: this.translateX,
+      y: this.translateY,
+      z: this.translateZ
+    })
     .rotate({ angle: this.rotateValue })
+    .scale({
+      x: this.scaleX,
+      y: this.scaleY,
+      z: this.scaleZ,
+      centerX: this.centerX == -1 ? undefined : this.centerX,
+      centerY: this.centerY == -1 ? undefined : this.centerY
+    })
   }
 
   private parseCurve(interpolator: QTAnimationInterpolator | null): Curve {
@@ -413,15 +438,30 @@ export struct QTAnimation {
         curve: curve,
         event: () => {
           switch (propertyName) {
-            case 'rotate':
-              this.rotateValue = value;
+            case 'rotation':
+              this.rotateValue = Number(value);
               break;
-            case 'translateX':
-              this.translateX = value;
+            case 'translationX':
+              this.translateX = Number(value);
+              break;
+            case 'translationY':
+              this.translateY = Number(value);
+              break;
+            case 'translationZ':
+              this.translateZ = Number(value);
+              break;
+            case 'scaleX':
+              this.scaleX = Number(value);
+              break;
+            case 'scaleY':
+              this.scaleY = Number(value);
+              break;
+            case 'scaleZ':
+              this.scaleZ = Number(value);
               break;
             case 'alpha':
             case 'opacity':
-              this.opacityValue = value;
+              this.opacityValue = Number(value);
               break;
             default: {
               LogUtils.w(this.TAG, `不支持的属性: ${propertyName}`);
