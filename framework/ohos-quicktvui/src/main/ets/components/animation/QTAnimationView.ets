@@ -266,7 +266,8 @@ export struct QTAnimation {
       case 'playSequentially': {
         const animatorSetId: string = params[0] as string;
         const animatorIds: Array<string> = params[1] as Array<string>;
-
+        this.logInfo('playSequentially',
+          `animatorSetId: ${animatorSetId} animatorIds: ${JSON.stringify(animatorIds)}`);
         const animators: KeyframeAnimate[] = animatorIds
           .map((id) => this.animationMap.get(id))
           .filter((a) => a !== undefined)
@@ -280,11 +281,15 @@ export struct QTAnimation {
           const merged: Array<KeyframeAnimate> = [...oldSet, ...animators];
           this.animationSetMap.set(animatorSetId, merged);
         }
+        this.logInfo('playSequentially',
+          `AnimationSet: ${JSON.stringify(this.animationSetMap.get(animatorSetId))}`);
         break
       }
       case 'playTogether': {
         const animatorSetId: string = params[0] as string;
         const animatorIds: Array<string> = params[1] as Array<string>;
+        this.logInfo('playTogether',
+          `animatorSetId: ${animatorSetId} animatorIds: ${JSON.stringify(animatorIds)}`);
 
         const animators: KeyframeAnimate[] = animatorIds
           .map(id => this.animationMap.get(id))
@@ -295,7 +300,8 @@ export struct QTAnimation {
           break;
         }
         const mergedAnimate: KeyframeAnimate = this.mergeKeyframeAnimates(animators);
-        // 存入 animationSetMap 中，便于后续执行
+        this.logInfo('playTogether',
+          `animatorSetId: ${animatorSetId} animatorIds: ${JSON.stringify(mergedAnimate)}`);
         this.animationSetMap.set(animatorSetId, [mergedAnimate]);
         break
       }
@@ -427,7 +433,7 @@ export struct QTAnimation {
     const curve = this.parseCurve(i);
 
     const param: KeyframeAnimateParam = {
-      iterations: repeatCount > 0 ? repeatCount : 1
+      iterations: repeatCount > 0 ? repeatCount : 1,
     };
     const keyframes: KeyframeState[] = [];
 
