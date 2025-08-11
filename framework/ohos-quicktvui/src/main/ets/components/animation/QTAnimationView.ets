@@ -67,6 +67,7 @@ export struct QTAnimation {
       case 'animator': {
         const id: string = params[0] as string;
         const animator = this.convertAnimatorToKeyframes(params)
+        this.logInfo('animator', `animator: ${JSON.stringify(animator)}`);
         this.animationMap.set(id, animator);
         break
       }
@@ -86,6 +87,7 @@ export struct QTAnimation {
           } else {
             this.logInfo('start', `Start animation | ID: ${id}`);
           }
+          this.logInfo('startDelay', `animator: ${JSON.stringify(clonedAnimation)}`);
           this.getUIContext()?.keyframeAnimateTo(clonedAnimation.param, clonedAnimation.keyframes);
           break;
         }
@@ -127,8 +129,12 @@ export struct QTAnimation {
         break
       }
       case 'cancel': {
-        const id: string = params[0] as string;
-        this.animationMap.delete(id)
+        try {
+          const id: string = params[0] as string;
+          this.animationMap.delete(id)
+          this.logInfo('cancel', `Cancel animation | ID: ${id}`);
+        }catch (e) {
+        }
         break
       }
       case 'reverse': {
@@ -137,7 +143,8 @@ export struct QTAnimation {
         if (animation) {
           const clonedAnimation = this.cloneAnimation(animation)
           const reversedKeyframes: Array<KeyframeState> = [...clonedAnimation.keyframes].reverse();
-          this.logInfo('reverse', `Reverse animation | ID: ${id}`);
+          this.logInfo('reverse',
+            `Reverse animation | ID: ${id} KeyframeAnimate: ${JSON.stringify(reversedKeyframes)}}`);
           this.getUIContext()?.keyframeAnimateTo(clonedAnimation.param, reversedKeyframes);
         } else {
           this.logWarn('reverse', `Animation not found | ID: ${id}`);
@@ -150,6 +157,7 @@ export struct QTAnimation {
         break
       }
       case 'reset': {
+        this.logInfo('reset', `Reset animations`);
         this.animationMap.clear();
         this.pivotX = -1
         this.pivotY = -1
@@ -394,7 +402,7 @@ export struct QTAnimation {
     for (let i = 0; i < values.length; i++) {
       const value = values[i];
       keyframes.push({
-        duration: singleDuration,
+        duration: (i == 0) ? 0 : singleDuration,
         curve: curve,
         event: () => {
           switch (propertyName) {
