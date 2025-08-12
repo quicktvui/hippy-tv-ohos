@@ -24,9 +24,9 @@ import {ItemView,getItemType, ItemTemplate} from './ItemView'
 import assertNull from '@ohos/hypium/src/main/module/assert/assertNull';
 import {buildRenderViewTraverse, PathUpdate} from '../TemplateViewManager'
 import { NodeUtils } from '../../utils/NodeUtils';
-import QTRenderBaseView from '../QTRenderBaseView';
 import { QTFastItemView } from './QTFastItemView';
 import { QTBaseComponentView } from '../QTBaseComponentView';
+import { QTPixelUtil } from '../../utils/QTPixelUtil';
 
 
 // class ItemEntry{
@@ -106,7 +106,7 @@ export class FastListDataSource implements IDataSource {
       wi.isVirtual = true;
       wi.viewType = 'FastItemView'
       let layout = new HRRect(0,0,renderView.cssWidth,renderView.cssHeight)
-      wi.setRenderViewFrame(layout,null)
+      QTPixelUtil.setScaledRenderViewFrame(wi,layout,null)
       wi.addSubRenderView(renderView,0)
       return wi;
     }
@@ -133,12 +133,12 @@ export class FastListDataSource implements IDataSource {
           let layout = new HRRect(p.layout[0],p.layout[1],p.layout[2],p.layout[3]);
           if(p.renderView === rv){
             //根view
-            wrapped.setRenderViewFrame(layout,null)
-            p.renderView.setRenderViewFrame(new HRRect(0,0,p.layout[2],p.layout[3]),null)
+            QTPixelUtil.setScaledRenderViewFrame(wrapped,layout,null)
+            QTPixelUtil.setScaledRenderViewFrame(p.renderView,new HRRect(0,0,p.layout[2],p.layout[3]),null)
           }else{
-            p.renderView.setRenderViewFrame(layout,null)
+            QTPixelUtil.setScaledRenderViewFrame(p.renderView,layout,null)
           }
-          if(p.renderView instanceof  QTRenderBaseView){
+          if(p.renderView instanceof  QTBaseComponentView){
             p.renderView.aboutToUpdate()
           }
         })

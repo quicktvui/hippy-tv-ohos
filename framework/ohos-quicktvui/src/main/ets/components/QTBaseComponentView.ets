@@ -26,6 +26,10 @@ export class QTBaseComponentView extends HippyCustomComponentView {
 
   }
 
+  aboutToUpdate(){
+
+  }
+
   setProp(propKey: string, propValue: HippyAny): boolean {
     console.info(QUICKTVUI_TAG,`QTRenderBaseView setProp:${propKey},propValue:${propValue}`)
     switch (propKey){

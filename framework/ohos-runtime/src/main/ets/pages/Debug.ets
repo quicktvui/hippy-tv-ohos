@@ -34,25 +34,27 @@ import {
   QTWeb,
   QTSliderView,
   QTSlider,
-  QTText,
-  QTTextView,
-  QTFastListView,
-  QTFastList,
-  QTDiv,
-  QTDivView,
-  QTFastFlex,
-  QTFastFlexView,
   QTAnimation,
-  QTAnimationView
+  QTAnimationView,
+  QTTextView,
+  QTText,
+  QTDivView,
+  QTDiv
 } from 'quicktvui';
 import { QTVideoPlayer, QTVideoPlayerView } from '../components/video/QTVideoPlayerView';
 import { QTPageRouter, QTPageRouterView } from '../components/router/QTPageRouterView';
 import { QTPage, QTPageView } from '../components/router/QTPageView';
+import { QTFastListView } from 'quicktvui/src/main/ets/components/fastlist/QTFastListView';
+import { QTFastList } from 'quicktvui/src/main/ets/components/fastlist/QTFastList';
 import {
   QTFallbackView,
   QTFallback
 } from 'quicktvui/src/main/ets/components/compat/QTFallbackView';
 
+import {
+  QTFastFlex,
+  QTFastFlexView
+} from 'quicktvui/src/main/ets/components/fastlist/QTFastFlexView';
 import {
   QTFastItem,
   QTFastItemView } from 'quicktvui/src/main/ets/components/fastlist/QTFastItemView';
@@ -70,8 +72,8 @@ struct Debug {
   @State currentEnv: string = 'dev'
   @State versionName: string = '1.0.0'
   @State versionCode: string = '1.0.0'
-  @State deviceIp: string = '192.168.80.60'
-  @State debugIp: string = '192.168.80.60' // 这里可以通过 storage 设置
+  @State deviceIp: string = '192.168.80.70'
+  @State debugIp: string = '192.168.80.70' // 这里可以通过 storage 设置
   envList: string[] = ['dev', 'test', 'prod']
   //----------------------------------------------------------------------
 
@@ -325,8 +327,7 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
       renderView: $$ as QTSliderView,
       children: $$.children,
     })
-  }
-  if ($$ instanceof QTFastListView) {
+  } else if ($$ instanceof QTFastListView) {
     QTFastList({
       renderView: $$ as QTFastListView,
       children: $$.children,

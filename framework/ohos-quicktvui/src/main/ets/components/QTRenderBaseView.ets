@@ -43,9 +43,7 @@ export default abstract class QTRenderBaseView extends  QTBaseComponentView{
 
 
 
-  aboutToUpdate(){
 
-  }
 
   // 注册监听器
   addListener(listener: InsertListener): void {
