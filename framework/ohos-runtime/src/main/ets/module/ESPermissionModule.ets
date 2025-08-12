@@ -24,6 +24,7 @@ export interface ESRequestPermissionsResult {
 @HippyNativeModule({ name: "ESPermissionModule" })
 export class ESPermissionModule extends BaseModule {
   public static readonly NAME: string = 'ESPermissionModule'
+  public readonly TAG: string = 'ESPermissionModule'
 
   constructor(ctx: HippyEngineContext) {
     super(ctx)
@@ -43,7 +44,7 @@ export class ESPermissionModule extends BaseModule {
         } else if (typeof permissionParams === 'string') {
           permissions = [permissionParams];
         } else {
-          LogUtils.e('ESPermissionModule', 'requestPermissions: ' + permissionParams);
+          LogUtils.e(this.TAG, 'requestPermissions: ' + permissionParams);
         }
         this.requestPermissions(permissions as Array<Permissions>).then((ret) => {
           promise.resolve(ret)
@@ -61,7 +62,7 @@ export class ESPermissionModule extends BaseModule {
         } else if (typeof permissionParams === 'string') {
           permissions = [permissionParams];
         } else {
-          LogUtils.e('ESPermissionModule', 'isPermissionsGranted: ' + permissionParams);
+          LogUtils.e(this.TAG, 'isPermissionsGranted: ' + permissionParams);
         }
         this.isPermissionsGranted(permissions as Array<Permissions>).then((ret) => {
           promise.resolve(ret)
@@ -110,7 +111,7 @@ export class ESPermissionModule extends BaseModule {
         deniedForeverList: []
       }
       const error = err as BusinessError
-      LogUtils.e('ESPermissionModule',
+      LogUtils.e(this.TAG,
         `Failed to request permissions. Code=${error.code}, message=${error.message}`)
       return JSON.stringify(result) as HippyValue
     }
@@ -127,7 +128,7 @@ export class ESPermissionModule extends BaseModule {
       tokenId = bundleInfo.appInfo.accessTokenId
     } catch (error) {
       const err = error as BusinessError
-      LogUtils.e('ESPermissionModule',
+      LogUtils.e(this.TAG,
         `Failed to get bundle info. Code=${err.code}, message=${err.message}`)
       // tokenId 获取失败，直接返回所有权限 denied
       return JSON.stringify({
@@ -149,7 +150,7 @@ export class ESPermissionModule extends BaseModule {
         }
       } catch (error) {
         const err = error as BusinessError
-        LogUtils.e('ESPermissionModule',
+        LogUtils.e(this.TAG,
           `Failed to check permission: ${permission}, Code=${err.code}, message=${err.message}`)
         deniedList.push(permission)
       }
