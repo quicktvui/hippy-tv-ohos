@@ -43,6 +43,12 @@ export struct QTEvent {
   @ObjectLink renderView: QTEventView
   @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
 
+  // 第一步: 声明相关状态变量
+  @State rotateValue: number = 0; // 组件一旋转角度
+  @State translateX: number = 0; // 组件二偏移量
+  @State opacityValue: number = 1; // 组件二透明度
+  @State scaleX: number = 1; //
+
   public call(method: string, params: Array<HippyAny>,
     callback: HippyRenderCallback | null): boolean {
     if (method == "sendEsMessage") {
@@ -56,9 +62,39 @@ export struct QTEvent {
       if (callback) {
         callback("result from native")
       }
+      this.doAnimation()
       return true
     }
     return false
+  }
+
+  private doAnimation(){
+    // 第三步：调用keyframeAnimateTo接口
+    this.getUIContext()?.keyframeAnimateTo({
+      iterations: 1
+    }, [
+      {
+        // 第一段关键帧动画时长为800ms，组件一顺时针旋转90度，组件二的透明度变从1变为0.6，组件二的translate从0位移到50
+        duration: 0,
+        curve:Curve.Linear,
+        event: () => {
+          // this.rotateValue = 90;
+          this.scaleX = 0;
+          // this.translateX = 50;
+        }
+      },
+      {
+        // 第二段关键帧动画时长为500ms，组件一逆时针旋转90度恢复至0度，组件二的透明度变从0.6变为1，组件二的translate从50位移到0
+        duration: 1000,
+        curve:Curve.Linear,
+        event: () => {
+          // this.rotateValue = 0;
+          // this.opacityValue = 1;
+          // this.translateX = 0;
+          this.scaleX = 1.5;
+        }
+      }
+    ]);
   }
 
   aboutToAppear(): void {
@@ -78,6 +114,10 @@ export struct QTEvent {
       // 该自定义组件有Hippy子组件或其它自定义子组件时，必须加Slot来衔接子组件
       ContentSlot(this.renderView.childSlot)
     }
+    .opacity(this.opacityValue)
+    .translate({ x: this.translateX })
+    .rotate({ angle: this.rotateValue })
+    .scale({ x: this.scaleX })
     .applyRenderViewBaseAttr(this.renderView)
   }
 }
