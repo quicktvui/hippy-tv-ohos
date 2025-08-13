@@ -18,6 +18,7 @@ export class ESAudioModule extends BaseModule {
   private audioManager: audio.AudioManager | null = null
   private audioStreamManager: audio.AudioStreamManager | null = null
   private audioVolumeManager: audio.AudioVolumeManager | null = null
+  private callback: Callback<audio.VolumeEvent> | null = null
 
   constructor(ctx: HippyEngineContext) {
     super(ctx)
@@ -31,7 +32,47 @@ export class ESAudioModule extends BaseModule {
 
   public call(method: string, params: Array<HippyAny>, promise: HippyModulePromise): HippyAny {
     switch (method) {
-      //--------------------------------------------------------------------------------
+      case 'onVolumeChange': {
+        if (!this.audioVolumeManager) {
+          promise?.reject(-1)
+          return
+        }
+        try {
+          this.callback = (volumeEvent: audio.VolumeEvent) => {
+            try {
+              const map = new Map<string, HippyAny>()
+              map.set('volumeType', volumeEvent.volumeType)
+              map.set('volume', volumeEvent.volume)
+              map.set('updateUi', volumeEvent.updateUi)
+              map.set('volumeGroupId', volumeEvent.volumeGroupId)
+              this.dispatchEvent('volumeChange', map)
+            } catch (e) {
+            }
+          }
+          this.audioVolumeManager.on('volumeChange', this.callback);
+          promise?.resolve(true)
+        } catch (e) {
+          promise?.reject(false)
+        }
+        break;
+      }
+      case 'offVolumeChange': {
+        if (!this.audioVolumeManager) {
+          promise?.reject(-1)
+          return
+        }
+        try {
+          if (this.callback) {
+            this.audioVolumeManager.off('volumeChange', this.callback);
+            this.callback = null
+          }
+          promise?.resolve(true)
+        } catch (e) {
+          promise?.reject(false)
+        }
+        break;
+      }
+    //--------------------------------------------------------------------------------
       case 'getStreamVoiceCallMaxVolume': {
         this.getMaxVolume(audio.AudioVolumeType.VOICE_CALL, promise)
         break;
@@ -141,6 +182,22 @@ export class ESAudioModule extends BaseModule {
               promise.reject(JSON.stringify(err))
             }
           });
+        } catch (e) {
+          promise?.reject(e)
+        }
+        break;
+      }
+      case 'isMute': {
+        if (!this.audioVolumeManager) {
+          promise?.reject(-1)
+          return
+        }
+        const streamType = params[0] as number
+        try {
+          const audioVolumeGroupManager =
+            this.audioVolumeManager.getVolumeGroupManagerSync(audio.DEFAULT_VOLUME_GROUP_ID)
+          const isMute = audioVolumeGroupManager.isMuteSync(streamType)
+          promise?.resolve(isMute)
         } catch (e) {
           promise?.reject(e)
         }
