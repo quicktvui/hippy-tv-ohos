@@ -1,4 +1,10 @@
-import { HippyEngineContext, HippyAny, HippyModulePromise, HippyNativeModule } from 'hippy';
+import {
+  HippyEngineContext,
+  HippyAny,
+  HippyModulePromise,
+  HippyNativeModule,
+  NativeRenderImpl
+} from 'hippy';
 
 import { BaseModule } from './BaseModule';
 import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
@@ -47,8 +53,10 @@ export class ESModule extends BaseModule {
         info.set('packageName', '')
         info.set('eskit_ver_code', 3.0)
         info.set('eskit_ver_name', '')
-        info.set('miniProgramPath', QTAppManager.getInstance().getESAppFilePath(this.ctx.getAbilityContext()))
-        info.set('runtimePath', QTAppManager.getInstance().getESAppRuntimePath(this.ctx.getAbilityContext()))
+        info.set('miniProgramPath',
+          QTAppManager.getInstance().getESAppFilePath(this.ctx.getAbilityContext()))
+        info.set('runtimePath',
+          QTAppManager.getInstance().getESAppRuntimePath(this.ctx.getAbilityContext()))
         info.set('schemes', '')
         info.set('sdkChannel', '')
         promise.resolve(info)
@@ -85,7 +93,8 @@ export class ESModule extends BaseModule {
      * 示例:/data/data/com.extscreen.runtime/app_rpk/apps/es.com.baduanjin.tv/2.2.2203/android
      */
       case 'getESAppRuntimePath': {
-        promise.resolve(QTAppManager.getInstance().getESAppRuntimePath(this.ctx.getAbilityContext()))
+        promise.resolve(QTAppManager.getInstance()
+          .getESAppRuntimePath(this.ctx.getAbilityContext()))
         break;
       }
     //-------------------------------------------------------------------
@@ -122,13 +131,28 @@ export class ESModule extends BaseModule {
         break;
       }
       case 'isModuleRegistered': {
-        LogUtils.d(this.TAG, '=======isModuleRegistered=========>>>>>');
-        promise.resolve(false)
+        try {
+          const moduleName = params[0] as string
+          const module = this.ctx.getModuleManager().getNativeModule(moduleName, false)
+          promise.resolve(module != null)
+        } catch (e) {
+          promise.reject(e)
+        }
         break;
       }
       case 'isComponentRegistered': {
-        LogUtils.d(this.TAG, '=======isComponentRegistered=========>>>>>');
-        promise.resolve(false)
+        try {
+          const componentName = params[0] as string
+          if (this.ctx.getNativeRender() instanceof NativeRenderImpl) {
+            const render = this.ctx.getNativeRender() as NativeRenderImpl
+            const isRegistered = render.getCustomRenderViewCreatorMap()?.has(componentName)
+            promise.resolve(isRegistered)
+          } else {
+            promise.resolve(false)
+          }
+        } catch (e) {
+          promise.reject(e)
+        }
         break;
       }
       default:

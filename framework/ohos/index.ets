@@ -78,6 +78,8 @@ export * from "./src/main/ets/renderer_native/HippyRenderViewBuilder"
 export * from "./src/main/ets/renderer_native/HippyViewEvent"
 export * from "./src/main/ets/renderer_native/NativeRender"
 export * from "./src/main/ets/renderer_native/NativeRenderContext"
+export * from "./src/main/ets/renderer_native/NativeRenderImpl"
+
 
 export * from "./src/main/ets/renderer_native/components/base/HippyRenderBaseView"
 export * from "./src/main/ets/renderer_native/components/custom/HippyCustomComponentView"
