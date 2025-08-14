@@ -1,6 +1,7 @@
 import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
+import { url } from '@kit.ArkTS';
 import libHippy from 'libhippy.so'
 import {
   LogUtils
@@ -32,7 +33,10 @@ export default class RuntimeEntryAbility extends UIAbility {
     let uri = want?.uri;
     LogUtils.i(this.TAG, `onNewWant: want: uri: ${uri}  launchParam: ${JSON.stringify(launchParam)}`)
     if (uri) {
-      // let urlObject = url.URL.parseURL(want?.uri);
+      let urlObject = url.URL.parseURL(want?.uri);
+      let pkg = urlObject.params.get('pkg');
+      let from = urlObject.params.get('from');
+      LogUtils.i(this.TAG, `onNewWant: want: uri: pkg: ${pkg} from: ${from}`)
       // let action = urlObject.params.get('action');
       // 例如，当action为showall时，展示所有的节目。
       // if (action === "showall") {
