@@ -160,7 +160,7 @@ struct Animation {
       LogUtils.e(TAG, 'Lifecycle: onDisAppear');
     })
     .onBackPressed(() => {
-      return true
+      return false
     })
   }
 }
