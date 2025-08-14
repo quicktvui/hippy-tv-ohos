@@ -7,12 +7,13 @@ import { LogUtils, } from 'hippy'
 @Component
 struct Main {
   private readonly TAG: string = 'RuntimeMainPage'
-  pageInfos: NavPathStack = new NavPathStack()
   @State progressValue: number = 0;
   private intervalId: number = -1
+  //
+  private navPathStack: NavPathStack | null | undefined = null
 
   async aboutToAppear() {
-    AppStorage.setOrCreate("MainNavPathStack", this.pageInfos)
+    this.navPathStack = AppStorage.get("RuntimeNavPathStack")
     LogUtils.d(this.TAG, 'Lifecycle: aboutToAppear');
   }
 
@@ -22,7 +23,8 @@ struct Main {
       this.progressValue = this.progressValue + 20
       if (this.progressValue == 100) {
         clearInterval(this.intervalId)
-        this.pageInfos.pushPathByName('Debug', null, false);
+        //
+        this.navPathStack?.pushPathByName('Debug', null, false);
       }
     }, 500)
   }
@@ -41,7 +43,7 @@ struct Main {
   }
 
   build() {
-    Navigation(this.pageInfos) {
+    Navigation(this.navPathStack) {
       Stack() {
         Progress({ value: 0, total: 100, type: ProgressType.Capsule })
           .width(600)
