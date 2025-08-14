@@ -9,7 +9,7 @@
       "tablet"
     ],
     "querySchemes": [
-      "app1Scheme"
+      "esapp"
     ],
     "deliveryWithInstall": true,
     "installationFree": false,
@@ -33,7 +33,7 @@
           {
             // actions不能为空，actions为空会造成目标方匹配失败
             "actions": [
-              "ohos.want.action.home"
+              "ohos.want.action.viewData"
             ],
             "uris": [
               {
