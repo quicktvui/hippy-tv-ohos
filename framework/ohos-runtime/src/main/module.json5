@@ -1,12 +1,15 @@
 {
   "module": {
-    "name": "runtime",
-    "type": "feature",
+    "name": "entry",
+    "type": "entry",
     "description": "$string:module_desc",
     "mainElement": "RuntimeEntryAbility",
     "deviceTypes": [
       "default",
       "tablet"
+    ],
+    "querySchemes": [
+      "app1Scheme"
     ],
     "deliveryWithInstall": true,
     "installationFree": false,
@@ -25,6 +28,43 @@
         "backgroundModes": [
           // 长时任务类型的配置项
           "audioPlayback"
+        ],
+        "skills": [
+          {
+            // actions不能为空，actions为空会造成目标方匹配失败
+            "actions": [
+              "ohos.want.action.home"
+            ],
+            "uris": [
+              {
+                "scheme": "esapp",
+                "host": "action",
+                "path": "start"
+              }
+            ]
+          },
+          {
+            "entities": [
+              // entities须包含"entity.system.browsable"
+              "entity.system.browsable"
+            ],
+            "actions": [
+              // actions须包含"ohos.want.action.viewData"
+              "ohos.want.action.viewData"
+            ],
+            "uris": [
+              {
+                // scheme须配置为https
+                "scheme": "https",
+                // host须配置关联的域名
+                "host": "www.quicktvui.com",
+                // path可选，为了避免匹配到多个应用，建议配置该字段
+                "path": "runtime"
+              }
+            ],
+            // domainVerify须设置为true
+            "domainVerify": true
+          }
         ]
       }
     ],

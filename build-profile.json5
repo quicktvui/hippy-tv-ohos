@@ -4,10 +4,9 @@
       {
         "name": "default",
         "signingConfig": "default",
-        "compatibleSdkVersion": 12,
-        "compileSdkVersion": 15,
-        "targetSdkVersion": 12,
-        "runtimeOS": "OpenHarmony",
+        "compatibleSdkVersion": 12,//"targetSdkVersion": '5.0.3(15)',
+        "compileSdkVersion": 15,   //"compatibleSdkVersion": '5.0.3(15)',
+        "runtimeOS": "OpenHarmony",//HarmonyOS
       }
     ],
     "buildModeSet": [
@@ -67,7 +66,7 @@
       ]
     },
     {
-      "name": "entry",
+      "name": "demo",
       "srcPath": "./framework/examples/ohos-demo",
       "targets": [
         {
@@ -87,7 +86,7 @@
       "srcPath": "./framework/ohos-quicktvui",
     },
     {
-      "name": "runtime",
+      "name": "entry",
       "srcPath": "./framework/ohos-runtime",
       "targets": [
         {

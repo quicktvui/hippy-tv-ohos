@@ -7,6 +7,8 @@ import {
 } from 'hippy';
 import { BaseModule } from './BaseModule';
 import { BusinessError } from '@ohos.base';
+import { bundleManager } from '@kit.AbilityKit';
+
 // import launcherBundleManager from '@ohos.bundle.launcherBundleManager';
 
 @HippyNativeModule({ name: "ESBundleModule" })
@@ -23,6 +25,18 @@ export class ESBundleModule extends BaseModule {
 
   public call(method: string, params: Array<HippyAny>, promise: HippyModulePromise): HippyAny {
     switch (method) {
+      case 'canOpenLink': {
+        try {
+          let link = 'esapp://test.example.com/home';
+          let canOpen = bundleManager.canOpenLink(link);
+          promise?.resolve(canOpen)
+        } catch (error) {
+          LogUtils.e(this.TAG,
+            `Failed to canOpenLink. Code=${error.code}, message=${error.message}`)
+          promise?.reject(error)
+        }
+        break;
+      }
       case 'getAllLauncherAbilityInfo': {
         LogUtils.d(this.TAG, '=======test=========>>>>>');
         try {

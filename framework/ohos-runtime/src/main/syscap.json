@@ -11,7 +11,9 @@
   "production": {
     "removedSysCaps": [
       "SystemCapability.ArkUI.ArkUI.Libuv",
-      "SystemCapability.ArkUi.Graphics3D"
+      "SystemCapability.ArkUi.Graphics3D",
+      "SystemCapability.Multimedia.Media.AVTranscoder",
+      "SystemCapability.HiviewDFX.HiDumper"
     ]
   }
 }
