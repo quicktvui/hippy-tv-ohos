@@ -7,19 +7,18 @@ import {
   LogUtils
 } from 'hippy';
 
-const DOMAIN = 0x0000;
-
 export default class RuntimeEntryAbility extends UIAbility {
   public readonly TAG: string = 'RuntimeEntryAbility'
   //
   private runtimeNavPathStack: NavPathStack = new NavPathStack()
 
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
+    LogUtils.i(this.TAG, `Ability onCreate`)
+
     AppStorage.setOrCreate("RuntimeNavPathStack", this.runtimeNavPathStack)
     AppStorage.setOrCreate("libHippy", libHippy)
     AppStorage.setOrCreate("abilityContext", this.context)
 
-    hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');
     LogUtils.i(this.TAG, `onCreate: want: uri: ${want?.uri}  launchParam: ${launchParam}`)
     //
     this.launch(want, launchParam, false)
@@ -55,35 +54,30 @@ export default class RuntimeEntryAbility extends UIAbility {
   }
 
   onDestroy(): void {
-    hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onDestroy');
+    LogUtils.i(this.TAG, `Ability onDestroy`)
   }
 
   onWindowStageCreate(windowStage: window.WindowStage): void {
-    // Main window is created, set main page for this ability
-    hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
+    LogUtils.i(this.TAG, `Ability onWindowStageCreate`)
 
     windowStage.loadContent('pages/Main', (err) => {
       if (err.code) {
-        hilog.error(0x0000, 'testTag', 'Failed to load the content. Cause: %{public}s',
-          JSON.stringify(err) ?? '');
+        LogUtils.i(this.TAG, `Failed to load the content. Cause: ${JSON.stringify(err) ?? ''}`)
         return;
       }
-      hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
+      LogUtils.i(this.TAG, `Succeeded in loading the content.`)
     });
   }
 
   onWindowStageDestroy(): void {
-    // Main window is destroyed, release UI related resources
-    hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onWindowStageDestroy');
+    LogUtils.i(this.TAG, `Ability onWindowStageDestroy`)
   }
 
   onForeground(): void {
-    // Ability has brought to foreground
-    hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onForeground');
+    LogUtils.i(this.TAG, `Ability onForeground`)
   }
 
   onBackground(): void {
-    // Ability has back to background
-    hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onBackground');
+    LogUtils.i(this.TAG, `Ability onBackground`)
   }
 }
