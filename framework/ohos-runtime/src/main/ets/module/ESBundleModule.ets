@@ -7,6 +7,8 @@ import {
 } from 'hippy';
 import { BaseModule } from './BaseModule';
 import { BusinessError } from '@ohos.base';
+
+
 // import launcherBundleManager from '@ohos.bundle.launcherBundleManager';
 
 @HippyNativeModule({ name: "ESBundleModule" })

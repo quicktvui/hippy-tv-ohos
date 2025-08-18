@@ -11,7 +11,21 @@
   "production": {
     "removedSysCaps": [
       "SystemCapability.ArkUI.ArkUI.Libuv",
-      "SystemCapability.ArkUi.Graphics3D"
+      "SystemCapability.ArkUi.Graphics3D",
+      "SystemCapability.Multimedia.Media.AVTranscoder",
+      "SystemCapability.HiviewDFX.HiDumper",
+      "SystemCapability.Sensors.Sensor",
+      "SystemCapability.Location.Location.Core",
+      "SystemCapability.Multimedia.Camera.Core",
+      "SystemCapability.Location.Location.Gnss",
+      "SystemCapability.Advertising.OAID",
+      "SystemCapability.Location.Location.Geofence",
+      "SystemCapability.Location.Location.Geocoder",
+      "SystemCapability.Sensors.MiscDevice",
+      "SystemCapability.MiscServices.Wallpaper",
+      "SystemCapability.Security.CertificateManagerDialog",
+      "SystemCapability.Notification.NotificationSettings",
+      "SystemCapability.Advertising.Ads"
     ]
   }
 }

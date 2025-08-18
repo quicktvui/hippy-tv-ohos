@@ -44,7 +44,7 @@ export class ESAudioModule extends BaseModule {
               map.set('volumeType', volumeEvent.volumeType)
               map.set('volume', volumeEvent.volume)
               map.set('updateUi', volumeEvent.updateUi)
-              map.set('volumeGroupId', volumeEvent.volumeGroupId)
+              // map.set('volumeGroupId', volumeEvent.volumeGroupId)
               this.dispatchEvent('volumeChange', map)
             } catch (e) {
             }
@@ -86,15 +86,15 @@ export class ESAudioModule extends BaseModule {
       }
     //--------------------------------------------------------------------------------
       case 'getStreamSystemMaxVolume': {
-        this.getMaxVolume(audio.AudioVolumeType.ALL, promise)
+        this.getMaxVolume(audio.AudioVolumeType.MEDIA, promise)
         break;
       }
       case 'getStreamSystemMinVolume': {
-        this.getMinVolume(audio.AudioVolumeType.ALL, promise)
+        this.getMinVolume(audio.AudioVolumeType.MEDIA, promise)
         break;
       }
       case 'getStreamSystemVolume': {
-        this.getVolume(audio.AudioVolumeType.ALL, promise)
+        this.getVolume(audio.AudioVolumeType.MEDIA, promise)
         break;
       }
     //--------------------------------------------------------------------------------
@@ -172,16 +172,16 @@ export class ESAudioModule extends BaseModule {
         try {
           const audioVolumeGroupManager =
             this.audioVolumeManager.getVolumeGroupManagerSync(audio.DEFAULT_VOLUME_GROUP_ID)
-          audioVolumeGroupManager.mute(streamType, value)
-            .then(() => {
-              LogUtils.d(this.TAG, 'mute: streamType: ' + streamType + " value: " + value);
-              promise?.resolve(true)
-            }).catch((err: BusinessError) => {
-            LogUtils.d(this.TAG, 'mute error! ' + JSON.stringify(err));
-            if (promise) {
-              promise.reject(JSON.stringify(err))
-            }
-          });
+          // audioVolumeGroupManager.mute(streamType, value)
+          //   .then(() => {
+          //     LogUtils.d(this.TAG, 'mute: streamType: ' + streamType + " value: " + value);
+          //     promise?.resolve(true)
+          //   }).catch((err: BusinessError) => {
+          //   LogUtils.d(this.TAG, 'mute error! ' + JSON.stringify(err));
+          //   if (promise) {
+          //     promise.reject(JSON.stringify(err))
+          //   }
+          // });
         } catch (e) {
           promise?.reject(e)
         }
@@ -219,10 +219,10 @@ export class ESAudioModule extends BaseModule {
     try {
       const audioVolumeGroupManager =
         this.audioVolumeManager.getVolumeGroupManagerSync(audio.DEFAULT_VOLUME_GROUP_ID)
-      audioVolumeGroupManager.setVolume(type as audio.AudioVolumeType, volume, () => {
-        LogUtils.d(this.TAG, 'setVolume success: ' + volume);
-        promise?.resolve(volume)
-      })
+      // audioVolumeGroupManager.setVolume(type as audio.AudioVolumeType, volume, () => {
+      //   LogUtils.d(this.TAG, 'setVolume success: ' + volume);
+      //   promise?.resolve(volume)
+      // })
     } catch (e) {
       promise?.reject(e)
     }

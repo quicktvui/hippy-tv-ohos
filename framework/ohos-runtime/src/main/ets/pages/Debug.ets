@@ -34,27 +34,27 @@ import {
   QTWeb,
   QTSliderView,
   QTSlider,
+  QTText,
+  QTTextView,
+  QTFastListView,
+  QTFastList,
+  QTDiv,
+  QTDivView,
+  QTFastFlex,
+  QTFastFlexView,
   QTAnimation,
   QTAnimationView,
-  QTTextView,
-  QTText,
-  QTDivView,
-  QTDiv
+  QTItemFrameView,
+  QTItemFrame
 } from 'quicktvui';
 import { QTVideoPlayer, QTVideoPlayerView } from '../components/video/QTVideoPlayerView';
 import { QTPageRouter, QTPageRouterView } from '../components/router/QTPageRouterView';
 import { QTPage, QTPageView } from '../components/router/QTPageView';
-import { QTFastListView } from 'quicktvui/src/main/ets/components/fastlist/QTFastListView';
-import { QTFastList } from 'quicktvui/src/main/ets/components/fastlist/QTFastList';
 import {
   QTFallbackView,
   QTFallback
 } from 'quicktvui/src/main/ets/components/compat/QTFallbackView';
 
-import {
-  QTFastFlex,
-  QTFastFlexView
-} from 'quicktvui/src/main/ets/components/fastlist/QTFastFlexView';
 import {
   QTFastItem,
   QTFastItemView } from 'quicktvui/src/main/ets/components/fastlist/QTFastItemView';
@@ -357,6 +357,11 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
   } else if ($$ instanceof QTAnimationView) {
     QTAnimation({
       renderView: $$ as QTAnimationView,
+      children: $$.children,
+    })
+  } else if ($$ instanceof QTItemFrameView) {
+    QTItemFrame({
+      renderView: $$ as QTItemFrameView,
       children: $$.children,
     })
   }
