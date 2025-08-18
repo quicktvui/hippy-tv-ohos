@@ -50,7 +50,7 @@ export default class RuntimeEntryAbility extends UIAbility {
       // }
     }
     //TODO
-    this.runtimeNavPathStack?.pushPathByName('Animation', null, false);
+    // this.runtimeNavPathStack?.pushPathByName('Animation', null, false);
   }
 
   onDestroy(): void {

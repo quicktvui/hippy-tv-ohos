@@ -72,7 +72,7 @@ struct Debug {
   @State currentEnv: string = 'dev'
   @State versionName: string = '1.0.0'
   @State versionCode: string = '1.0.0'
-  @State deviceIp: string = '192.168.40.87'//电脑的 IP 地址
+  @State deviceIp: string = '192.168.40.46'//电脑的 IP 地址
   @State debugIp: string = '192.168.80.60' // 这里可以通过 storage 设置
   envList: string[] = ['dev', 'test', 'prod']
   //----------------------------------------------------------------------
