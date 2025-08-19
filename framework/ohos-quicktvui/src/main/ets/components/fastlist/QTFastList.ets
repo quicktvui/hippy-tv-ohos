@@ -47,12 +47,12 @@ export struct  QTFastList {
     if(this.renderView.isVirtual){
       console.error(QUICKTVUI_TAG,`handleOnChildrenUpdated registerTemplate for virtual FastList`)
       this.renderView.templateView?.children.map((c,index)=>{
-        this.dataSource?.registerTemplate(c,index,true)
+        this.dataSource?.registerTemplate(this.renderView,c,index,true)
       })
     }else{
       this.children.map((c,index)=>{
         // console.log(QUICKTVUI_TAG,`template: viewType：`+c.viewType+",node:"+NodeUtils.getNodeById(this.renderView.ctx,c.tag))
-        this.dataSource?.registerTemplate(c,index,this.renderView.isVirtual)
+        this.dataSource?.registerTemplate(this.renderView,c,index,this.renderView.isVirtual)
       })
     }
   }

@@ -46,6 +46,8 @@ export class FastListDataSource implements IDataSource {
   private ctx : NativeRenderContext;
   private templatesMap : Map<number,ItemTemplate> = new Map()
 
+  public static  DEFAULT_TYPE : number = 1;
+
   constructor(ctx : NativeRenderContext,dataList:HippyObservedArray<ItemView>) {
     this.ctx = ctx;
     assertNull(ctx) ?? 'ctx is null'
@@ -58,7 +60,7 @@ export class FastListDataSource implements IDataSource {
     console.info(QUICKTVUI_TAG, `setTemplates total:${templates.length}`)
   }
 
-  public registerTemplate(child: HippyRenderBaseView,childIndex: number,isVirtual : boolean  = false){
+  public registerTemplate(parent:HippyRenderBaseView, child: HippyRenderBaseView,childIndex: number,isVirtual : boolean  = false){
     let childTag =  child.tag
 
     // if(isVirtual && child instanceof QTBaseComponentView){
@@ -73,7 +75,11 @@ export class FastListDataSource implements IDataSource {
       return;
     }
     if(node?.props){
-      let type = getItemType(node.props)
+      let type =  getItemType(node.props)
+      if(!type){
+         type = FastListDataSource.DEFAULT_TYPE
+      }
+      //如果用户没设，给一个默认的值
       if(type && child){
         console.log(QUICKTVUI_TAG,`registerTemplate type:${type},renderView:${child}`)
         let it : ItemTemplate = new ItemTemplate(child,type,node.props)
@@ -114,6 +120,9 @@ export class FastListDataSource implements IDataSource {
 
   public buildItem(item: ItemView): ItemView{
     let type = getItemType(item.raw)
+    if(!type){
+      type = FastListDataSource.DEFAULT_TYPE
+    }
     if(item.raw instanceof  Map){
         item.id = FastListDataSource.getIdFromData(item.raw)
     }
