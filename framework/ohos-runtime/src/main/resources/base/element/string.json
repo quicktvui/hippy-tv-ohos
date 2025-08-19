@@ -22,7 +22,7 @@
     },
     {
       "name": "debug_ip_address",
-      "value": "IP地址:%1$s"
+      "value": "当前设备 IP 地址:%1$s"
     },
     {
       "name": "debug_server_ip_address",

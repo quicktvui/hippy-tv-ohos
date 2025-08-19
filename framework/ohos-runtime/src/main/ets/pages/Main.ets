@@ -21,7 +21,7 @@ struct Main {
     LogUtils.d(this.TAG, 'Lifecycle: onPageShow');
     this.intervalId = setInterval(() => {
       this.progressValue = this.progressValue + 20
-      if (this.progressValue == 100) {
+      if (this.progressValue >= 100) {
         clearInterval(this.intervalId)
         //
         this.navPathStack?.pushPathByName('Debug', null, false);

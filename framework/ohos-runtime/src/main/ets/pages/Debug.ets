@@ -60,7 +60,8 @@ import {
 import { BusinessError } from '@kit.BasicServicesKit';
 import { webSocket } from '@kit.NetworkKit';
 import { util } from '@kit.ArkTS';
-
+import { common } from '@kit.AbilityKit';
+import { uiObserver } from '@kit.ArkUI';
 
 @Builder
 export function PageDebugBuilder(name: string, param: Object) {
@@ -70,7 +71,7 @@ export function PageDebugBuilder(name: string, param: Object) {
 @Component
 struct Debug {
   private TAG: string = 'RuntimeDebugPage'
-  pageInfos: NavPathStack = new NavPathStack();
+  private navPathStack: NavPathStack = new NavPathStack();
   @State currentEnv: string = 'dev'
   @State versionName: string = '1.0.0'
   @State versionCode: string = '1.0.0'
@@ -291,7 +292,7 @@ struct Debug {
     .hideBackButton(true)
     .hideToolBar(true)
     .onReady((context: NavDestinationContext) => {
-      this.pageInfos = context.pathStack;
+      this.navPathStack = context.pathStack;
     })
     .onWillAppear(() => {
       LogUtils.e(this.TAG, 'Lifecycle: onWillAppear');
@@ -339,8 +340,22 @@ struct Debug {
     })
     //返回键
     .onBackPressed(() => {
-      this.hippyEngine?.onBackPressed(new RuntimeDefaultBackHandler())
-      return true
+      if (this.isEngineInitialized) {
+        this.hippyEngine?.onBackPressed(new RuntimeDefaultBackHandler())
+        return true
+      } else {
+        if (this.navPathStack.size() <= 1) {
+          //关闭应用
+          (this.abilityContext as common.UIAbilityContext).terminateSelf()
+            .then(() => {
+              LogUtils.d(this.TAG, 'terminateSelf success.');
+            })
+            .catch((err: BusinessError) => {
+              LogUtils.d(this.TAG, 'terminateSelf error.' + JSON.stringify(err));
+            });
+        }
+        return false
+      }
     })
   }
 }
