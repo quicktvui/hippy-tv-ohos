@@ -29,6 +29,10 @@
       "value": "电脑调试地址:%1$s"
     },
     {
+      "name": "debug_server_not_available",
+      "value": "调试服务不可用"
+    },
+    {
       "name": "debug_app_tip",
       "value": "本App仅用开发调试，点击右侧按钮加载测试代码"
     },
@@ -79,6 +83,10 @@
     {
       "name": "reason_background_audio",
       "value": "The app needs to keep running in the background to continue audio playback."
+    },
+    {
+      "name": "cross_mark",
+      "value": "❌"
     }
   ]
 }
