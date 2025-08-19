@@ -61,7 +61,7 @@ import { BusinessError } from '@kit.BasicServicesKit';
 import { webSocket } from '@kit.NetworkKit';
 import { util } from '@kit.ArkTS';
 import { common } from '@kit.AbilityKit';
-import { uiObserver } from '@kit.ArkUI';
+import { connection } from '@kit.NetworkKit';
 
 @Builder
 export function PageDebugBuilder(name: string, param: Object) {
@@ -75,7 +75,7 @@ struct Debug {
   @State currentEnv: string = 'dev'
   @State versionName: string = '1.0.0'
   @State versionCode: string = '1.0.0'
-  @State deviceIp: string = '192.168.40.46' //设备的IP地址
+  @State deviceIp: string = '0.0.0.0' //TODO 不要修改 => 设备的IP地址
   @State debugIp: string = '192.168.40.46' // 电脑的 IP 地址
   //服务是否可用
   @State debugServerAvailable: boolean = false
@@ -94,6 +94,7 @@ struct Debug {
 
   async aboutToAppear() {
     LogUtils.e(this.TAG, 'Lifecycle: aboutToAppear');
+    this.initNetworkInfo()
   }
 
   aboutToDisappear(): void {
@@ -125,18 +126,30 @@ struct Debug {
     this.isEngineInitialized = true
   }
 
-  startCheckHostAvailableTimer() {
+  private async initNetworkInfo() {
+    try {
+      const netHandle = await connection.getDefaultNet();
+      const properties = await connection.getConnectionProperties(netHandle);
+      const addressArray = properties.linkAddresses
+      if (addressArray && addressArray.length > 0) {
+        this.deviceIp = addressArray[0].address?.address ?? '0.0.0.0'
+      }
+    } catch (e) {
+    }
+  }
+
+  private startCheckHostAvailableTimer() {
     this.stopCheckHostAvailableTimer()
     this.checkHostAvailableTimerId = setInterval(() => {
       this.checkHostAvailable()
     }, 1000)
   }
 
-  stopCheckHostAvailableTimer() {
+  private stopCheckHostAvailableTimer() {
     clearInterval(this.checkHostAvailableTimerId)
   }
 
-  checkHostAvailable() {
+  private checkHostAvailable() {
     const uuid = util.generateRandomUUID(true)
     let defaultIpAddress =
       "ws://" + this.debugIp + ":38989/debugger-proxy?role=android_client&clientId=" + uuid;
@@ -195,7 +208,7 @@ struct Debug {
     })
   }
 
-  destroyEngine() {
+  private destroyEngine() {
     let rootView = this.rootViewWrapper?.getRootView()
     if (rootView) {
       this.rootViewWrapper?.resetRootView()
