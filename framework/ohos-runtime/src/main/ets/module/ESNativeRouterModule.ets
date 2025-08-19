@@ -29,10 +29,20 @@ export class ESNativeRouterModule extends BaseModule {
     switch (method) {
       //
       case 'back': {
-        //
         const navPathStack = AppStorage.get<NavPathStack>("RuntimeNavPathStack")
         if (navPathStack) {
-          navPathStack.pop(false)
+          //TODO 有没有其他业务需要不关闭??
+          if (navPathStack.size() <= 1) {
+            (this.ctx.getAbilityContext() as common.UIAbilityContext).terminateSelf()
+              .then(() => {
+                LogUtils.d(this.TAG, 'terminateSelf success.');
+              })
+              .catch((err: BusinessError) => {
+                LogUtils.d(this.TAG, 'terminateSelf error.' + JSON.stringify(err));
+              });
+          } else {
+            navPathStack.pop(false)
+          }
           LogUtils.d(this.TAG, 'back success');
         } else {
           LogUtils.d(this.TAG, 'back error! NavPathStack is null!');

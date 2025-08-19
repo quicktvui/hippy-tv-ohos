@@ -32,6 +32,10 @@ export default class QTAppManager {
     return "test"
   }
 
+  public getBundleName(): string {
+    return "com.extscreen.runtime"
+  }
+
   //----------------------------------------------------------------------------------------
   // filesDir:        /data/storage/el2/base/haps/runtime/files
   // tempDir:         /data/storage/el2/base/haps/runtime/temp

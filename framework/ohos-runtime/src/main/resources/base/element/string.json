@@ -22,11 +22,15 @@
     },
     {
       "name": "debug_ip_address",
-      "value": "IP地址:%1$s"
+      "value": "当前设备 IP 地址:%1$s"
     },
     {
       "name": "debug_server_ip_address",
       "value": "电脑调试地址:%1$s"
+    },
+    {
+      "name": "debug_server_not_available",
+      "value": "调试服务不可用"
     },
     {
       "name": "debug_app_tip",
@@ -79,6 +83,10 @@
     {
       "name": "reason_background_audio",
       "value": "应用需要在后台持续运行，以完成音频播放任务。"
+    },
+    {
+      "name": "cross_mark",
+      "value": "❌"
     }
   ]
 }

@@ -36,6 +36,8 @@ import { ESShareDataModule } from '../module/ESShareDataModule';
 import { ESAudioServicePlayerModule } from '../module/ESAudioServicePlayerModule';
 import { ESUsbDeviceModule } from '../module/ESUsbDeviceModule';
 import { ESAudioModule } from '../module/ESAudioModule';
+import { ESDatabaseModule } from '../module/ESDatabaseModule';
+import { ESKVModule } from '../module/ESKVModule';
 
 /**
  * 自定义 module 和 component 入口
@@ -88,6 +90,10 @@ export class RuntimeAPIProvider extends HippyAPIProvider {
       (ctx): HippyNativeModuleBase => new ESUsbDeviceModule(ctx))
     registerMap.set(ESAudioModule.NAME,
       (ctx): HippyNativeModuleBase => new ESAudioModule(ctx))
+    registerMap.set(ESDatabaseModule.NAME,
+      (ctx): HippyNativeModuleBase => new ESDatabaseModule(ctx))
+    registerMap.set(ESKVModule.NAME,
+      (ctx): HippyNativeModuleBase => new ESKVModule(ctx))
     //
     return registerMap;
   }

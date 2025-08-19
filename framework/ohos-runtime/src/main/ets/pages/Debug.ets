@@ -18,8 +18,6 @@ import {
 import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
 import { BackPressHandler } from 'hippy/src/main/ets/hippy_framework/HippyEngine'
 import { RuntimeAPIProvider } from '../api/RuntimeAPIProvider'
-// import inputDevice from '@ohos.multimodalInput.inputDevice';
-// import keyEvent from '@ohos.multimodalInput.keyEvent';
 import { QTAPIProvider } from 'quicktvui/src/main/ets/components/QTAPIProvider';
 import {
   QTLoadingView,
@@ -57,9 +55,13 @@ import {
 
 import {
   QTFastItem,
-  QTFastItemView } from 'quicktvui/src/main/ets/components/fastlist/QTFastItemView';
-
-const TAG: string = 'RuntimeDebugPage'
+  QTFastItemView
+} from 'quicktvui/src/main/ets/components/fastlist/QTFastItemView';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { webSocket } from '@kit.NetworkKit';
+import { util } from '@kit.ArkTS';
+import { common } from '@kit.AbilityKit';
+import { uiObserver } from '@kit.ArkUI';
 
 @Builder
 export function PageDebugBuilder(name: string, param: Object) {
@@ -68,12 +70,16 @@ export function PageDebugBuilder(name: string, param: Object) {
 
 @Component
 struct Debug {
-  pageInfos: NavPathStack = new NavPathStack();
+  private TAG: string = 'RuntimeDebugPage'
+  private navPathStack: NavPathStack = new NavPathStack();
   @State currentEnv: string = 'dev'
   @State versionName: string = '1.0.0'
   @State versionCode: string = '1.0.0'
-  @State deviceIp: string = '192.168.80.70'
-  @State debugIp: string = '192.168.80.70' // 这里可以通过 storage 设置
+  @State deviceIp: string = '192.168.80.235' //设备的IP地址
+  @State debugIp: string = '192.168.80.235' // 电脑的 IP 地址
+  //服务是否可用
+  @State debugServerAvailable: boolean = false
+  private checkHostAvailableTimerId: number = -1
   envList: string[] = ['dev', 'test', 'prod']
   //----------------------------------------------------------------------
 
@@ -87,34 +93,11 @@ struct Debug {
   @State isEngineInitialized: boolean = false
 
   async aboutToAppear() {
-    LogUtils.e(TAG, 'Lifecycle: aboutToAppear');
-    // let version = await getAppVersion()
-    // this.versionName = version.name
-    // this.versionCode = version.code
-    // this.deviceIp = await getDeviceIp()
-
-    // let listenerId = inputDevice.on('key', (event: keyEvent.KeyEventData) => {
-    //    console.info(`按键 code: ${event.keyCode}, action: ${event.keyAction}`);
-    //
-    //    // 例如：方向键
-    //    if (event.keyCode === 19 && event.keyAction === 0) { // KEYCODE_DPAD_UP
-    //      console.log('↑ 向上键按下');
-    //    }
-    //  });
-  }
-
-  onPageShow(): void {
-    LogUtils.e(TAG, 'Lifecycle: onPageShow');
-    this.hippyEngine?.onEngineResume()
-  }
-
-  onPageHide(): void {
-    LogUtils.e(TAG, 'Lifecycle: onPageHide');
-    this.hippyEngine?.onEnginePause()
+    LogUtils.e(this.TAG, 'Lifecycle: aboutToAppear');
   }
 
   aboutToDisappear(): void {
-    LogUtils.e(TAG, 'Lifecycle: aboutToDisappear');
+    LogUtils.e(this.TAG, 'Lifecycle: aboutToDisappear');
   }
 
   initEngine() {
@@ -124,7 +107,7 @@ struct Debug {
     let params = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext())
     params.coreJSAssetsPath = "vue2/vendor.ohos.js"
     params.enableArkCApi = false
-    params.debugServerHost = this.deviceIp + ':38989'
+    params.debugServerHost = this.debugIp + ':38989'
     params.debugMode = true
     params.enableLog = true
     //自定义 module 和 component 入口
@@ -140,6 +123,76 @@ struct Debug {
     let engineListener = new DefaultEngineListener(this.hippyEngine, this.rootViewWrapper)
     this.hippyEngine.initEngine(engineListener)
     this.isEngineInitialized = true
+  }
+
+  startCheckHostAvailableTimer() {
+    this.stopCheckHostAvailableTimer()
+    this.checkHostAvailableTimerId = setInterval(() => {
+      this.checkHostAvailable()
+    }, 1000)
+  }
+
+  stopCheckHostAvailableTimer() {
+    clearInterval(this.checkHostAvailableTimerId)
+  }
+
+  checkHostAvailable() {
+    const uuid = util.generateRandomUUID(true)
+    let defaultIpAddress =
+      "ws://" + this.debugIp + ":38989/debugger-proxy?role=android_client&clientId=" + uuid;
+
+    let ws = webSocket.createWebSocket();
+
+    ws.on('open', (err: BusinessError, value: Object) => {
+      LogUtils.i(this.TAG, `[WebSocket][open] status: ${JSON.stringify(value)}`);
+      this.debugServerAvailable = true
+      this.onDebugServerAvailable()
+    });
+
+    ws.on('message', (err: BusinessError, value: string | ArrayBuffer) => {
+      LogUtils.i(this.TAG, `[WebSocket][message] message: ${value}`);
+    });
+
+    ws.on('close', (err: BusinessError, value: webSocket.CloseResult) => {
+      LogUtils.i(this.TAG, `[WebSocket][close] code: ${value.code}, reason: ${value.reason}`);
+    });
+
+    ws.on('error', (err: BusinessError) => {
+      if (this.debugServerAvailable) {
+        this.showDebugServerAvailableToast(false)
+      }
+      this.debugServerAvailable = false
+      this.startCheckHostAvailableTimer()
+      LogUtils.e(this.TAG, `[WebSocket][error] ${JSON.stringify(err)}`);
+    });
+
+    ws.connect(defaultIpAddress, (err: BusinessError, value: boolean) => {
+      if (!err) {
+        LogUtils.i(this.TAG, `[WebSocket][connect] Connected successfully`);
+      } else {
+        this.debugServerAvailable = false
+        this.onDebugServerAvailable()
+        LogUtils.e(this.TAG, `[WebSocket][connect] Failed. Err: ${JSON.stringify(err)}`);
+      }
+    });
+  }
+
+  private onDebugServerAvailable() {
+    setTimeout(() => {
+      if (this.debugServerAvailable) {
+        this.showDebugServerAvailableToast(true)
+        this.stopCheckHostAvailableTimer()
+      } else {
+        this.showDebugServerAvailableToast(false)
+      }
+    }, 1000)
+  }
+
+  private showDebugServerAvailableToast(available: boolean) {
+    this.getUIContext()!.getPromptAction().showToast({
+      message: available ? "调试服务可用" : "调试服务不可用",
+      duration: 1000,
+    })
   }
 
   destroyEngine() {
@@ -188,15 +241,20 @@ struct Debug {
           .justifyContent(FlexAlign.Start)
 
           Column() {
-            Button($r('app.string.debug_start'))
+            Button(this.debugServerAvailable ? $r('app.string.debug_start') :
+            $r('app.string.cross_mark'))
               .fontColor(Color.Black)
-              .fontSize(40)
+              .fontSize(this.debugServerAvailable ? 40 : 150)
               .fontWeight(FontWeight.Bold)
               .backgroundColor($r('app.color.debug_font_color'))
               .type(ButtonType.Circle)
               .width(300)
               .height(300)
               .onClick(() => {
+                if (!this.debugServerAvailable) {
+                  this.showDebugServerAvailableToast(false)
+                  return
+                }
                 this.initEngine()
               })
           }.margin({ right: 70 })
@@ -234,52 +292,70 @@ struct Debug {
     .hideBackButton(true)
     .hideToolBar(true)
     .onReady((context: NavDestinationContext) => {
-      this.pageInfos = context.pathStack;
+      this.navPathStack = context.pathStack;
     })
     .onWillAppear(() => {
-      LogUtils.e(TAG, 'Lifecycle: onWillAppear');
+      LogUtils.e(this.TAG, 'Lifecycle: onWillAppear');
       this.hippyEngine?.onLifecycleEvent("onWillAppear")
     })
     .onAttach(() => {
-      LogUtils.e(TAG, 'Lifecycle: onAttach');
+      LogUtils.e(this.TAG, 'Lifecycle: onAttach');
       this.hippyEngine?.onLifecycleEvent("onAttach")
     })
     .onAppear(() => {
-      LogUtils.e(TAG, 'Lifecycle: onAppear');
+      LogUtils.e(this.TAG, 'Lifecycle: onAppear');
       this.hippyEngine?.onLifecycleEvent("onAppear")
     })
     .onWillShow(() => {
-      LogUtils.e(TAG, 'Lifecycle: onWillShow');
+      LogUtils.e(this.TAG, 'Lifecycle: onWillShow');
       this.hippyEngine?.onLifecycleEvent("onWillShow")
     })
     .onShown(() => {
-      LogUtils.e(TAG, 'Lifecycle: onShown');
+      this.hippyEngine?.onEngineResume()
+      LogUtils.e(this.TAG, 'Lifecycle: onShown');
       this.hippyEngine?.onLifecycleEvent("onShown")
+      //
+      this.checkHostAvailable()
     })
     .onWillHide(() => {
-      LogUtils.e(TAG, 'Lifecycle: onWillHide');
+      LogUtils.e(this.TAG, 'Lifecycle: onWillHide');
       this.hippyEngine?.onLifecycleEvent("onWillHide")
     })
     .onHidden(() => {
-      LogUtils.e(TAG, 'Lifecycle: onHidden');
+      this.hippyEngine?.onEnginePause()
+      LogUtils.e(this.TAG, 'Lifecycle: onHidden');
       this.hippyEngine?.onLifecycleEvent("onHidden")
     })
     .onWillDisappear(() => {
-      LogUtils.e(TAG, 'Lifecycle: onWillDisappear');
+      LogUtils.e(this.TAG, 'Lifecycle: onWillDisappear');
       this.hippyEngine?.onLifecycleEvent("onWillDisappear")
     })
     .onDetach(() => {
-      LogUtils.e(TAG, 'Lifecycle: onDetach');
+      LogUtils.e(this.TAG, 'Lifecycle: onDetach');
       this.hippyEngine?.onLifecycleEvent("onDetach")
     })
     .onDisAppear(() => {
-      LogUtils.e(TAG, 'Lifecycle: onDisAppear');
+      LogUtils.e(this.TAG, 'Lifecycle: onDisAppear');
       this.hippyEngine?.onLifecycleEvent("onDisAppear")
     })
     //返回键
     .onBackPressed(() => {
-      this.hippyEngine?.onBackPressed(new RuntimeDefaultBackHandler())
-      return true
+      if (this.isEngineInitialized) {
+        this.hippyEngine?.onBackPressed(new RuntimeDefaultBackHandler())
+        return true
+      } else {
+        if (this.navPathStack.size() <= 1) {
+          //关闭应用
+          (this.abilityContext as common.UIAbilityContext).terminateSelf()
+            .then(() => {
+              LogUtils.d(this.TAG, 'terminateSelf success.');
+            })
+            .catch((err: BusinessError) => {
+              LogUtils.d(this.TAG, 'terminateSelf error.' + JSON.stringify(err));
+            });
+        }
+        return false
+      }
     })
   }
 }
@@ -337,14 +413,12 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
       renderView: $$ as QTTextView,
       children: $$.children,
     })
-  }
-  else if ($$ instanceof QTFastItemView) {
+  } else if ($$ instanceof QTFastItemView) {
     QTFastItem({
       renderView: $$ as QTFastItemView,
       children: $$.children,
     })
-  }
-  else if ($$ instanceof QTDivView) {
+  } else if ($$ instanceof QTDivView) {
     QTDiv({
       renderView: $$ as QTTextView,
       children: $$.children,
@@ -371,7 +445,7 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
       renderView: $$ as QTPageView,
       children: $$.children,
     })
-  }else if ($$ instanceof QTFastFlexView) {
+  } else if ($$ instanceof QTFastFlexView) {
     QTFastFlex({
       renderView: $$ as QTFastFlexView,
       children: $$.children,
@@ -389,6 +463,7 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
 class DefaultEngineListener implements EngineListener {
   private hippyEngine: HippyEngine
   private rootViewWrapper: HippyRootViewWrapper
+  private readonly TAG: string = "DefaultEngineListener";
 
   constructor(hippyEngine: HippyEngine, rootViewWrapper: HippyRootViewWrapper) {
     this.hippyEngine = hippyEngine
@@ -396,7 +471,7 @@ class DefaultEngineListener implements EngineListener {
   }
 
   onInitialized(statusCode: EngineInitStatus, msg: string): void {
-    LogUtils.i(TAG, 'initEngine status: ' + statusCode + ' msg:' + msg);
+    LogUtils.i(this.TAG, 'initEngine status: ' + statusCode + ' msg:' + msg);
     if (statusCode == EngineInitStatus.STATUS_OK) {
       let loadParams = new ModuleLoadParams(
         'vue2/index.ohos.js',
@@ -425,12 +500,14 @@ class DefaultEngineListener implements EngineListener {
 }
 
 class DefaultModuleListener implements ModuleListener {
+  private readonly TAG: string = "DefaultModuleListener";
+
   onLoadCompleted(statusCode: ModuleLoadStatus, msg: string): void {
-    LogUtils.i(TAG, 'loadModule status: ' + statusCode + ' msg:' + msg);
+    LogUtils.i(this.TAG, 'loadModule status: ' + statusCode + ' msg:' + msg);
   }
 
   onJsException(exception: HippyJsException): boolean {
-    LogUtils.e(TAG, 'loadModule onJsException: ' + exception);
+    LogUtils.e(this.TAG, 'loadModule onJsException: ' + exception);
     return true;
   }
 
