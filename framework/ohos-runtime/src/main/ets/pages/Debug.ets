@@ -62,7 +62,7 @@ import { util } from '@kit.ArkTS';
 import { bundleManager, common } from '@kit.AbilityKit';
 import { connection } from '@kit.NetworkKit';
 import { preferences } from '@kit.ArkData';
-import { BusinessError, commonEventManager } from '@kit.BasicServicesKit';
+import { BusinessError, commonEventManager, deviceInfo } from '@kit.BasicServicesKit';
 
 @Builder
 export function PageDebugBuilder(name: string, param: Object) {
@@ -75,6 +75,7 @@ struct Debug {
   private navPathStack: NavPathStack = new NavPathStack();
   @State name: string = ''
   @State currentEnv: string = 'dev'
+  @State systemName: string = ''
   @State versionName: string = ''
   @State versionCode: string = ''
   @State deviceIp: string = '0.0.0.0' //TODO 不要修改 => 设备的IP地址
@@ -108,6 +109,7 @@ struct Debug {
     this.initDebugServer()
     this.initNetworkInfo()
     this.initBundleInfo()
+    this.initSystemInfo()
   }
 
   aboutToDisappear(): void {
@@ -149,6 +151,10 @@ struct Debug {
       this.name = data.name
     }).catch((err: BusinessError) => {
     });
+  }
+
+  private initSystemInfo() {
+    this.systemName = deviceInfo.osFullName
   }
 
   //--------------------------------DEBUG SERVER------------------------------------------
@@ -323,6 +329,10 @@ struct Debug {
               .fontWeight(FontWeight.Bold)
               .margin({ bottom: 80 })
             Column() {
+              Text($r('app.string.system_name', this.systemName))
+                .fontSize(20)
+                .fontColor($r('app.color.debug_font_color'))
+                .margin({ bottom: 15 })
               Text($r('app.string.debug_runtime_name', this.name))
                 .fontSize(20)
                 .fontColor($r('app.color.debug_font_color'))

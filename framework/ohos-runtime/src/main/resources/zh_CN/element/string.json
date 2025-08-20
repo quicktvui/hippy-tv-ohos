@@ -21,6 +21,10 @@
       "value": "容器版本：Name: %1$s   Code：%2$s"
     },
     {
+      "name": "system_name",
+      "value": "系统名称: %1$s"
+    },
+    {
       "name": "debug_runtime_name",
       "value": "容器名称: %1$s"
     },
