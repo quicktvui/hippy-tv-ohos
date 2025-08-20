@@ -78,7 +78,7 @@ struct Debug {
   @State versionCode: string = '1.0.0'
   @State deviceIp: string = '0.0.0.0' //TODO 不要修改 => 设备的IP地址
   //----------------------------------------------------------------------------------
-  @State debugServerHost: string = '' //TODO 调试服务地址
+  @State debugServerHost: string = '192.168.40.41' //TODO 调试服务地址
   @State debugServerAvailable: boolean = false
   private checkHostAvailableTimerId: number = -1
   private readonly ACTION_CHANGE_DEBUG_SERVER: string =
