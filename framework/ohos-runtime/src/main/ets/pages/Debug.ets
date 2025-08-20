@@ -57,12 +57,12 @@ import {
   QTFastItem,
   QTFastItemView
 } from 'quicktvui/src/main/ets/components/fastlist/QTFastItemView';
-import { BusinessError } from '@kit.BasicServicesKit';
 import { webSocket } from '@kit.NetworkKit';
 import { util } from '@kit.ArkTS';
 import { common } from '@kit.AbilityKit';
 import { connection } from '@kit.NetworkKit';
 import { preferences } from '@kit.ArkData';
+import { BusinessError, commonEventManager } from '@kit.BasicServicesKit';
 
 @Builder
 export function PageDebugBuilder(name: string, param: Object) {
@@ -77,10 +77,19 @@ struct Debug {
   @State versionName: string = '1.0.0'
   @State versionCode: string = '1.0.0'
   @State deviceIp: string = '0.0.0.0' //TODO 不要修改 => 设备的IP地址
-  @State debugServerHost: string = '192.168.40.41' // 电脑的 IP 地址
-  //服务是否可用
+  //----------------------------------------------------------------------------------
+  @State debugServerHost: string = '' //TODO 调试服务地址
   @State debugServerAvailable: boolean = false
   private checkHostAvailableTimerId: number = -1
+  private readonly ACTION_CHANGE_DEBUG_SERVER: string =
+    "com.extscreen.runtime.ACTION_CHANGE_DEBUG_SERVER"
+  private readonly PREFERENCES_KEY_DEBUG_SERVER_HOST: string = "DEBUG_SERVER_HOST"
+  private readonly PREFERENCES_NAME_DEBUG: string = "debug"
+  private subscriber: commonEventManager.CommonEventSubscriber | null = null;
+  private subscribeInfo: commonEventManager.CommonEventSubscribeInfo = {
+    events: [this.ACTION_CHANGE_DEBUG_SERVER],
+  };
+  //----------------------------------------------------------------------------------
   envList: string[] = ['dev', 'test', 'prod']
   //----------------------------------------------------------------------
 
@@ -95,11 +104,12 @@ struct Debug {
 
   async aboutToAppear() {
     LogUtils.e(this.TAG, 'Lifecycle: aboutToAppear');
-    this.setDebugServerHost()
+    this.initDebugServer()
     this.initNetworkInfo()
   }
 
   aboutToDisappear(): void {
+    this.unsubscribe()
     LogUtils.e(this.TAG, 'Lifecycle: aboutToDisappear');
   }
 
@@ -128,16 +138,65 @@ struct Debug {
     this.isEngineInitialized = true
   }
 
-  private setDebugServerHost() {
+  //--------------------------------DEBUG SERVER------------------------------------------
+  private initDebugServer() {
+    this.subscribe()
+    const debugServerHost = this.getDebugServerHost()
+    if (debugServerHost) {
+      this.debugServerHost = debugServerHost
+    }
+  }
+
+  private async subscribe() {
+    this.subscriber = await commonEventManager.createSubscriber(this.subscribeInfo);
+    commonEventManager.subscribe(this.subscriber,
+      (error: BusinessError, data: commonEventManager.CommonEventData) => {
+        if (error) {
+          return;
+        }
+        LogUtils.i(this.TAG, `[DebugServer] data: ${JSON.stringify(data)}`);
+        if (data.event == this.ACTION_CHANGE_DEBUG_SERVER) {
+          const debugServerHost = data.data
+          if (debugServerHost) {
+            this.debugServerHost = debugServerHost
+            this.setDebugServerHost(this.debugServerHost)
+            //
+            this.checkDebugServerAvailable()
+          }
+        }
+      })
+  }
+
+  private async unsubscribe() {
+    commonEventManager.unsubscribe(this.subscriber)
+  }
+
+  private getDebugServerHost(): string | null {
     try {
-      let options: preferences.Options = { name: 'debug' };
+      let options: preferences.Options = { name: "debug" };
       const pref = preferences.getPreferencesSync(getContext(), options)
       if (pref) {
-        return pref.putSync("DEBUG_SERVER_HOST", this.debugServerHost)
+        const debugServerHost = pref.getSync(this.PREFERENCES_KEY_DEBUG_SERVER_HOST, null) as string
+        LogUtils.i(this.TAG,
+          `[DebugServer] [getDebugServerHost]: ${debugServerHost}`);
+        return debugServerHost
       }
     } catch (e) {
     }
     return null
+  }
+
+  private setDebugServerHost(debugServerHost: string) {
+    try {
+      let options: preferences.Options = { name: "debug" };
+      const pref = preferences.getPreferencesSync(getContext(), options)
+      if (pref) {
+        LogUtils.i(this.TAG, `[DebugServer] [setDebugServerHost]: ${debugServerHost}`);
+        pref.putSync(this.PREFERENCES_KEY_DEBUG_SERVER_HOST, debugServerHost)
+        pref.flushSync()
+      }
+    } catch (e) {
+    }
   }
 
   private async initNetworkInfo() {
@@ -152,18 +211,18 @@ struct Debug {
     }
   }
 
-  private startCheckHostAvailableTimer() {
-    this.stopCheckHostAvailableTimer()
+  private startCheckDebugServerAvailableTimer() {
+    this.stopCheckDebugServerAvailableTimer()
     this.checkHostAvailableTimerId = setInterval(() => {
-      this.checkHostAvailable()
+      this.checkDebugServerAvailable()
     }, 1000)
   }
 
-  private stopCheckHostAvailableTimer() {
+  private stopCheckDebugServerAvailableTimer() {
     clearInterval(this.checkHostAvailableTimerId)
   }
 
-  private checkHostAvailable() {
+  private checkDebugServerAvailable() {
     const uuid = util.generateRandomUUID(true)
     let defaultIpAddress =
       "ws://" + this.debugServerHost + ":38989/debugger-proxy?role=android_client&clientId=" + uuid;
@@ -189,7 +248,7 @@ struct Debug {
         this.showDebugServerAvailableToast(false)
       }
       this.debugServerAvailable = false
-      this.startCheckHostAvailableTimer()
+      this.startCheckDebugServerAvailableTimer()
       LogUtils.e(this.TAG, `[WebSocket][error] ${JSON.stringify(err)}`);
     });
 
@@ -208,7 +267,7 @@ struct Debug {
     setTimeout(() => {
       if (this.debugServerAvailable) {
         this.showDebugServerAvailableToast(true)
-        this.stopCheckHostAvailableTimer()
+        this.stopCheckDebugServerAvailableTimer()
       } else {
         this.showDebugServerAvailableToast(false)
       }
@@ -236,6 +295,13 @@ struct Debug {
   build() {
     NavDestination() {
       Stack() {
+        Column() {
+          Text($r('app.string.set_debug_server_host_tip'))
+            .fontSize(17)
+            .fontColor(Color.Yellow)
+            .margin({ bottom: 10 })
+        }.margin({ left: 30, top: 30 })
+
         Row() {
           Column() {
             Text($r('app.string.debug_title'))
@@ -342,7 +408,7 @@ struct Debug {
       LogUtils.e(this.TAG, 'Lifecycle: onShown');
       this.hippyEngine?.onLifecycleEvent("onShown")
       //
-      this.checkHostAvailable()
+      this.checkDebugServerAvailable()
     })
     .onWillHide(() => {
       LogUtils.e(this.TAG, 'Lifecycle: onWillHide');

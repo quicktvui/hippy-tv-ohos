@@ -25,6 +25,10 @@
       "value": "当前设备 IP 地址:%1$s"
     },
     {
+      "name": "set_debug_server_host_tip",
+      "value": "使用如下命令设置调试服务地址：\nhdc shell \ncem publish --event 'com.extscreen.runtime.ACTION_CHANGE_DEBUG_SERVER' --data '192.168.xx.xx'  （电脑端调试服务地址）"
+    },
+    {
       "name": "debug_server_ip_address",
       "value": "电脑调试地址:%1$s"
     },
