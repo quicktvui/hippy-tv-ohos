@@ -59,7 +59,7 @@ import {
 } from 'quicktvui/src/main/ets/components/fastlist/QTFastItemView';
 import { webSocket } from '@kit.NetworkKit';
 import { util } from '@kit.ArkTS';
-import { common } from '@kit.AbilityKit';
+import { bundleManager, common } from '@kit.AbilityKit';
 import { connection } from '@kit.NetworkKit';
 import { preferences } from '@kit.ArkData';
 import { BusinessError, commonEventManager } from '@kit.BasicServicesKit';
@@ -73,9 +73,10 @@ export function PageDebugBuilder(name: string, param: Object) {
 struct Debug {
   private TAG: string = 'RuntimeDebugPage'
   private navPathStack: NavPathStack = new NavPathStack();
+  @State name: string = ''
   @State currentEnv: string = 'dev'
-  @State versionName: string = '1.0.0'
-  @State versionCode: string = '1.0.0'
+  @State versionName: string = ''
+  @State versionCode: string = ''
   @State deviceIp: string = '0.0.0.0' //TODO 不要修改 => 设备的IP地址
   //----------------------------------------------------------------------------------
   @State debugServerHost: string = '192.168.40.41' //TODO 调试服务地址
@@ -106,6 +107,7 @@ struct Debug {
     LogUtils.e(this.TAG, 'Lifecycle: aboutToAppear');
     this.initDebugServer()
     this.initNetworkInfo()
+    this.initBundleInfo()
   }
 
   aboutToDisappear(): void {
@@ -136,6 +138,17 @@ struct Debug {
     let engineListener = new DefaultEngineListener(this.hippyEngine, this.rootViewWrapper)
     this.hippyEngine.initEngine(engineListener)
     this.isEngineInitialized = true
+  }
+
+  private initBundleInfo() {
+    let bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION |
+    bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_METADATA;
+    bundleManager.getBundleInfoForSelf(bundleFlags).then((data) => {
+      this.versionName = data.versionName
+      this.versionCode = data.versionCode + ""
+      this.name = data.name
+    }).catch((err: BusinessError) => {
+    });
   }
 
   //--------------------------------DEBUG SERVER------------------------------------------
@@ -173,7 +186,7 @@ struct Debug {
 
   private getDebugServerHost(): string | null {
     try {
-      let options: preferences.Options = { name: "debug" };
+      let options: preferences.Options = { name: this.PREFERENCES_NAME_DEBUG };
       const pref = preferences.getPreferencesSync(getContext(), options)
       if (pref) {
         const debugServerHost = pref.getSync(this.PREFERENCES_KEY_DEBUG_SERVER_HOST, null) as string
@@ -188,7 +201,7 @@ struct Debug {
 
   private setDebugServerHost(debugServerHost: string) {
     try {
-      let options: preferences.Options = { name: "debug" };
+      let options: preferences.Options = { name: this.PREFERENCES_NAME_DEBUG };
       const pref = preferences.getPreferencesSync(getContext(), options)
       if (pref) {
         LogUtils.i(this.TAG, `[DebugServer] [setDebugServerHost]: ${debugServerHost}`);
@@ -310,6 +323,10 @@ struct Debug {
               .fontWeight(FontWeight.Bold)
               .margin({ bottom: 80 })
             Column() {
+              Text($r('app.string.debug_runtime_name', this.name))
+                .fontSize(20)
+                .fontColor($r('app.color.debug_font_color'))
+                .margin({ bottom: 15 })
               Text($r('app.string.debug_runtime_version', this.versionName, this.versionCode))
                 .fontSize(20)
                 .fontColor($r('app.color.debug_font_color'))
