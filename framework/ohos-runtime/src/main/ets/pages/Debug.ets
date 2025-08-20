@@ -62,6 +62,7 @@ import { webSocket } from '@kit.NetworkKit';
 import { util } from '@kit.ArkTS';
 import { common } from '@kit.AbilityKit';
 import { connection } from '@kit.NetworkKit';
+import { preferences } from '@kit.ArkData';
 
 @Builder
 export function PageDebugBuilder(name: string, param: Object) {
@@ -76,7 +77,7 @@ struct Debug {
   @State versionName: string = '1.0.0'
   @State versionCode: string = '1.0.0'
   @State deviceIp: string = '0.0.0.0' //TODO 不要修改 => 设备的IP地址
-  @State debugIp: string = '192.168.40.46' // 电脑的 IP 地址
+  @State debugServerHost: string = '192.168.40.41' // 电脑的 IP 地址
   //服务是否可用
   @State debugServerAvailable: boolean = false
   private checkHostAvailableTimerId: number = -1
@@ -94,6 +95,7 @@ struct Debug {
 
   async aboutToAppear() {
     LogUtils.e(this.TAG, 'Lifecycle: aboutToAppear');
+    this.setDebugServerHost()
     this.initNetworkInfo()
   }
 
@@ -108,7 +110,7 @@ struct Debug {
     let params = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext())
     params.coreJSAssetsPath = "vue2/vendor.ohos.js"
     params.enableArkCApi = false
-    params.debugServerHost = this.debugIp + ':38989'
+    params.debugServerHost = this.debugServerHost + ':38989'
     params.debugMode = true
     params.enableLog = true
     //自定义 module 和 component 入口
@@ -124,6 +126,18 @@ struct Debug {
     let engineListener = new DefaultEngineListener(this.hippyEngine, this.rootViewWrapper)
     this.hippyEngine.initEngine(engineListener)
     this.isEngineInitialized = true
+  }
+
+  private setDebugServerHost() {
+    try {
+      let options: preferences.Options = { name: 'debug' };
+      const pref = preferences.getPreferencesSync(getContext(), options)
+      if (pref) {
+        return pref.putSync("DEBUG_SERVER_HOST", this.debugServerHost)
+      }
+    } catch (e) {
+    }
+    return null
   }
 
   private async initNetworkInfo() {
@@ -152,7 +166,7 @@ struct Debug {
   private checkHostAvailable() {
     const uuid = util.generateRandomUUID(true)
     let defaultIpAddress =
-      "ws://" + this.debugIp + ":38989/debugger-proxy?role=android_client&clientId=" + uuid;
+      "ws://" + this.debugServerHost + ":38989/debugger-proxy?role=android_client&clientId=" + uuid;
 
     let ws = webSocket.createWebSocket();
 
@@ -238,7 +252,7 @@ struct Debug {
                 .fontSize(20)
                 .fontColor($r('app.color.debug_font_color'))
                 .margin({ bottom: 15 })
-              Text($r('app.string.debug_server_ip_address', this.debugIp))
+              Text($r('app.string.debug_server_ip_address', this.debugServerHost))
                 .fontSize(20)
                 .fontColor($r('app.color.debug_font_color'))
             }.margin({ bottom: 50 })
