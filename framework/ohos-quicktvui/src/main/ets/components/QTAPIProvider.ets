@@ -28,6 +28,7 @@ import { QTWebView } from './web/QTWebView';
 import { QTSliderView } from './slider/QTSliderView';
 import { QTAnimationView } from './animation/QTAnimationView';
 import { QTItemFrameView } from './item/QTItemFrameView';
+import { QTLottieView } from './lottie/QTLottieView';
 
 export class QTAPIProvider extends HippyAPIProvider {
   getCustomNativeModuleCreatorMap(): Map<string, HippyNativeModuleCreator> | null {
@@ -59,6 +60,7 @@ export class QTAPIProvider extends HippyAPIProvider {
 
     registerMap.set("TextView", (ctx): HippyRenderBaseView => new QTTextView(ctx))
     registerMap.set("ItemFrameComponent", (ctx): HippyRenderBaseView => new QTItemFrameView(ctx))
+    registerMap.set("ESLottieViewComponent", (ctx): HippyRenderBaseView => new QTLottieView(ctx))
 
 
     //fallback
