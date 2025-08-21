@@ -33,6 +33,7 @@ import { HRValueUtils } from '../../utils/HRValueUtils';
 import { HippyResourceLoader } from '../../../hippy_framework/HippyResourceLoader';
 import { UrlUtils } from '../../../support/utils/UrlUtils';
 import { HRPadding, HRRect } from '../../utils/HRTypes';
+import { preferences } from '@kit.ArkData';
 
 interface ImageLoadEvent {
   width: number
@@ -413,7 +414,12 @@ export class HRImageView extends HippyRenderBaseView {
       this.src = $rawfile(this.src)
       return
     } else if (UrlUtils.isWebUrl(this.cssSrc)) {
-      this.src = this.cssSrc
+      if (this.cssSrc.startsWith("http://127.0.0.1:38989")) {
+        const relativePath = this.cssSrc.replace("http://127.0.0.1:38989/", "");
+        this.src = "http://" + this.getDebugServerHost() + ":38989/" + relativePath;
+      } else {
+        this.src = this.cssSrc
+      }
       return
     }
 
@@ -431,6 +437,18 @@ export class HRImageView extends HippyRenderBaseView {
     }
     let imageLoader = this.ctx.getNativeRender()!.getImageLoader()!
     imageLoader.fetchImageAsync(src, listener, new HashMap<string, HippyAny>(), this.cssWidth, this.cssHeight)
+  }
+
+  private getDebugServerHost() {
+    try {
+      let options: preferences.Options = { name: 'debug' };
+      const pref = preferences.getPreferencesSync(getContext(), options)
+      if (pref) {
+        return pref.getSync("DEBUG_SERVER_HOST", null)
+      }
+    }catch (e) {
+    }
+    return null
   }
 
   getImage() {

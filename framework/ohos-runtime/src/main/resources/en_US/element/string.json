@@ -18,11 +18,23 @@
     },
     {
       "name": "debug_runtime_version",
-      "value": "容器版本: v%1$s %2$s"
+      "value": "容器版本：Name: %1$s   Code：%2$s"
+    },
+    {
+      "name": "system_name",
+      "value": "系统名称: %1$s"
+    },
+    {
+      "name": "debug_runtime_name",
+      "value": "容器名称: %1$s"
     },
     {
       "name": "debug_ip_address",
       "value": "当前设备 IP 地址:%1$s"
+    },
+    {
+      "name": "set_debug_server_host_tip",
+      "value": "使用如下命令设置调试服务地址：\nhdc shell \ncem publish --event 'com.extscreen.runtime.ACTION_CHANGE_DEBUG_SERVER' --data '192.168.xx.xx'  （电脑端调试服务地址）"
     },
     {
       "name": "debug_server_ip_address",
