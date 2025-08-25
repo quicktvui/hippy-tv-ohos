@@ -43,7 +43,9 @@ import {
   QTAnimation,
   QTAnimationView,
   QTItemFrameView,
-  QTItemFrame
+  QTItemFrame,
+  QTLottieView,
+  QTLottie
 } from 'quicktvui';
 import { QTVideoPlayer, QTVideoPlayerView } from '../components/video/QTVideoPlayerView';
 import { QTPageRouter, QTPageRouterView } from '../components/router/QTPageRouterView';
@@ -80,16 +82,18 @@ struct Debug {
   @State versionCode: string = ''
   @State deviceIp: string = '0.0.0.0' //TODO 不要修改 => 设备的IP地址
   //----------------------------------------------------------------------------------
-  @State debugServerHost: string = '192.168.80.235' //TODO 调试服务地址
+  @State debugServerHost: string = '192.168.40.47' //TODO 调试服务地址
   @State debugServerAvailable: boolean = false
   private checkHostAvailableTimerId: number = -1
   private readonly ACTION_CHANGE_DEBUG_SERVER: string =
     "com.extscreen.runtime.ACTION_CHANGE_DEBUG_SERVER"
+  private readonly ACTION_CODE_CHANGE: string =
+    "com.extscreen.runtime.ACTION_CODE_CHANGED"
   private readonly PREFERENCES_KEY_DEBUG_SERVER_HOST: string = "DEBUG_SERVER_HOST"
   private readonly PREFERENCES_NAME_DEBUG: string = "debug"
   private subscriber: commonEventManager.CommonEventSubscriber | null = null;
   private subscribeInfo: commonEventManager.CommonEventSubscribeInfo = {
-    events: [this.ACTION_CHANGE_DEBUG_SERVER],
+    events: [this.ACTION_CHANGE_DEBUG_SERVER, this.ACTION_CODE_CHANGE],
   };
   //----------------------------------------------------------------------------------
   envList: string[] = ['dev', 'test', 'prod']
@@ -117,7 +121,7 @@ struct Debug {
     LogUtils.e(this.TAG, 'Lifecycle: aboutToDisappear');
   }
 
-  initEngine() {
+  private initEngine() {
     //
     this.destroyEngine()
     //
@@ -137,9 +141,11 @@ struct Debug {
 
     //
     this.hippyEngine = createHippyEngine(params)
-    let engineListener = new DefaultEngineListener(this.hippyEngine, this.rootViewWrapper)
+    let engineListener = new DefaultEngineListener(this.hippyEngine, this.rootViewWrapper, () => {
+      console.log("=======DefaultEngineListener========>>>>")
+      this.isEngineInitialized = true
+    })
     this.hippyEngine.initEngine(engineListener)
-    this.isEngineInitialized = true
   }
 
   private initBundleInfo() {
@@ -174,6 +180,7 @@ struct Debug {
           return;
         }
         LogUtils.i(this.TAG, `[DebugServer] data: ${JSON.stringify(data)}`);
+        //
         if (data.event == this.ACTION_CHANGE_DEBUG_SERVER) {
           const debugServerHost = data.data
           if (debugServerHost) {
@@ -182,6 +189,32 @@ struct Debug {
             //
             this.checkDebugServerAvailable()
           }
+        }
+        //刷新
+        else if (data.event == this.ACTION_CODE_CHANGE) {
+          LogUtils.i(this.TAG, `[DebugServer] : ACTION_CODE_CHANGE`);
+          this.getUIContext()!.getPromptAction().showToast({
+            message: "代码变化 页面刷新",
+            duration: 500,
+          })
+          this.isEngineInitialized = false
+          // this.destroyEngine()
+          // this.initEngine()
+          let rootView = this.rootViewWrapper?.getRootView()
+          if (rootView) {
+            this.rootViewWrapper?.resetRootView()
+          }
+          try {
+            this.hippyEngine?.getHippyEngineContext()?.getDevSupportManager()?.getDevImp().reload();
+          } catch (e) {
+            LogUtils.e(this.TAG, "reload error: " + e.getMessage());
+          }
+          // const loadParams = buildModuleLoadParams()
+          // let moduleListener = new DefaultModuleListener()
+          // let rootView = this.hippyEngine?.loadModuleWithListener(loadParams, moduleListener)
+          // if (rootView) {
+          //   this.rootViewWrapper.setRootView(rootView)
+          // }
         }
       })
   }
@@ -558,6 +591,11 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
       renderView: $$ as QTItemFrameView,
       children: $$.children,
     })
+  } else if ($$ instanceof QTLottieView) {
+    QTLottie({
+      renderView: $$ as QTLottieView,
+      children: $$.children,
+    })
   }
   //页面
   else if ($$ instanceof QTPageView) {
@@ -580,37 +618,47 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
 
 }
 
+function buildModuleLoadParams(): ModuleLoadParams {
+  let loadParams = new ModuleLoadParams(
+    'vue2/index.ohos.js',
+    '',
+    '',
+    '',
+    null,
+    null,
+    null,
+  )
+  loadParams.componentName = "EsApp"
+  loadParams.codeCacheTag = "EsApp"
+  loadParams.jsParams = new Map<string, HippyValue>()
+  loadParams.jsParams.set(
+    "msgFromNative",
+    "Hi js developer, I come from ohos native code!"
+  )
+  loadParams.wrappedCustomRenderViewBuilder = wrapBuilder(buildCustomRenderView)
+  return loadParams
+}
+
 class DefaultEngineListener implements EngineListener {
   private hippyEngine: HippyEngine
   private rootViewWrapper: HippyRootViewWrapper
   private readonly TAG: string = "DefaultEngineListener";
+  private callback?: Function = undefined
 
-  constructor(hippyEngine: HippyEngine, rootViewWrapper: HippyRootViewWrapper) {
+  constructor(hippyEngine: HippyEngine, rootViewWrapper: HippyRootViewWrapper, callback: Function) {
     this.hippyEngine = hippyEngine
     this.rootViewWrapper = rootViewWrapper
+    this.callback = callback
   }
 
   onInitialized(statusCode: EngineInitStatus, msg: string): void {
     LogUtils.i(this.TAG, 'initEngine status: ' + statusCode + ' msg:' + msg);
     if (statusCode == EngineInitStatus.STATUS_OK) {
-      let loadParams = new ModuleLoadParams(
-        'vue2/index.ohos.js',
-        '',
-        '',
-        '',
-        null,
-        null,
-        null,
-      )
-      loadParams.componentName = "EsApp"
-      loadParams.codeCacheTag = "EsApp"
-      loadParams.jsParams = new Map<string, HippyValue>()
-      loadParams.jsParams.set(
-        "msgFromNative",
-        "Hi js developer, I come from ohos native code!"
-      )
-      loadParams.wrappedCustomRenderViewBuilder = wrapBuilder(buildCustomRenderView)
-      let moduleListener = new DefaultModuleListener()
+      // if (this.callback) {
+      //   this.callback()
+      // }
+      const loadParams = buildModuleLoadParams()
+      let moduleListener = new DefaultModuleListener(this.callback)
       let rootView = this.hippyEngine.loadModuleWithListener(loadParams, moduleListener)
       if (rootView) {
         this.rootViewWrapper.setRootView(rootView)
@@ -619,11 +667,20 @@ class DefaultEngineListener implements EngineListener {
   }
 }
 
+
 class DefaultModuleListener implements ModuleListener {
   private readonly TAG: string = "DefaultModuleListener";
+  private callback?: Function = undefined
+
+  constructor(callback?: Function) {
+    this.callback = callback
+  }
 
   onLoadCompleted(statusCode: ModuleLoadStatus, msg: string): void {
     LogUtils.i(this.TAG, 'loadModule status: ' + statusCode + ' msg:' + msg);
+    if (this.callback) {
+      this.callback()
+    }
   }
 
   onJsException(exception: HippyJsException): boolean {

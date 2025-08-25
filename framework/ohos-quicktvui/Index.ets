@@ -27,3 +27,5 @@ export { QTFastFlex, QTFastFlexView } from './src/main/ets/components/fastlist/Q
 export { QTAnimation, QTAnimationView } from './src/main/ets/components/animation/QTAnimationView'
 
 export { QTItemFrame, QTItemFrameView } from './src/main/ets/components/item/QTItemFrameView'
+
+export { QTLottie, QTLottieView } from './src/main/ets/components/lottie/QTLottieView'

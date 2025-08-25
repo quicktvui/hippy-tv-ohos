@@ -200,6 +200,7 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
 
   onDebugReLoad(): void {
     if (this.rootView) {
+      console.log("=====RELOAD=======onDebugReLoad========>>>");
       this.destroyModule(this.rootView.getRootId(), ()=> {
         this.mEngineContext?.destroyBridge(true);
       });
@@ -257,7 +258,9 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
   }
 
   public reloadEngineCallback = () => {
+    console.log("=====RELOAD=======reloadEngineCallback====1====>>>");
     if(this.mDebugMode) {
+      console.log("=====RELOAD=======reloadEngineCallback====2====>>>");
       this.startEngine(true);
     }
   }
