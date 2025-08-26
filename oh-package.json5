@@ -12,7 +12,6 @@
   "dependencies": {
     "@ohos/zxing": "^2.1.1",
     "@ohos/lottie": "^2.0.23",
-    "@ohos/lottie-turbo": "^1.0.0"
   },
   "dynamicDependencies": {}
 }

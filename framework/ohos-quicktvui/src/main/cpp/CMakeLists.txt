@@ -15,15 +15,39 @@ set(HIPPY_IMPL_CPP_DIR "${HIPPY_ROOT_DIR}/src/main/cpp/impl")
 
 add_subdirectory("${HIPPY_IMPL_CPP_DIR}" ./hippy_impl)
 
-add_library(quicktvui SHARED)
+include_directories(
+${PROJECT_ROOT_DIR}/dom/include
+    # 添加 Hippy 核心头文件路径
+    ${PROJECT_ROOT_DIR}/dom/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include/
+    # 添加 taitank 头文件路径
+    ${CMAKE_CURRENT_BINARY_DIR}/_deps/taitank-src/src
+    ${CMAKE_CURRENT_BINARY_DIR}/_deps/taitank-src/include
+  )
 
-target_link_libraries(quicktvui PUBLIC hippy_impl)
 
+add_library(quicktvui SHARED
+  quicktvui/src/napi_init.cpp
+  quicktvui/src/dom_layout.cpp
+)
+
+target_link_libraries(quicktvui PUBLIC
+  hippy_impl
+  )
+
+#  # 设置目标属性
+#  set_target_properties(quicktvui PROPERTIES
+#      OUTPUT_NAME "quicktvui"
+#      PREFIX "lib"
+#      SUFFIX ".so"
+#  )
+
+
+# 添加依赖关系，确保 hippy 先编译
+#add_dependencies(quicktvui ./hippy_impl)
 set(SOURCE_SET
-  quicktvui/src/event_view.cc
   )
 set(PUBLIC_SOURCE_SET
-  quicktvui/src/view_provider.cc
   )
 
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET} PUBLIC ${PUBLIC_SOURCE_SET})

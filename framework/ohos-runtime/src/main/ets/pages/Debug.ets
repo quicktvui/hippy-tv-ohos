@@ -19,7 +19,7 @@ import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
 import { BackPressHandler } from 'hippy/src/main/ets/hippy_framework/HippyEngine'
 import { RuntimeAPIProvider } from '../api/RuntimeAPIProvider'
 import { QTAPIProvider } from 'quicktvui/src/main/ets/components/QTAPIProvider';
-import {
+import  {
   QTLoadingView,
   QTLoading,
   QTEventView,
@@ -45,7 +45,7 @@ import {
   QTItemFrameView,
   QTItemFrame,
   QTLottieView,
-  QTLottie
+  QTLottie,
 } from 'quicktvui';
 import { QTVideoPlayer, QTVideoPlayerView } from '../components/video/QTVideoPlayerView';
 import { QTPageRouter, QTPageRouterView } from '../components/router/QTPageRouterView';
@@ -65,7 +65,7 @@ import { bundleManager, common } from '@kit.AbilityKit';
 import { connection } from '@kit.NetworkKit';
 import { preferences } from '@kit.ArkData';
 import { BusinessError, commonEventManager, deviceInfo } from '@kit.BasicServicesKit';
-
+// import { QTNativeLayout } from 'libquicktvui.so';
 @Builder
 export function PageDebugBuilder(name: string, param: Object) {
   Debug()
@@ -82,7 +82,7 @@ struct Debug {
   @State versionCode: string = ''
   @State deviceIp: string = '0.0.0.0' //TODO 不要修改 => 设备的IP地址
   //----------------------------------------------------------------------------------
-  @State debugServerHost: string = '192.168.40.47' //TODO 调试服务地址
+  @State debugServerHost: string = '192.168.80.235' //TODO 调试服务地址
   @State debugServerAvailable: boolean = false
   private checkHostAvailableTimerId: number = -1
   private readonly ACTION_CHANGE_DEBUG_SERVER: string =
@@ -114,6 +114,12 @@ struct Debug {
     this.initNetworkInfo()
     this.initBundleInfo()
     this.initSystemInfo()
+    console.error('quicktvui','aboutToAppear ')
+    // const ln : QTNativeLayout = new QTNativeLayout()
+    // ln.SetWidth(10)
+    // ln.SetHeight(10)
+    // ln.CalculateLayout(1920,1080)
+    // console.info('quicktvui',`native width:${ln.GetWidth()}`)
   }
 
   aboutToDisappear(): void {
