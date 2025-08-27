@@ -6,6 +6,10 @@
 
 cmake_minimum_required(VERSION 3.5.0)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 project(quicktvui)
 
 set(QUICK_TV_UI_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../")
@@ -13,42 +17,40 @@ set(PROJECT_ROOT_DIR "${QUICK_TV_UI_ROOT_DIR}/../../../")
 set(HIPPY_ROOT_DIR "${PROJECT_ROOT_DIR}/framework/ohos/")
 set(HIPPY_IMPL_CPP_DIR "${HIPPY_ROOT_DIR}/src/main/cpp/impl")
 
-add_subdirectory("${HIPPY_IMPL_CPP_DIR}" ./hippy_impl)
+# 不指定二进制目录
+#add_subdirectory(${HIPPY_ROOT_DIR}/src/main/cpp ${CMAKE_CURRENT_BINARY_DIR}/hippy_build)
 
+# 1. 指定头文件路径
 include_directories(
-${PROJECT_ROOT_DIR}/dom/include
     # 添加 Hippy 核心头文件路径
     ${PROJECT_ROOT_DIR}/dom/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/
+    ${PROJECT_ROOT_DIR}/modules/footstone/include
+    # quicktvui 头文件
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include/my_object.h
     # 添加 taitank 头文件路径
-    ${CMAKE_CURRENT_BINARY_DIR}/_deps/taitank-src/src
-    ${CMAKE_CURRENT_BINARY_DIR}/_deps/taitank-src/include
   )
 
-
+# 2. 编译源文件
 add_library(quicktvui SHARED
   quicktvui/src/napi_init.cpp
-  quicktvui/src/dom_layout.cpp
+  quicktvui/src/my_object.cpp
 )
 
-target_link_libraries(quicktvui PUBLIC
-  hippy_impl
-  )
+# 3. 引入 ohos-hippy 生成的 so
+# 假设 hipyy.so 位于 ohos-hippy/out/arm64-v8a/libhippy.so
+#add_library(hippy SHARED IMPORTED)
+#set_target_properties(hippy PROPERTIES
+#    IMPORTED_LOCATION ${PROJECT_ROOT_DIR}/framework/build/ohos/build/intermediates/libs/default/${OHOS_ARCH}/libhippy.so
+#)
 
-#  # 设置目标属性
-#  set_target_properties(quicktvui PROPERTIES
-#      OUTPUT_NAME "quicktvui"
-#      PREFIX "lib"
-#      SUFFIX ".so"
-#  )
+# 只引入编好的 libhippy.so，不要重新编译
+add_library(hippy SHARED IMPORTED)
+set_target_properties(hippy PROPERTIES
+    IMPORTED_LOCATION ${PROJECT_ROOT_DIR}/framework/ohos/build/default/intermediates/libs/default/${OHOS_ARCH}/libhippy.so
+)
 
-
-# 添加依赖关系，确保 hippy 先编译
-#add_dependencies(quicktvui ./hippy_impl)
-set(SOURCE_SET
-  )
-set(PUBLIC_SOURCE_SET
-  )
-
-target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET} PUBLIC ${PUBLIC_SOURCE_SET})
-
+target_link_libraries(quicktvui
+    PUBLIC
+        libace_napi.z.so  # libace_napi
+        hippy             # libhippy
+)
