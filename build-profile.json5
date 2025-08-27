@@ -7,7 +7,7 @@
         "compatibleSdkVersion": 12,
         "compileSdkVersion": 15,
         "targetSdkVersion": 12,
-        "runtimeOS": "OpenHarmony",
+        "runtimeOS": "OpenHarmony"
       }
     ],
     "buildModeSet": [
@@ -25,6 +25,20 @@
         "name": "release"
       }
     ],
+//    "signingConfigs": [
+//      {
+//        "name": "default",
+//        "material": {
+//          "certpath": "/Users/liulipeng/.ohos/config/default_hippy-tv-ohos_mx1M6hA5WlGY7KlCETRH0_FtWp__3NvfIVu6V15lZZU=.cer",
+//          "keyAlias": "debugKey",
+//          "keyPassword": "0000001B559FB6F0C6DE73CB87AE9D6A357B44719AED403F0B9F16C52586605E497386F6CD5FC9321AAB99",
+//          "profile": "/Users/liulipeng/.ohos/config/default_hippy-tv-ohos_mx1M6hA5WlGY7KlCETRH0_FtWp__3NvfIVu6V15lZZU=.p7b",
+//          "signAlg": "SHA256withECDSA",
+//          "storeFile": "/Users/liulipeng/.ohos/config/default_hippy-tv-ohos_mx1M6hA5WlGY7KlCETRH0_FtWp__3NvfIVu6V15lZZU=.p12",
+//          "storePassword": "0000001B210276F67034FE2432902AA98A6B050731AD2F1E91B1760FA21AC5F458EF69A8D4DF769FFA460A"
+//        }
+//      }
+//    ]
     //    "signingConfigs": [
     //      {
     //        "name": "default",

@@ -420,6 +420,7 @@ export class HRImageView extends HippyRenderBaseView {
       } else {
         this.src = this.cssSrc
       }
+      LogUtils.d(this.TAG, "fetchImage: src= " + this.src)
       return
     }
 

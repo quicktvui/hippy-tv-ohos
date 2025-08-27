@@ -82,7 +82,11 @@ struct Debug {
   @State versionCode: string = ''
   @State deviceIp: string = '0.0.0.0' //TODO 不要修改 => 设备的IP地址
   //----------------------------------------------------------------------------------
+<<<<<<< HEAD
   @State debugServerHost: string = '192.168.80.235' //TODO 调试服务地址
+=======
+  @State debugServerHost: string = '192.168.40.56' //TODO 调试服务地址
+>>>>>>> c805f136d (feat(ohos): add HRImageView Component)
   @State debugServerAvailable: boolean = false
   private checkHostAvailableTimerId: number = -1
   private readonly ACTION_CHANGE_DEBUG_SERVER: string =
