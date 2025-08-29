@@ -1,11 +1,12 @@
 import { IllegalStateException } from '@ohos/zxing';
 import {HippyRenderBaseView,HippyMap,HippyAny,NativeRenderContext,HRRect} from 'hippy'
-import { QUICKTVUI_TAG } from '../Constant';
-import { HRValueUtils } from '../HRValueUtils';
-import {createRenderViewFromCreator} from '../polifill/QTViewManager'
-import { NodeUtils } from '../utils/NodeUtils';
-import { TemplateCodeParser } from './fastlist/TemplateCodeParser'
-import { QTBaseComponentView } from './QTBaseComponentView';
+import { QUICKTVUI_TAG } from '../../Constant';
+import { HRValueUtils } from '../../HRValueUtils';
+import {createRenderViewFromCreator} from '../../polifill/QTViewManager'
+import { NodeUtils } from '../../utils/NodeUtils';
+import { TemplateCodeParser } from './TemplateCodeParser'
+import { QTBaseComponentView } from '../QTBaseComponentView';
+import { StyleAttach } from './StyleAttach';
 
 export class BuildResult{
   renderView : HippyRenderBaseView | null = null;
@@ -58,6 +59,9 @@ function applyInit(renderView : HippyRenderBaseView,template: HippyRenderBaseVie
     renderView.templateView = template;
     renderView.onCreateByTemplate(template)
   }
+  const attach  = new StyleAttach();
+  renderView.attachedInfo = attach;
+
   // CommonUtils.printObject(templateProps,'applyBasicStyle')
   applyBasicStyle(renderView,templateProps)
   return renderView

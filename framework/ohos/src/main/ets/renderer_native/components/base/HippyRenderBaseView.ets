@@ -89,6 +89,9 @@ export default abstract class HippyRenderBaseView {
   savedTouchDownPositionY: number = 0
   savedHitTestBehavior: HitTestMode = HitTestMode.Default
 
+  //add by zhaopeng@quicktvui 添加attach方便扩展
+  attachedInfo : object | null = null;
+
   constructor(ctx: NativeRenderContext) {
     this.ctx = ctx
   }

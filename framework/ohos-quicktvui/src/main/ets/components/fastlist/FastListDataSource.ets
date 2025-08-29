@@ -22,7 +22,7 @@ import { QUICKTVUI_TAG } from '../../Constant';
 import {HippyMap,HippyArray,HippyAny} from 'hippy'
 import {ItemView,getItemType, ItemTemplate} from './ItemView'
 import assertNull from '@ohos/hypium/src/main/module/assert/assertNull';
-import {buildRenderViewTraverse, PathUpdate} from '../TemplateViewManager'
+import {buildRenderViewTraverse, PathUpdate} from './TemplateViewManager'
 import { NodeUtils } from '../../utils/NodeUtils';
 import { QTFastItemView } from './QTFastItemView';
 import { QTBaseComponentView } from '../QTBaseComponentView';
@@ -135,8 +135,10 @@ export class FastListDataSource implements IDataSource {
       item.template = it;
       if(it){
         let  updates:Array<PathUpdate> = []
+        //1. 遍历模板和数据，生成根布局
         let rv = buildRenderViewTraverse(this.ctx,it.templateView,it.props,item.raw as HippyMap,null,0,updates)
         let wrapped = this.wrappedItemIfNeed(rv!!);
+        //2. 预先执行所有update
         updates?.map((p)=>{
           //更新尺寸
           let layout = new HRRect(p.layout[0],p.layout[1],p.layout[2],p.layout[3]);
@@ -156,6 +158,7 @@ export class FastListDataSource implements IDataSource {
         //   rv = this.wrappedItemIfNeed(rv);
         // }
         item.renderView = wrapped;
+        //3. 执行所有props
         updates?.map((p)=>{
           p.props.forEach((value,key)=>{
             // console.log(QUICKTVUI_TAG,`updates p :${p.renderView.viewType},prop:${key},value:${value}`)

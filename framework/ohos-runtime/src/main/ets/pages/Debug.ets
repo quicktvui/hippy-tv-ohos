@@ -65,7 +65,7 @@ import { bundleManager, common } from '@kit.AbilityKit';
 import { connection } from '@kit.NetworkKit';
 import { preferences } from '@kit.ArkData';
 import { BusinessError, commonEventManager, deviceInfo } from '@kit.BasicServicesKit';
-import {MyObject} from 'libquicktvui.so';
+import {QTNativeLayout } from 'libquicktvui.so';
 
 @Builder
 export function PageDebugBuilder(name: string, param: Object) {
@@ -119,23 +119,22 @@ struct Debug {
 
     console.error('quicktvui','=======222=====1======2====>>>>>' )
 
-    let obj:MyObject = new MyObject(10);
-    console.error('quicktvui',"init:", obj.value);     // 10
-    obj.value = 20;
-    console.error('quicktvui',"after set:", obj.value); // 20
+    // let obj:MyObject = new MyObject(10);
+    // console.error('quicktvui',"init:", obj.value);     // 10
+    // obj.value = 20;
+    // console.error('quicktvui',"after set:", obj.value); // 20
     // console.error('quicktvui',"plusOne:", obj.plusOne()); // 21
 
 
     // const value:number = quick.callNative(2, 3);
-    // const ln : QTNativeLayout = new QTNativeLayout()
+    const ln : QTNativeLayout = new QTNativeLayout()
     // console.error('quicktvui','============2==========>>>>>' + value + "")
-    // ln.SetWidth(10)
-    // ln.SetHeight(10)
+    ln.SetWidth(10)
+    ln.SetHeight(10)
 
     console.error('quicktvui','============3==========>>>>>')
-
-    // ln.CalculateLayout(1920,1080)
-    // console.info('quicktvui',`native width:${ln.GetWidth()}`)
+    ln.CalculateLayout(1920,1080)
+    console.info('quicktvui',`native width:${ln.GetWidth()}`)
   }
 
   aboutToDisappear(): void {

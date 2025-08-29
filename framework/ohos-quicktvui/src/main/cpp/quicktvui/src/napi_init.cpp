@@ -5,7 +5,7 @@
 // entry/src/main/cpp/napi_init.cpp
  #include "../include/layout.h"
 #include "../include/my_object.h"
-// using namespace quicktvui::layout;
+ using namespace quicktvui::layout;
 
 //static napi_value CallNative(napi_env env, napi_callback_info info) {
 //  size_t argc = 2;
@@ -48,8 +48,8 @@
 EXTERN_C_START
 // 模块初始化
 static napi_value Init(napi_env env, napi_value exports) {
-  return MyObject::Init(env, exports);
-//  quicktvui::layout::LayoutNapi::Init(env, exports);
+//   MyObject::Init(env, exports);
+  quicktvui::LayoutNapi::Init(env, exports);
     
 //  // ArkTS接口与C++接口的绑定和映射
 //  napi_property_descriptor desc[] = {
@@ -59,7 +59,7 @@ static napi_value Init(napi_env env, napi_value exports) {
 //       nullptr}};
 //  // 在exports对象上挂载CallNative/NativeCallArkTS两个Native方法
 //  napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc);
-//  return exports;
+  return exports;
 }
 EXTERN_C_END
 

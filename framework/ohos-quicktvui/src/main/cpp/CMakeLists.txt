@@ -25,16 +25,19 @@ include_directories(
     # 添加 Hippy 核心头文件路径
     ${PROJECT_ROOT_DIR}/dom/include
     ${PROJECT_ROOT_DIR}/modules/footstone/include
+    ${PROJECT_ROOT_DIR}/modules/ohos/oh_napi/include
     # quicktvui 头文件
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/my_object.h
-    # 添加 taitank 头文件路径
   )
 
 # 2. 编译源文件
 add_library(quicktvui SHARED
   quicktvui/src/napi_init.cpp
   quicktvui/src/my_object.cpp
+  quicktvui/src/dom_layout.cpp
 )
+
+
 
 # 3. 引入 ohos-hippy 生成的 so
 # 假设 hipyy.so 位于 ohos-hippy/out/arm64-v8a/libhippy.so

@@ -1,4 +1,3 @@
-#include "dom/taitank_layout_node.h"
 #include "napi/native_api.h"
 #include "dom/layout_node.h"
 #include <unordered_map>
@@ -8,6 +7,8 @@
 #include <js_native_api.h>
 #include <js_native_api_types.h>
 #include "../include/layout.h"
+#include "oh_napi/oh_napi_utils.h"
+
 // napi_init.cpp
 // 实现代码...
 namespace quicktvui {
@@ -253,88 +254,81 @@ bool GetArg<bool>(napi_env env, napi_value value) {
       return obj;
   }
 
-//  napi_value LayoutNapi::Init(napi_env env, napi_value exports) {
-//      napi_property_descriptor desc[] = {
-//          { "Layout_CreateLayoutNode", nullptr, CreateLayoutNodeNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_GetWidth", nullptr, GetWidthNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_GetHeight", nullptr, GetHeightNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_GetLeft", nullptr, GetLeftNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_GetTop", nullptr, GetTopNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_GetRight", nullptr, GetRightNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_GetBottom", nullptr, GetBottomNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_GetStyleWidth", nullptr, GetStyleWidthNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_GetStyleHeight", nullptr, GetStyleHeightNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_SetWidth", nullptr, SetWidthNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_SetHeight", nullptr, SetHeightNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_SetMaxWidth", nullptr, SetMaxWidthNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_SetMaxHeight", nullptr, SetMaxHeightNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_SetScaleFactor", nullptr, SetScaleFactorNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_SetPosition", nullptr, SetPositionNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_HasNewLayout", nullptr, HasNewLayoutNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-////          { "SetHasNewLayout", nullptr, SetSetHasNewLayoutNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_MarkDirty", nullptr, MarkDirtyNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_IsDirty", nullptr, IsDirtyNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_CalculateLayout", nullptr, CalculateLayoutNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_InsertChild", nullptr, InsertChildNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_RemoveChild", nullptr, RemoveChildNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//          { "Layout_ResetLayoutCache", nullptr, ResetLayoutCacheNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-//      };
-//      napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc);
-//
-//      // 枚举导出
-//      std::unordered_map<std::string, int32_t> edge_map = {
-//          {"EdgeLeft", static_cast<int32_t>(Edge::EdgeLeft)},
-//          {"EdgeTop", static_cast<int32_t>(Edge::EdgeTop)},
-//          {"EdgeRight", static_cast<int32_t>(Edge::EdgeRight)},
-//          {"EdgeBottom", static_cast<int32_t>(Edge::EdgeBottom)},
-//          {"EdgeStart", static_cast<int32_t>(Edge::EdgeStart)},
-//          {"EdgeEnd", static_cast<int32_t>(Edge::EdgeEnd)},
-//      };
-//      napi_value edgeObj = CreateEnumObject(env, edge_map);
-//      napi_set_named_property(env, exports, "Edge", edgeObj);
-//
-//      std::unordered_map<std::string, int32_t> direction_map = {
-//          {"Inherit", static_cast<int32_t>(Direction::Inherit)},
-//          {"LTR", static_cast<int32_t>(Direction::LTR)},
-//          {"RTL", static_cast<int32_t>(Direction::RTL)},
-//      };
-//      napi_value directionObj = CreateEnumObject(env, direction_map);
-//      napi_set_named_property(env, exports, "Direction", directionObj);
-//
-//      std::unordered_map<std::string, int32_t> measure_mode_map = {
-//          {"Undefined", static_cast<int32_t>(LayoutMeasureMode::Undefined)},
-//          {"Exactly", static_cast<int32_t>(LayoutMeasureMode::Exactly)},
-//          {"AtMost", static_cast<int32_t>(LayoutMeasureMode::AtMost)},
-//      };
-//      napi_value measureModeObj = CreateEnumObject(env, measure_mode_map);
-//      napi_set_named_property(env, exports, "LayoutMeasureMode", measureModeObj);
-//
-//      std::unordered_map<std::string, int32_t> layout_engine_map = {
-//          {"LayoutEngineDefault", static_cast<int32_t>(LayoutEngineType::LayoutEngineDefault)},
-//          {"LayoutEngineTaitank", static_cast<int32_t>(LayoutEngineType::LayoutEngineTaitank)},
-//          {"LayoutEngineYoga", static_cast<int32_t>(LayoutEngineType::LayoutEngineYoga)},
-//      };
-//      napi_value layoutEngineObj = CreateEnumObject(env, layout_engine_map);
-//      napi_set_named_property(env, exports, "LayoutEngineType", layoutEngineObj);
-//    
-//     napi_value constructor;
-//      napi_status status = napi_define_class(env, "QTNativeLayout", NAPI_AUTO_LENGTH, 
-//                                            LayoutNapi::Constructor, nullptr,
-//                                           sizeof(desc) / sizeof(desc[0]),
-//                                           desc, &constructor);
-//      if (status != napi_ok) {
-//          napi_throw_error(env, nullptr, "Failed to define NativeLayout class");
-//          return nullptr;
-//      }
-//      
-//      status = napi_set_named_property(env, exports, "QTNativeLayout", constructor);
-//      if (status != napi_ok) {
-//          napi_throw_error(env, nullptr, "Failed to export NativeLayout class");
-//          return nullptr;
-//      }
-//
-//      return exports;
-//  }
+  napi_value LayoutNapi::SetLayoutStylesNapi(napi_env env, napi_callback_info info) {
+    size_t argc = 2;
+    napi_value args[2], thisVar;
+    napi_get_cb_info(env, info, &argc, args, &thisVar, nullptr);
+    
+    if (argc < 1) {
+        napi_throw_error(env, nullptr, "SetLayoutStyles requires at least 1 argument");
+        return nullptr;
+    }
+    
+    auto node = LayoutNapi::UnwrapNode(env, thisVar)->node;
+    
+    // 转换样式更新对象
+    napi_value stylesObj = args[0];
+    napi_valuetype type;
+    napi_typeof(env, stylesObj, &type);
+    
+    if (type != napi_object) {
+        napi_throw_error(env, nullptr, "First argument must be an object");
+        return nullptr;
+    }
+    
+    std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>> styleUpdate;
+    std::vector<std::string> styleDelete;
+    
+    // 处理样式更新 - 使用 OhNapiUtils 转换整个对象
+    HippyValue hippyValue = OhNapiUtils::NapiValue2HippyValue(env, stylesObj);
+    
+    if (hippyValue.IsObject()) {
+        auto map = hippyValue.ToObjectChecked();
+        for (const auto& pair : map) {
+            const std::string& key = pair.first;
+            const HippyValue& value = pair.second;
+            
+            if (value.IsUndefined() || value.IsNull()) {
+                // 值为 undefined 或 null，添加到删除列表
+                styleDelete.push_back(key);
+            } else {
+                // 正常值，添加到更新列表（需要创建 shared_ptr）
+                styleUpdate[key] = std::make_shared<HippyValue>(value);
+            }
+        }
+    }
+    
+    // 处理删除列表（如果有第二个参数）
+    if (argc > 1) {
+        napi_value deleteArray = args[1];
+        napi_typeof(env, deleteArray, &type);
+        
+        if (type == napi_object) {
+            bool isArray;
+            napi_is_array(env, deleteArray, &isArray);
+            
+            if (isArray) {
+                HippyValue deleteHippyValue = OhNapiUtils::NapiValue2HippyValue(env, deleteArray);
+                if (deleteHippyValue.IsArray()) {
+                    auto deleteArrayValues = deleteHippyValue.ToArrayChecked();
+                    for (const auto& deleteValue : deleteArrayValues) {
+                        if (deleteValue.IsString()) {
+                            styleDelete.push_back(deleteValue.ToStringChecked());
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // 调用原生方法
+    node->SetLayoutStyles(styleUpdate, styleDelete);
+    
+    return nullptr;
+}
+
+
+
 napi_value LayoutNapi::Init(napi_env env, napi_value exports) {
     napi_property_descriptor desc[] = {
         { "GetWidth", nullptr, GetWidthNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
@@ -352,7 +346,9 @@ napi_value LayoutNapi::Init(napi_env env, napi_value exports) {
         { "SetMaxHeight", nullptr, SetMaxHeightNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
         { "SetScaleFactor", nullptr, SetScaleFactorNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
         { "SetPosition", nullptr, SetPositionNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
-
+ // 添加 SetLayoutStyles
+        { "SetLayoutStyles", nullptr, SetLayoutStylesNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
+        
         { "HasNewLayout", nullptr, HasNewLayoutNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
         { "IsDirty", nullptr, IsDirtyNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
         { "MarkDirty", nullptr, MarkDirtyNapi, nullptr, nullptr, nullptr, napi_default, nullptr },

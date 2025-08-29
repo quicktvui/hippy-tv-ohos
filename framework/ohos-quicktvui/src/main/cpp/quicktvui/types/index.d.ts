@@ -1,5 +1,4 @@
-declare module 'quicktvui_native' {
-  export class QTNativeLayout {
+  export interface  QTNativeLayout {
     constructor();
 
     GetWidth(): number;
@@ -55,4 +54,3 @@ declare module 'quicktvui_native' {
     LayoutEngineTaitank,
     LayoutEngineYoga
   }
-}

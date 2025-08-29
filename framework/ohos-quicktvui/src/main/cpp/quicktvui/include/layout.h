@@ -2,10 +2,8 @@
 #define LAYOUT_NODE_NAPI_H
 
 #include "napi/native_api.h"
-#include <sys/stat.h>
 #include <unordered_map>
 #include <string>
-#include "napi/native_api.h"
 #include "dom/layout_node.h"
 
 using namespace hippy::dom;
@@ -50,7 +48,8 @@ private:
   static napi_value SetMaxHeightNapi(napi_env env, napi_callback_info info);
   static napi_value SetScaleFactorNapi(napi_env env, napi_callback_info info);
   static napi_value SetPositionNapi(napi_env env, napi_callback_info info);
-  
+  // 样式设置方法
+  static napi_value SetLayoutStylesNapi(napi_env env, napi_callback_info info);
   // 布局状态方法
   static napi_value HasNewLayoutNapi(napi_env env, napi_callback_info info);
   static napi_value IsDirtyNapi(napi_env env, napi_callback_info info);
