@@ -32,6 +32,9 @@ export class QTBaseComponentView extends HippyCustomComponentView {
 
   setProp(propKey: string, propValue: HippyAny): boolean {
     console.info(QUICKTVUI_TAG,`QTRenderBaseView setProp:${propKey},propValue:${propValue}`)
+    if(propKey === 'attributes'){
+      console.error(QUICKTVUI_TAG,`QTRenderBaseView attributes:${propKey},propValue:${CommonUtils.hippyAny2String(propValue)}`)
+    }
     switch (propKey){
       case 'sid':
         this.sid = HRValueUtils.getString(propValue)

@@ -26,6 +26,7 @@ include_directories(
     ${PROJECT_ROOT_DIR}/dom/include
     ${PROJECT_ROOT_DIR}/modules/footstone/include
     ${PROJECT_ROOT_DIR}/modules/ohos/oh_napi/include
+    ${HIPPY_ROOT_DIR}/src/main/cpp/impl/renderer/native/include
     # quicktvui 头文件
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/my_object.h
   )

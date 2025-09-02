@@ -2,19 +2,22 @@
 #include "dom/layout_node.h"
 #include <unordered_map>
 #include <string>
-
+#include "any"
 #include <arkui/native_node_napi.h>
 #include <js_native_api.h>
 #include <js_native_api_types.h>
 #include "../include/layout.h"
 #include "oh_napi/oh_napi_utils.h"
-
+#include "oh_napi/data_holder.h"
+#include "dom/dom_manager.h"
+#include "renderer/native_render_manager.h"
 // napi_init.cpp
 // 实现代码...
 namespace quicktvui {
 inline namespace layout {
 using namespace hippy;
 using namespace dom;
+using namespace  std;
 
   template<typename T>
   T GetArg(napi_env env, napi_value value);
@@ -162,6 +165,61 @@ bool GetArg<bool>(napi_env env, napi_value value) {
   DEFINE_LAYOUT_SETTER_FLOAT(MaxWidth)
   DEFINE_LAYOUT_SETTER_FLOAT(MaxHeight)
   DEFINE_LAYOUT_SETTER_FLOAT(ScaleFactor)
+
+//  LayoutNapi::getDomNode(uint32_t render_manager_id,uint32_t root_id,uint32_t node_id){
+//    
+//  }
+
+  napi_value LayoutNapi::CopyStyleNode(napi_env env,napi_callback_info info){
+      ArkTS arkTs(env);
+    auto args = arkTs.GetCallbackArgs(info);
+    uint32_t render_manager_id = static_cast<uint32_t>(arkTs.GetInteger(args[0]));
+    uint32_t root_id = static_cast<uint32_t>(arkTs.GetInteger(args[1]));
+    uint32_t node_id = static_cast<uint32_t>(arkTs.GetInteger(args[2]));
+//      std::any dom_manager;
+//      auto flag = hippy::global_data_holder.Find(render_manager_id, dom_manager);
+//      FOOTSTONE_CHECK(flag);
+//      auto dom_manager_object = std::any_cast<std::shared_ptr<DomManager>>(dom_manager);
+
+  auto& map = NativeRenderManager::PersistentMap();
+    std::shared_ptr<NativeRenderManager> render_manager;
+    bool ret = map.Find(render_manager_id, render_manager);
+    if (!ret) {
+      FOOTSTONE_DLOG(WARNING) << "UpdateNodeSize render_manager_id invalid";
+      return arkTs.GetUndefined();
+    }
+  
+    auto& root_map = RootNode::PersistentMap();
+    std::shared_ptr<RootNode> root_node;
+    ret = root_map.Find(root_id, root_node);
+    if (!ret) {
+      FOOTSTONE_DLOG(WARNING) << "UpdateNodeSize root_node is nullptr";
+      return arkTs.GetUndefined();
+    }
+    
+    std::shared_ptr<DomManager> dom_manager = root_node->GetDomManager().lock();
+    if (dom_manager == nullptr) {
+      FOOTSTONE_DLOG(WARNING) << "UpdateNodeSize dom_manager is nullptr";
+      return arkTs.GetUndefined();
+    }
+  
+    auto node = dom_manager->GetNode(root_node, node_id);
+    if (node == nullptr) {
+      FOOTSTONE_DLOG(WARNING) << "UpdateNodeSize DomNode not found for id: " << node_id;
+      return arkTs.GetUndefined();
+    }
+      napi_value thisVar;
+      napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr);
+      
+      auto layout_node = LayoutNapi::UnwrapNode(env, thisVar)->node;
+
+      std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>& style = node->GetStyleMap();
+      std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& target_map = *style;
+
+      layout_node->SetLayoutStyles(target_map, {});
+//       uint32_t target_id = static_cast<uint32_t>(arkTs.GetInteger(args[1]));
+//      dom_manager_object->GetNode(const std::weak_ptr<RootNode> &weak_root_node, uint32_t id)
+  }
 
   napi_value LayoutNapi::SetPositionNapi(napi_env env, napi_callback_info info) {
       size_t argc = 2;
@@ -348,6 +406,7 @@ napi_value LayoutNapi::Init(napi_env env, napi_value exports) {
         { "SetPosition", nullptr, SetPositionNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
  // 添加 SetLayoutStyles
         { "SetLayoutStyles", nullptr, SetLayoutStylesNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
+        { "CopyStyleNode", nullptr, CopyStyleNode, nullptr, nullptr, nullptr, napi_default, nullptr },
         
         { "HasNewLayout", nullptr, HasNewLayoutNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
         { "IsDirty", nullptr, IsDirtyNapi, nullptr, nullptr, nullptr, napi_default, nullptr },

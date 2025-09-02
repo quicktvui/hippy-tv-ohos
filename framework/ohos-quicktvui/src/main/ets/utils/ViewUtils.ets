@@ -1,5 +1,5 @@
 import {HippyMap} from 'hippy'
-import { StyleAttach } from '../components/fastlist/StyleAttach';
+import { LayoutAttach } from '../components/fastlist/LayoutAttach';
 
 export class ViewUtils{
   static getTextGravity(gs : string) : TextAlign{
@@ -18,7 +18,7 @@ export class ViewUtils{
     }
   }
 
-  static applyStyleNode(style: HippyMap,attach : StyleAttach): void {
+  static applyStyleNode(style: HippyMap,attach : LayoutAttach): void {
     if (style == null || attach == null) {
       return;
     }

@@ -32,6 +32,7 @@ private:
   // 创建布局节点
   static napi_value CreateLayoutNodeNapi(napi_env env, napi_callback_info info);
   // Getter 方法
+  static napi_value CopyStyleNode(napi_env env,napi_callback_info info);
   static napi_value GetWidthNapi(napi_env env, napi_callback_info info);
   static napi_value GetHeightNapi(napi_env env, napi_callback_info info);
   static napi_value GetLeftNapi(napi_env env, napi_callback_info info);

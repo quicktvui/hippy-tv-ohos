@@ -27,6 +27,8 @@ import { NodeUtils } from '../../utils/NodeUtils';
 import { QTFastItemView } from './QTFastItemView';
 import { QTBaseComponentView } from '../QTBaseComponentView';
 import { QTPixelUtil } from '../../utils/QTPixelUtil';
+import { LayoutAttach } from './LayoutAttach';
+import { CommonUtils } from '../../utils/CommonUtils';
 
 
 // class ItemEntry{
@@ -76,12 +78,12 @@ export class FastListDataSource implements IDataSource {
     }
     if(node?.props){
       let type =  getItemType(node.props)
+      //如果用户没设，给一个默认的值
       if(!type){
          type = FastListDataSource.DEFAULT_TYPE
       }
-      //如果用户没设，给一个默认的值
       if(type && child){
-        console.log(QUICKTVUI_TAG,`registerTemplate type:${type},renderView:${child}`)
+        console.log(QUICKTVUI_TAG,`registerTemplate type:${type},node.props:${CommonUtils.hippyMap2String(node.props)}`)
         let it : ItemTemplate = new ItemTemplate(child,type,node.props)
         this.templatesMap.set(type,it)
       }
@@ -138,17 +140,19 @@ export class FastListDataSource implements IDataSource {
         //1. 遍历模板和数据，生成根布局
         let rv = buildRenderViewTraverse(this.ctx,it.templateView,it.props,item.raw as HippyMap,null,0,updates)
         let wrapped = this.wrappedItemIfNeed(rv!!);
+
         //2. 预先执行所有update
         updates?.map((p)=>{
           //更新尺寸
-          let layout = new HRRect(p.layout[0],p.layout[1],p.layout[2],p.layout[3]);
-          if(p.renderView === rv){
-            //根view
-            QTPixelUtil.setScaledRenderViewFrame(wrapped,layout,null)
-            QTPixelUtil.setScaledRenderViewFrame(p.renderView,new HRRect(0,0,p.layout[2],p.layout[3]),null)
-          }else{
-            QTPixelUtil.setScaledRenderViewFrame(p.renderView,layout,null)
-          }
+
+          // let layout = new HRRect(p.layout[0],p.layout[1],p.layout[2],p.layout[3]);
+          // if(p.renderView === rv){
+          //   //根view
+          //   QTPixelUtil.setScaledRenderViewFrame(wrapped,layout,null)
+          //   QTPixelUtil.setScaledRenderViewFrame(p.renderView,new HRRect(0,0,p.layout[2],p.layout[3]),null)
+          // }else{
+          //   QTPixelUtil.setScaledRenderViewFrame(p.renderView,layout,null)
+          // }
           if(p.renderView instanceof  QTBaseComponentView){
             p.renderView.aboutToUpdate()
           }
@@ -177,6 +181,27 @@ export class FastListDataSource implements IDataSource {
             }
           })
         })
+        //在属性全部执行完以后，计算layout
+        if(rv){
+          LayoutAttach.obtainLayoutAttach(rv).calculateLayout(1920,1080)
+        }else{
+          console.error(QUICKTVUI_TAG,`error on rv is null`)
+        }
+        //更新layout
+        updates?.map((p)=>{
+          //更新尺寸
+          let attach = LayoutAttach.obtainLayoutAttach(p.renderView);
+          let layout = new HRRect(attach.getLeft(),attach.getTop(),attach.getWidth(),attach.getHeight());
+          console.log(QUICKTVUI_TAG,`post update layout:layout:x:${layout.x},y:${layout.y},width:${layout.width},height:${layout.height} renderView:${p.renderView.viewType}`)
+          if(p.renderView === rv){
+            //根view
+            QTPixelUtil.setScaledRenderViewFrame(wrapped,layout,null)
+            QTPixelUtil.setScaledRenderViewFrame(p.renderView,new HRRect(0,0,attach.getWidth(),attach.getHeight()),null)
+          }else{
+            QTPixelUtil.setScaledRenderViewFrame(p.renderView,layout,null)
+          }
+        })
+
         if(!wrapped){
           console.error(QUICKTVUI_TAG,`buildRenderView null `)
         }
