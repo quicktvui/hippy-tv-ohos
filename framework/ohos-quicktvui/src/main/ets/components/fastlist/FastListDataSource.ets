@@ -18,11 +18,11 @@
  * limitations under the License.
  */
 import {HippyRenderBaseView,HippyObservedArray,NativeRenderContext,NativeRender,HRRect} from 'hippy'
-import { QUICKTVUI_TAG } from '../../Constant';
+import { TAG_LAYOUT as TAG_LAYOUT, TAG_QUICKTVUI as TAG_QUICKTVUI } from '../../Constant';
 import {HippyMap,HippyArray,HippyAny} from 'hippy'
 import {ItemView,getItemType, ItemTemplate} from './ItemView'
 import assertNull from '@ohos/hypium/src/main/module/assert/assertNull';
-import {buildRenderViewTraverse, PathUpdate} from './TemplateViewManager'
+import {buildRenderViewTraverse, PathUpdate,applyLayoutTraverse} from './TemplateViewManager'
 import { NodeUtils } from '../../utils/NodeUtils';
 import { QTFastItemView } from './QTFastItemView';
 import { QTBaseComponentView } from '../QTBaseComponentView';
@@ -59,7 +59,7 @@ export class FastListDataSource implements IDataSource {
 
   public setTemplates(templates : HippyObservedArray<HippyRenderBaseView>){
     this.templates = templates;
-    console.info(QUICKTVUI_TAG, `setTemplates total:${templates.length}`)
+    console.info(TAG_QUICKTVUI, `setTemplates total:${templates.length}`)
   }
 
   public registerTemplate(parent:HippyRenderBaseView, child: HippyRenderBaseView,childIndex: number,isVirtual : boolean  = false){
@@ -73,7 +73,7 @@ export class FastListDataSource implements IDataSource {
     let node = NodeUtils.getNodeById(this.ctx,childTag)
     // let renderView = getRenderView(this.ctx,childTag)
     if(child == null || node == null){
-      console.error(QUICKTVUI_TAG,`registerTemplate error renderView:${child},node:${node},viewName:${childViewName}`)
+      console.error(TAG_QUICKTVUI,`registerTemplate error renderView:${child},node:${node},viewName:${childViewName}`)
       return;
     }
     if(node?.props){
@@ -83,7 +83,7 @@ export class FastListDataSource implements IDataSource {
          type = FastListDataSource.DEFAULT_TYPE
       }
       if(type && child){
-        console.log(QUICKTVUI_TAG,`registerTemplate type:${type},node.props:${CommonUtils.hippyMap2String(node.props)}`)
+        console.log(TAG_QUICKTVUI,`registerTemplate type:${type},node.props:${CommonUtils.hippyMap2String(node.props)}`)
         let it : ItemTemplate = new ItemTemplate(child,type,node.props)
         this.templatesMap.set(type,it)
       }
@@ -116,6 +116,7 @@ export class FastListDataSource implements IDataSource {
       let layout = new HRRect(0,0,renderView.cssWidth,renderView.cssHeight)
       QTPixelUtil.setScaledRenderViewFrame(wi,layout,null)
       wi.addSubRenderView(renderView,0)
+      LayoutAttach.obtainLayoutAttach(wi).insertChild(LayoutAttach.obtainLayoutAttach(renderView),0)
       return wi;
     }
   }
@@ -130,7 +131,7 @@ export class FastListDataSource implements IDataSource {
     }
     if(!item.id){
       item.id = item.position +''
-      console.error(QUICKTVUI_TAG,`put fallback id :${item.position}`)
+      console.error(TAG_QUICKTVUI,`put fallback id :${item.position}`)
     }
     if(type){
       let it = this.templatesMap.get(type);
@@ -171,10 +172,8 @@ export class FastListDataSource implements IDataSource {
             switch (key){
               case 'showIf':
                 p.renderView.cssVisibility = value ? Visibility.Visible : Visibility.Hidden
-                // console.log(QUICKTVUI_TAG,`showIf executed value:${value},viweType:${p.renderView.viewType}`)
                 handle = true;
                 break;
-
             }
             if(!handle){
               p.renderView.setProp(key,value)
@@ -182,35 +181,43 @@ export class FastListDataSource implements IDataSource {
           })
         })
         //在属性全部执行完以后，计算layout
-        if(rv){
-          LayoutAttach.obtainLayoutAttach(rv).calculateLayout(1920,1080)
+        if(item.renderView && rv){
+          LayoutAttach.obtainLayoutAttach(item.renderView).calculateLayout(800,600)
+          applyLayoutTraverse(item.renderView)
+          //强制itemView的宽高与item内部一致
+          QTPixelUtil.setScaledRenderViewFrame(item.renderView,new HRRect(0,0,
+            LayoutAttach.obtainLayoutAttach(rv).getWidth(),
+            LayoutAttach.obtainLayoutAttach(rv).getHeight()),null)
         }else{
-          console.error(QUICKTVUI_TAG,`error on rv is null`)
+          console.error(TAG_QUICKTVUI,`error on rv is null`)
         }
         //更新layout
-        updates?.map((p)=>{
-          //更新尺寸
-          let attach = LayoutAttach.obtainLayoutAttach(p.renderView);
-          let layout = new HRRect(attach.getLeft(),attach.getTop(),attach.getWidth(),attach.getHeight());
-          console.log(QUICKTVUI_TAG,`post update layout:layout:x:${layout.x},y:${layout.y},width:${layout.width},height:${layout.height} renderView:${p.renderView.viewType}`)
-          if(p.renderView === rv){
-            //根view
-            QTPixelUtil.setScaledRenderViewFrame(wrapped,layout,null)
-            QTPixelUtil.setScaledRenderViewFrame(p.renderView,new HRRect(0,0,attach.getWidth(),attach.getHeight()),null)
-          }else{
-            QTPixelUtil.setScaledRenderViewFrame(p.renderView,layout,null)
-          }
-        })
+        // updates?.map((p)=>{
+        //   //更新尺寸
+        //   let attach = LayoutAttach.obtainLayoutAttach(p.renderView);
+        //   let layout = new HRRect(attach.getLeft(),attach.getTop(),attach.getWidth(),attach.getHeight());
+        //   console.log(TAG_LAYOUT,`post update layout:layout:x:${layout.x},y:${layout.y},width:${layout.width},height:${layout.height} renderView:${p.renderView.viewType}:name:${attach.name}`)
+        //   if(p.renderView === rv){
+        //     //根view
+        //     let rect = new HRRect(0,0,attach.getWidth(),attach.getHeight())
+        //     QTPixelUtil.setScaledRenderViewFrame(wrapped,rect,null)
+        //     QTPixelUtil.setScaledRenderViewFrame(p.renderView,rect,null)
+        //   }else{
+        //     QTPixelUtil.setScaledRenderViewFrame(p.renderView,layout,null)
+        //   }
+        //
+        // })
 
         if(!wrapped){
-          console.error(QUICKTVUI_TAG,`buildRenderView null `)
+          console.error(TAG_QUICKTVUI,`buildRenderView null `)
         }
       }else{
-        console.error(QUICKTVUI_TAG,'getData error template is null')
+        console.error(TAG_QUICKTVUI,'getData error template is null')
       }
     }else{
-      console.error(QUICKTVUI_TAG,'getData type is undefined')
+      console.error(TAG_QUICKTVUI,'getData type is undefined')
     }
+
     return item
   }
 
@@ -221,7 +228,10 @@ export class FastListDataSource implements IDataSource {
   public getData(index: number): ItemView {
     let item = this.dataList[index]
     this.buildItem(item)
-    console.log(QUICKTVUI_TAG,`getData index:${index}`)
+    console.log(TAG_QUICKTVUI,`getData index:${index}`)
+    if(item.renderView && item.renderView.cssWidth < 1 || item.renderView!!.cssHeight < 1){
+      console.error(TAG_LAYOUT,`getData layout Error index:${index},type:${item.renderView?.viewType}`)
+    }
     if(item.renderView){
       NodeUtils.printViewTreePretty(item.renderView,'',false)
     }
@@ -245,7 +255,7 @@ export class FastListDataSource implements IDataSource {
   // }
 
   public totalCount(): number {
-    console.log(QUICKTVUI_TAG,`dataSource:totalCount:${this.dataList.length}`)
+    console.log(TAG_QUICKTVUI,`dataSource:totalCount:${this.dataList.length}`)
     return this.dataList.length
   }
 
@@ -263,7 +273,7 @@ export class FastListDataSource implements IDataSource {
   }
 
   notifyReload() {
-    console.log(QUICKTVUI_TAG,'notifyReload called')
+    console.log(TAG_QUICKTVUI,'notifyReload called')
     this.listeners.forEach(listener => {
       listener.onDataReloaded();
     })

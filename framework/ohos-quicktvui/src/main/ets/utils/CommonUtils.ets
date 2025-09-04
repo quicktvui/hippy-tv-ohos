@@ -1,5 +1,5 @@
 import {HippyMap,HippyAny} from 'hippy'
-import { QUICKTVUI_TAG } from '../Constant'
+import { TAG_QUICKTVUI } from '../Constant'
 
 interface MapEntry {
   key: string;
@@ -29,13 +29,13 @@ export  class CommonUtils{
 
   static  printObject(obj: HippyAny | null, indent: string = ''): void {
       if(!obj){
-        console.warn(QUICKTVUI_TAG,`${indent}null`)
+        console.warn(TAG_QUICKTVUI,`${indent}null`)
         return
       }
     if(obj instanceof Map){
       printMapPretty(obj,indent,false)
     }else{
-      console.log(QUICKTVUI_TAG,`${indent}${JSON.stringify(obj)}`)
+      console.log(TAG_QUICKTVUI,`${indent}${JSON.stringify(obj)}`)
     }
   }
 
@@ -50,7 +50,7 @@ export  class CommonUtils{
 
 function mapToString(map : HippyMap | null){
   if(!map){
-    console.warn(QUICKTVUI_TAG,'mapToString error  map is null')
+    console.warn(TAG_QUICKTVUI,'mapToString error  map is null')
     return;
   }
 
@@ -87,7 +87,7 @@ function printMapPretty(
   isLast: boolean = true
 ): void {
   if(!map){
-    console.warn(QUICKTVUI_TAG,'printMapPretty error  map is null')
+    console.warn(TAG_QUICKTVUI,'printMapPretty error  map is null')
     return;
   }
   let entries: MapEntry[] = [];
@@ -111,11 +111,11 @@ function printMapPretty(
     let linePrefix = prefix + branch;
 
     if (entry.value instanceof Map) {
-      console.log(QUICKTVUI_TAG,linePrefix + entry.key);
+      console.log(TAG_QUICKTVUI,linePrefix + entry.key);
       let nextPrefix = prefix + (isLastEntry ? '   ' : '│  ');
       printMapPretty(entry.value as HippyMap, nextPrefix, true);
     } else {
-      console.log(QUICKTVUI_TAG,linePrefix + entry.key + ': ' + String(entry.value));
+      console.log(TAG_QUICKTVUI,linePrefix + entry.key + ': ' + String(entry.value));
     }
   }
 }

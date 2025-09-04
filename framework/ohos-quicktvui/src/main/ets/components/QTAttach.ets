@@ -2,6 +2,7 @@ import {HippyAny} from 'hippy'
 export class QTAttach{
   sid: string | null = null;
   name: string | null = null;
+  viewType:string | null = null;
   private extra: Map<string,HippyAny> | null = null;
 
   putExtra(key:string,value:HippyAny){

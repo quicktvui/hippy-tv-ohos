@@ -17,7 +17,7 @@ import { QTDivView } from './div/QTDivView';
 import { QTFastListView } from './fastlist/QTFastListView';
 import { QTFastFlexView } from './fastlist/QTFastFlexView';
 import { QTFastItemView } from './fastlist/QTFastItemView';
-import { QUICKTVUI_TAG } from '../Constant';
+import { TAG_QUICKTVUI } from '../Constant';
 import { QTTextView } from './text/QTTextView';
 import { QTFallback, QTFallbackView } from './compat/QTFallbackView';
 import { QTLoadingView } from './loading/QTLoadingView';

@@ -3,7 +3,7 @@
     "products": [
       {
         "name": "default",
-        "signingConfig": "default",
+        "signingConfig": "8Ro8SV66NFCfYl15YT5kkP7T3ow2AyhIf8xTQgVWzmc",
         "compatibleSdkVersion": 12,
         "compileSdkVersion": 15,
         "targetSdkVersion": 12,
@@ -25,20 +25,32 @@
         "name": "release"
       }
     ],
-//    "signingConfigs": [
-//      {
-//        "name": "default",
-//        "material": {
-//          "certpath": "/Users/liulipeng/.ohos/config/default_hippy-tv-ohos_mx1M6hA5WlGY7KlCETRH0_FtWp__3NvfIVu6V15lZZU=.cer",
-//          "keyAlias": "debugKey",
-//          "keyPassword": "0000001B559FB6F0C6DE73CB87AE9D6A357B44719AED403F0B9F16C52586605E497386F6CD5FC9321AAB99",
-//          "profile": "/Users/liulipeng/.ohos/config/default_hippy-tv-ohos_mx1M6hA5WlGY7KlCETRH0_FtWp__3NvfIVu6V15lZZU=.p7b",
-//          "signAlg": "SHA256withECDSA",
-//          "storeFile": "/Users/liulipeng/.ohos/config/default_hippy-tv-ohos_mx1M6hA5WlGY7KlCETRH0_FtWp__3NvfIVu6V15lZZU=.p12",
-//          "storePassword": "0000001B210276F67034FE2432902AA98A6B050731AD2F1E91B1760FA21AC5F458EF69A8D4DF769FFA460A"
-//        }
-//      }
-//    ]
+    "signingConfigs": [
+      {
+        "name": "default",
+        "material": {
+          "certpath": "/Users/zhaopeng/.ohos/config/openharmony/default_Hippy_V8v71S9I61LWOztBrt3VdW6_kOVY0nBzra6PYxSqleE=.cer",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001AAD745F359935EF41619FD8EC67E7F31FAD18C139E06A299656F986538DAD8AD28CCEB1D209C4",
+          "profile": "/Users/zhaopeng/.ohos/config/openharmony/default_Hippy_V8v71S9I61LWOztBrt3VdW6_kOVY0nBzra6PYxSqleE=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "/Users/zhaopeng/.ohos/config/openharmony/default_Hippy_V8v71S9I61LWOztBrt3VdW6_kOVY0nBzra6PYxSqleE=.p12",
+          "storePassword": "0000001ACFBECBAD4AC9AFEB89596B3345F66797195CE90B7927CEC7D3194E4F8F4CA9FC82F0A2DB37C7"
+        }
+      },
+      {
+        "name": "8Ro8SV66NFCfYl15YT5kkP7T3ow2AyhIf8xTQgVWzmc",
+        "material": {
+          "certpath": "/Users/zhaopeng/.ohos/config/openharmony/auto_ohos_8Ro8SV66NFCfYl15YT5kkP7T3ow2AyhIf8xTQgVWzmc_Hippy_com.extscreen.runtime.cer",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001BCFF0E67C54FE3446A576A4B438BF2F91C6EEFF90C1AD5904BFF9F1AA3A945D1459A19F6ACF7EE5",
+          "profile": "/Users/zhaopeng/.ohos/config/openharmony/auto_ohos_8Ro8SV66NFCfYl15YT5kkP7T3ow2AyhIf8xTQgVWzmc_Hippy_com.extscreen.runtime.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "/Users/zhaopeng/.ohos/config/openharmony/auto_ohos_8Ro8SV66NFCfYl15YT5kkP7T3ow2AyhIf8xTQgVWzmc_Hippy_com.extscreen.runtime.p12",
+          "storePassword": "0000001B022E7D955041400579E5EB5591AFDD29D7A1BC82B6B176B8E72E6F6D773D0A6E58083B9E44FB09"
+        }
+      }
+    ]
     //    "signingConfigs": [
     //      {
     //        "name": "default",

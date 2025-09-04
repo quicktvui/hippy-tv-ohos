@@ -11,6 +11,13 @@
 #include "oh_napi/data_holder.h"
 #include "dom/dom_manager.h"
 #include "renderer/native_render_manager.h"
+#include <hilog/log.h>
+#include "../include/utils.h"
+#undef LOG_TAG
+#define LOG_TAG "DebugNative"   // 你的自定义 tag
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD001100
+#include "footstone/logging.h"
 // napi_init.cpp
 // 实现代码...
 namespace quicktvui {
@@ -18,6 +25,10 @@ inline namespace layout {
 using namespace hippy;
 using namespace dom;
 using namespace  std;
+using namespace qt_util;
+using namespace footstone;
+
+constexpr unsigned int MY_DOMAIN = 0x12345;
 
   template<typename T>
   T GetArg(napi_env env, napi_value value);
@@ -188,7 +199,7 @@ bool GetArg<bool>(napi_env env, napi_value value) {
       FOOTSTONE_DLOG(WARNING) << "UpdateNodeSize render_manager_id invalid";
       return arkTs.GetUndefined();
     }
-  
+
     auto& root_map = RootNode::PersistentMap();
     std::shared_ptr<RootNode> root_node;
     ret = root_map.Find(root_id, root_node);
@@ -196,13 +207,13 @@ bool GetArg<bool>(napi_env env, napi_value value) {
       FOOTSTONE_DLOG(WARNING) << "UpdateNodeSize root_node is nullptr";
       return arkTs.GetUndefined();
     }
-    
+
     std::shared_ptr<DomManager> dom_manager = root_node->GetDomManager().lock();
     if (dom_manager == nullptr) {
       FOOTSTONE_DLOG(WARNING) << "UpdateNodeSize dom_manager is nullptr";
       return arkTs.GetUndefined();
     }
-  
+
     auto node = dom_manager->GetNode(root_node, node_id);
     if (node == nullptr) {
       FOOTSTONE_DLOG(WARNING) << "UpdateNodeSize DomNode not found for id: " << node_id;
@@ -215,10 +226,9 @@ bool GetArg<bool>(napi_env env, napi_value value) {
 
       std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>& style = node->GetStyleMap();
       std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& target_map = *style;
-
       layout_node->SetLayoutStyles(target_map, {});
-//       uint32_t target_id = static_cast<uint32_t>(arkTs.GetInteger(args[1]));
-//      dom_manager_object->GetNode(const std::weak_ptr<RootNode> &weak_root_node, uint32_t id)
+//      qt_util::PrintAllMapEntries(target_map, "quicktvui");
+      return nullptr;
   }
 
   napi_value LayoutNapi::SetPositionNapi(napi_env env, napi_callback_info info) {
@@ -231,6 +241,7 @@ bool GetArg<bool>(napi_env env, napi_value value) {
       napi_get_value_int32(env, args[0], &edge);
       float pos = GetArg<float>(env, args[1]);
       node->SetPosition(static_cast<Edge>(edge), pos);
+      node->MarkDirty();
       return nullptr;
   }
 
@@ -378,7 +389,6 @@ bool GetArg<bool>(napi_env env, napi_value value) {
             }
         }
     }
-    
     // 调用原生方法
     node->SetLayoutStyles(styleUpdate, styleDelete);
     

@@ -36,6 +36,7 @@ add_library(quicktvui SHARED
   quicktvui/src/napi_init.cpp
   quicktvui/src/my_object.cpp
   quicktvui/src/dom_layout.cpp
+  quicktvui/src/util.cpp
 )
 
 
@@ -57,4 +58,5 @@ target_link_libraries(quicktvui
     PUBLIC
         libace_napi.z.so  # libace_napi
         hippy             # libhippy
+        libhilog_ndk.z.so
 )

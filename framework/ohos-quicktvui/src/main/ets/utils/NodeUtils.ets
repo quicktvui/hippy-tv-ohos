@@ -2,7 +2,7 @@
 
 import {NativeRenderContext,HippyRenderBaseView} from 'hippy'
 import { QTBaseComponentView } from '../components/QTBaseComponentView';
-import { QUICKTVUI_TAG } from '../Constant';
+import { TAG_QUICKTVUI } from '../Constant';
 
 export class NodeUtils{
   static getNodeById(ctx : NativeRenderContext,tag : number){
@@ -28,7 +28,7 @@ export class NodeUtils{
     templateTag = node.templateView.tag
   }
 
-  console.log(QUICKTVUI_TAG,`${linePrefix}${node.viewType}: ${node.tag} ,template:${templateTag} (${children.length} children)`);
+  console.log(TAG_QUICKTVUI,`${linePrefix}${node.viewType}: ${node.tag} ,template:${templateTag} (${children.length} children)`);
 
   const nextPrefix = prefix + (isLast ? '   ' : '│  ');
   children.forEach((child, index) =>

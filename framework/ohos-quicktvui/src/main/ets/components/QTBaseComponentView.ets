@@ -8,7 +8,7 @@ import {
   HippyArray,
   HippyMap
 } from 'hippy'
-import { QUICKTVUI_TAG } from '../Constant';
+import { TAG_QUICKTVUI } from '../Constant';
 import { HRValueUtils } from '../HRValueUtils';
 import { CommonUtils } from '../utils/CommonUtils';
 
@@ -31,21 +31,18 @@ export class QTBaseComponentView extends HippyCustomComponentView {
   }
 
   setProp(propKey: string, propValue: HippyAny): boolean {
-    console.info(QUICKTVUI_TAG,`QTRenderBaseView setProp:${propKey},propValue:${propValue}`)
-    if(propKey === 'attributes'){
-      console.error(QUICKTVUI_TAG,`QTRenderBaseView attributes:${propKey},propValue:${CommonUtils.hippyAny2String(propValue)}`)
-    }
+    // console.info(TAG_QUICKTVUI,`QTRenderBaseView setProp:${propKey},propValue:${propValue}`)
     switch (propKey){
       case 'sid':
         this.sid = HRValueUtils.getString(propValue)
         if(this.sid){
-          console.log(QUICKTVUI_TAG,`setSid:${this.sid},viewType:${this.viewType},tag:${this.tag}`)
+          console.log(TAG_QUICKTVUI,`setSid:${this.sid},viewType:${this.viewType},tag:${this.tag}`)
         }
         return true;
       case 'name':
         this.name = HRValueUtils.getString(propValue)
         if(this.name){
-          console.log(QUICKTVUI_TAG,`setName:${this.name},viewType:${this.viewType},tag:${this.tag}`)
+          console.log(TAG_QUICKTVUI,`setName:${this.name},viewType:${this.viewType},tag:${this.tag}`)
         }
         return true;
       case "clipChildren":
@@ -74,7 +71,7 @@ export class QTBaseComponentView extends HippyCustomComponentView {
 
   setFlexStyle(style : HippyMap | null){
     style?.forEach((value,key)=>{
-      console.log(QUICKTVUI_TAG,`setFlexStyle key:${key},value:${value} type:${typeof value}`)
+      console.log(TAG_QUICKTVUI,`setFlexStyle key:${key},value:${value} type:${typeof value}`)
       let numberValue = HRValueUtils.getNumber(value)
       this.setProp(key,value)
       // switch (key) {

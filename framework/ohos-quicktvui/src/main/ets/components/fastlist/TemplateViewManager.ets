@@ -1,6 +1,5 @@
 import { IllegalStateException } from '@ohos/zxing';
 import {HippyRenderBaseView,HippyMap,HippyAny,NativeRenderContext,HRRect} from 'hippy'
-import { QUICKTVUI_TAG } from '../../Constant';
 import { HRValueUtils } from '../../HRValueUtils';
 import {createRenderViewFromCreator} from '../../polifill/QTViewManager'
 import { NodeUtils } from '../../utils/NodeUtils';
@@ -50,20 +49,38 @@ export function buildRenderView(template:HippyRenderBaseView | null, templatePro
   return gatherToUpdateMap(rv,templateProps,itemData,style)
 }
 
+export function applyLayoutTraverse(renderView:HippyRenderBaseView | null){
+  if(renderView == null){
+    return;
+  }
+  applyLayout(renderView);
+  if(renderView.children){
+    renderView.children.map((child)=>{
+      applyLayoutTraverse(child)
+    })
+  }
+}
 
+export function  applyLayout(renderView:HippyRenderBaseView){
+  let attach = LayoutAttach.obtainLayoutAttach(renderView);
+  let layout : HRRect= new HRRect(attach.getLeft(),attach.getTop(),attach.getWidth(),attach.getHeight());
+  // console.info(TAG_LAYOUT,`applyLayout:type:${attach.viewType},name:${attach.name},layout:[${layout.x},${layout.y},${layout.width},${layout.height}]`)
+  QTPixelUtil.setScaledRenderViewFrame(renderView,layout,null)
+}
 function applyInit(renderView : HippyRenderBaseView,template: HippyRenderBaseView,templateProps:HippyMap,childIndex:number) : HippyRenderBaseView{
   const attach  = new LayoutAttach();
   renderView.attachedInfo = attach;
+  attach.copyStyleNode(template.ctx.getInstanceId(),template.ctx.getRootId(),template.tag)
   renderView.viewType = template.viewType
+  attach.viewType = renderView.viewType;
   renderView.tag = childIndex
   applyBasicStyle(renderView,templateProps)
-  console.log(QUICKTVUI_TAG,`applyInit viewType:${template.viewType},size:{${template.cssWidth},${template.cssHeight}} name:${LayoutAttach.obtainLayoutAttach(renderView).name}`)
+  // console.log(TAG_QUICKTVUI,`applyInit viewType:${template.viewType},size:{${template.cssWidth},${template.cssHeight}} name:${LayoutAttach.obtainLayoutAttach(renderView).name}`)
   if(renderView instanceof QTBaseComponentView){
     renderView.isVirtual = true;
     renderView.templateView = template;
     renderView.onCreateByTemplate(template)
   }
-
   // CommonUtils.printObject(templateProps,'applyBasicStyle')
   return renderView
 }
@@ -111,7 +128,6 @@ export function buildRenderViewTraverse(ctx:NativeRenderContext | null, template
     if(!childNode){
       throw new IllegalStateException(`child node is null tag :${child.tag},viewType:${child.viewType}`)
     }
-
     buildRenderViewTraverse(ctx,child,childNode!!.props!!,itemData,patch!!.renderView,index,updates)
   })
   return patch.renderView
@@ -131,9 +147,7 @@ export function gatherToUpdateMap(rendView:HippyRenderBaseView ,templateProps:Hi
           let dataFromValue = TemplateCodeParser.getValueFromCode(itemData,pendingProp)
           // console.info(QUICKTVUI_TAG,`++put pendingProp key:${key},dataFromValue:${dataFromValue},pendingProp:${pendingProp} ,value:${value},data:${CommonUtils.hippyAny2String(dataFromValue)}`)
           //从${xx}取出dataFromValue数据
-          if(updateLayoutStyle(key,dataFromValue,patch)){
-
-          }else{
+          if(!updateLayoutStyle(key,dataFromValue,patch)){
             toUpdate.set(key,dataFromValue)
           }
         }else{
@@ -171,7 +185,7 @@ function updateLayoutStyle(key:String,value:HippyAny,p:PathUpdate) : boolean{
       return true;
     case 'style':
     case 'flexStyle':
-      console.log(QUICKTVUI_TAG,`updateLayoutStyle key:${key},value:${value},viewType:${p.renderView.viewType}`)
+      // console.log(TAG_LAYOUT,`updateLayoutStyle key:${key},value:${CommonUtils.hippyAny2String(value)},viewType:${p.renderView.viewType}`)
       let style = HRValueUtils.getMap(value)
       // if(style){
       //   style.forEach((value,key)=>{
@@ -191,9 +205,11 @@ function updateLayoutStyle(key:String,value:HippyAny,p:PathUpdate) : boolean{
       // }else{
       //   console.warn(QUICKTVUI_TAG,`setLayout error array:${array},value:${value},viewType:${p.renderView.viewType}`)
       // }
-      LayoutAttach.obtainLayoutAttach(p.renderView).setPosition(QTPixelUtil.vp2Vp(array[0]),QTPixelUtil.vp2Vp(array[1]))
-      LayoutAttach.obtainLayoutAttach(p.renderView).setWidth(QTPixelUtil.vp2Vp(array[2]))
-      LayoutAttach.obtainLayoutAttach(p.renderView).setHeight(QTPixelUtil.vp2Vp(array[3]))
+      if(array && array.length == 4 && LayoutAttach.obtainLayoutAttach(p.renderView)){
+        LayoutAttach.obtainLayoutAttach(p.renderView).setPosition(QTPixelUtil.vp2Vp(array[0]),QTPixelUtil.vp2Vp(array[1]))
+        LayoutAttach.obtainLayoutAttach(p.renderView).setWidth(QTPixelUtil.vp2Vp(array[2]))
+        LayoutAttach.obtainLayoutAttach(p.renderView).setHeight(QTPixelUtil.vp2Vp(array[3]))
+      }
       return true;
     case 'size':
       let size = value as number[]

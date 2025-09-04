@@ -1,6 +1,6 @@
 import { QTFastListView } from "./QTFastListView"
 import {HippyObservedArray,HRDiv,HIPPY_COMPONENT_KEY_PREFIX,HippyRenderBaseView,buildHippyRenderView,HippyMap,HippyEndBatchCallback} from 'hippy'
-import { QUICKTVUI_TAG } from "../../Constant";
+import { TAG_QUICKTVUI } from "../../Constant";
 import { FastListDataSource } from "./FastListDataSource";
 import { ItemView, renderItem } from "./ItemView";
 import { NodeUtils } from "../../utils/NodeUtils";
@@ -12,7 +12,7 @@ export struct  QTFastList {
 
   test : boolean = false
   dataSource: FastListDataSource | null = null;
-  @State bgColor : Color = Color.Yellow
+  @State bgColor : Color = Color.Transparent
   private endBatchCallback: HippyEndBatchCallback | null = null
 
 
@@ -41,11 +41,11 @@ export struct  QTFastList {
   }
 
   public handleOnChildrenUpdated() {
-    this.bgColor = Color.Green
-    console.log(QUICKTVUI_TAG,`QTFastList: handleOnChildrenUpdated children:${this.children.length}`)
+    // this.bgColor = Color.Pink
+    console.log(TAG_QUICKTVUI,`QTFastList: handleOnChildrenUpdated children:${this.children.length}`)
     NodeUtils.printViewTreePretty(this.renderView,'',false)
     if(this.renderView.isVirtual){
-      console.error(QUICKTVUI_TAG,`handleOnChildrenUpdated registerTemplate for virtual FastList`)
+      console.error(TAG_QUICKTVUI,`handleOnChildrenUpdated registerTemplate for virtual FastList`)
       this.renderView.templateView?.children.map((c,index)=>{
         this.dataSource?.registerTemplate(this.renderView,c,index,true)
       })
@@ -60,7 +60,7 @@ export struct  QTFastList {
 
 
   aboutToAppear(): void {
-    console.log(QUICKTVUI_TAG,`FastList aboutToAppear childrenCount:${this.children.length}`)
+    console.log(TAG_QUICKTVUI,`FastList aboutToAppear childrenCount:${this.children.length}`)
     this.renderView.uiCtx = this.getUIContext()
     this.dataSource = new FastListDataSource(this.renderView.ctx,this.renderView.dataList)
     this.renderView.ui  = this

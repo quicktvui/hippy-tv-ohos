@@ -1,5 +1,5 @@
 import {PixelUtil,HRRect,HippyRenderBaseView,HRPadding,HippyAny,HippyMap} from 'hippy'
-import { QUICKTVUI_TAG } from '../Constant';
+import { TAG_QUICKTVUI } from '../Constant';
 import {display} from '@kit.ArkUI'
 import { HRValueUtils } from '../HRValueUtils';
 
@@ -9,9 +9,10 @@ export class QTPixelUtil{
 
   public static dev2Vp(value: number) : number{
     let screenWidthDP = PixelUtil.px2dp(display.getDefaultDisplaySync().width)
-    let scalePx = screenWidthDP / QTPixelUtil.DEV_WIDTH
+    let scalePx = 2560 / QTPixelUtil.DEV_WIDTH
     // console.log(QUICKTVUI_TAG,`dp2px getDensityScale :${PixelUtil.getDensityScale()},getDensity:${PixelUtil.getDensity()},scalePx:${scalePx}`)
-    return (value * 2.25) / PixelUtil.getDensityScale();
+    //Fixme 这里暂未实现适配
+    return (value ) ;
   }
 
   public static vp2Vp(value: number): number{

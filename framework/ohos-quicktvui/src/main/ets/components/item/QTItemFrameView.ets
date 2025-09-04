@@ -3,12 +3,13 @@ import {
   HippyObservedArray,
   NativeRenderContext,
   HippyAny,
+  buildHippyRenderView,
   HIPPY_COMPONENT_KEY_PREFIX,
 } from 'hippy'
-import { QTBaseComponentView } from '../QTBaseComponentView';
+import { QTDivView } from '../../../../../Index';
 
 @Observed
-export class QTItemFrameView extends QTBaseComponentView {
+export class QTItemFrameView extends QTDivView {
 
   constructor(ctx: NativeRenderContext) {
     super(ctx)
@@ -33,9 +34,13 @@ export struct QTItemFrame {
   }
 
   build() {
-    Stack()
+      Stack() {
+        ForEach(this.children, (item: HippyRenderBaseView) => {
+          buildHippyRenderView(item, null)
+        }, (item: HippyRenderBaseView) => item.tag + '')
+      }
       .applyRenderViewBaseAttr(this.renderView)
-  }
+    }
 }
 
 @Extend(Stack)

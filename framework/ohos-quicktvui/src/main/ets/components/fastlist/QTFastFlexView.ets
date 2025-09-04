@@ -9,7 +9,7 @@ import {
   HippyEndBatchCallback,
   HippyRenderBaseView
 } from 'hippy'
-import { QUICKTVUI_TAG } from '../../Constant';
+import { TAG_QUICKTVUI } from '../../Constant';
 import { HRValueUtils } from '../../HRValueUtils';
 import { CommonUtils } from '../../utils/CommonUtils';
 import { NodeUtils } from '../../utils/NodeUtils';
@@ -30,19 +30,19 @@ export class QTFastFlexView extends QTRenderBaseView {
 
 
   onChildInserted(childTag: number, childViewName: string, childIndex: number): void {
-    console.error(QUICKTVUI_TAG,`QTFastFlexView onChildInserted tag :${childTag},childViewName:${childViewName},childIndex:${childIndex}`)
+    console.error(TAG_QUICKTVUI,`QTFastFlexView onChildInserted tag :${childTag},childViewName:${childViewName},childIndex:${childIndex}`)
   }
 
   aboutToUpdate(): void {
     let children = this.templateView?.children
-    console.error(QUICKTVUI_TAG,`QTFastFlexView aboutToUpdate!! children size:${children?.length}`)
+    console.error(TAG_QUICKTVUI,`QTFastFlexView aboutToUpdate!! children size:${children?.length}`)
     NodeUtils.printViewTreePretty(this,'',false)
     children?.map((c,index)=>{
       if(c.tag != -1){
-        console.log(QUICKTVUI_TAG,`QTFastFlexView template: viewType：`+c.viewType+",node:"+NodeUtils.getNodeById(this.ctx,c.tag))
+        console.log(TAG_QUICKTVUI,`QTFastFlexView template: viewType：`+c.viewType+",node:"+NodeUtils.getNodeById(this.ctx,c.tag))
         this.dataSource?.registerTemplate(this.templateView!!,c,index,this.isVirtual)
       }else{
-        console.error(QUICKTVUI_TAG,`QTFastFlexView registerTemplate error child id is -1`)
+        console.error(TAG_QUICKTVUI,`QTFastFlexView registerTemplate error child id is -1`)
       }
 
     })
@@ -70,21 +70,21 @@ export class QTFastFlexView extends QTRenderBaseView {
   setProp(propKey: string, propValue: HippyAny): boolean {
     switch (propKey) {
       case "cachePool":
-        console.log(QUICKTVUI_TAG,`FastFlex:setCachePool :${propValue}`)
+        console.log(TAG_QUICKTVUI,`FastFlex:setCachePool :${propValue}`)
         return true;
       case "firstFocusChild":
-        console.log(QUICKTVUI_TAG,`FastFlex:firstFocusChild :${propValue}`)
+        console.log(TAG_QUICKTVUI,`FastFlex:firstFocusChild :${propValue}`)
         return true;
       case "list":
         if(propValue instanceof Array){
-          console.log(QUICKTVUI_TAG,`FastFlex:setListData:${HRValueUtils.getArray(propValue)}`)
+          console.log(TAG_QUICKTVUI,`FastFlex:setListData:${HRValueUtils.getArray(propValue)}`)
           this.onDataChanged(HRValueUtils.getArray(propValue))
         }else{
-          console.error(QUICKTVUI_TAG,`FastFlex:setListData error list is not array propValue:${propValue}`)
+          console.error(TAG_QUICKTVUI,`FastFlex:setListData error list is not array propValue:${propValue}`)
         }
         return true;
       case "sharedItemStore":
-        console.log(QUICKTVUI_TAG,`FastFlex:sharedItemStore :${propValue}`)
+        console.log(TAG_QUICKTVUI,`FastFlex:sharedItemStore :${propValue}`)
         return true;
 
     }
@@ -116,10 +116,10 @@ export class QTFastFlexView extends QTRenderBaseView {
       case "useLayoutAnimation":
       case "useDiff":
       case "keyName":
-        console.error(QUICKTVUI_TAG,`QTFastFlexView : 未实现propKey : ${propKey}`)
+        console.error(TAG_QUICKTVUI,`QTFastFlexView : 未实现propKey : ${propKey}`)
         return true;
       default:
-        console.warn(QUICKTVUI_TAG,`QTFastFlexView : 未知的未实现propKey : ${propKey}`)
+        console.warn(TAG_QUICKTVUI,`QTFastFlexView : 未知的未实现propKey : ${propKey}`)
         break;
     }
     return super.setProp(propKey, propValue)
@@ -148,7 +148,7 @@ export class QTFastFlexView extends QTRenderBaseView {
       case 'setCustomStateEnableOnFocus':
       case 'setItemCustomState':
       case 'scheduleLayoutAnimation':
-        console.error(QUICKTVUI_TAG,`QTFastFlexView : 未实现的function : ${method}`)
+        console.error(TAG_QUICKTVUI,`QTFastFlexView : 未实现的function : ${method}`)
         return;
     }
 
@@ -167,7 +167,7 @@ export struct QTFastFlex {
   private endBatchCallback: HippyEndBatchCallback | null = null
 
   private handleOnChildrenUpdated() {
-    console.log(QUICKTVUI_TAG,`QTFastFlexView: handleOnChildrenUpdated children:${this.children.length}`)
+    console.log(TAG_QUICKTVUI,`QTFastFlexView: handleOnChildrenUpdated children:${this.children.length}`)
 
   }
 
@@ -187,7 +187,7 @@ export struct QTFastFlex {
 
 
   aboutToAppear(): void {
-    console.error(QUICKTVUI_TAG,`QTFastFlex aboutToAppear`)
+    console.error(TAG_QUICKTVUI,`QTFastFlex aboutToAppear`)
     // this.endBatchCallback = () =>{
     // }
     // this.renderView.ctx.getNativeRender().addEndBatchCallback(this.renderView.ctx.getRootId(),this.endBatchCallback)

@@ -1,6 +1,6 @@
 
 import {HippyObservedArray,NativeRenderContext,HippyAny,HippyRenderCallback,HippyArray,HippyMap} from 'hippy'
-import { QUICKTVUI_TAG } from '../../Constant';
+import { TAG_QUICKTVUI } from '../../Constant';
 import { HRValueUtils } from '../../HRValueUtils';
 import { CommonUtils } from '../../utils/CommonUtils';
 
@@ -23,7 +23,7 @@ export class QTFastListView extends QTRenderBaseView{
 
 
   setProp(propKey: string, propValue: HippyAny): boolean {
-    console.log(QUICKTVUI_TAG,`FastList:propKey:${propKey},value:${propValue}`)
+    console.log(TAG_QUICKTVUI,`FastList:propKey:${propKey},value:${propValue}`)
     // if(propKey === 'attributes'){
     //   CommonUtils.printObject(propValue,'FastList setAttributes')
     // }
@@ -171,7 +171,7 @@ export class QTFastListView extends QTRenderBaseView{
         return true;
       case "horizontal":
         this.isHorizontal  = HRValueUtils.getBoolean(propValue,true)
-        console.error(QUICKTVUI_TAG,`FastList set Horizontal:${this.isHorizontal}`)
+        console.error(TAG_QUICKTVUI,`FastList set Horizontal:${this.isHorizontal}`)
         return true;
 
     }
@@ -201,7 +201,7 @@ export class QTFastListView extends QTRenderBaseView{
       case "autoscrollInfiniteMode":
       case "autoSelectPosition":
       case "useLayoutAnimation":
-        console.error(QUICKTVUI_TAG,`QTFastListView : 未实现propKey : ${propKey}`)
+        console.error(TAG_QUICKTVUI,`QTFastListView : 未实现propKey : ${propKey}`)
         return true;
       // default :
       //   console.warn(QUICKTVUI_TAG,`QTFastListView : 未知的未实现propKey : ${propKey}`)
@@ -216,7 +216,7 @@ export class QTFastListView extends QTRenderBaseView{
     if(data && data.length > 0){
       this.dataList.push(...
         data?.map((item,index)=>{
-          console.log(QUICKTVUI_TAG,`onDataChanged crate item :`)
+          console.log(TAG_QUICKTVUI,`onDataChanged crate item :`)
           CommonUtils.printMapPretty(item as HippyMap,'FastListView:',false)
           return new ItemView(index,item as HippyMap)
         })
@@ -236,7 +236,7 @@ export class QTFastListView extends QTRenderBaseView{
   }
 
   call(method: string, params: Array<HippyAny>, callback: HippyRenderCallback | null): void {
-    console.log(QUICKTVUI_TAG,`QTFastListView call function : ${method},params:${params}`)
+    console.log(TAG_QUICKTVUI,`QTFastListView call function : ${method},params:${params}`)
     this.uiCtx?.runScopedTask(() => {
       switch (method){
         case 'scrollToPositionWithOffsetInfiniteMode':
@@ -261,7 +261,7 @@ export class QTFastListView extends QTRenderBaseView{
         case 'scheduleLayoutAnimation':
         case "useDiff":
         case "keyName":
-          console.error(QUICKTVUI_TAG,`QTFastListView : 未实现的function : ${method}`)
+          console.error(TAG_QUICKTVUI,`QTFastListView : 未实现的function : ${method}`)
           return;
       }
 
@@ -300,11 +300,11 @@ export class QTFastListView extends QTRenderBaseView{
 
           break;
         case 'setListDataWithParams':
-          console.info(QUICKTVUI_TAG,`setListDataWithParams data:${HRValueUtils.getArray(params)}`)
+          console.info(TAG_QUICKTVUI,`setListDataWithParams data:${HRValueUtils.getArray(params)}`)
 
           break;
         case 'setListData':
-          console.info(QUICKTVUI_TAG,`setListData data:${HRValueUtils.getArray(params)}`)
+          console.info(TAG_QUICKTVUI,`setListData data:${HRValueUtils.getArray(params)}`)
           let data = HRValueUtils.getArray(params)
           this.onDataChanged(data)
           break;
