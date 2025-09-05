@@ -145,7 +145,7 @@ export class ESBroadcastModule extends BaseModule {
         LogUtils.i('ESBroadcastModule', 'Succeeded in creating subscriber.');
         subscriber = data;
         // 订阅公共事件回调
-        if (subscriber !== null) {
+        if (subscriber) {
           //cache
           this.subscriberList.set(id, subscriber)
           commonEventManager.subscribe(subscriber,
@@ -179,7 +179,7 @@ export class ESBroadcastModule extends BaseModule {
    */
   unregisterReceiver(id: number): number {
     const subscriber = this.subscriberList.get(id)
-    if (subscriber !== null) {
+    if (subscriber) {
       commonEventManager.unsubscribe(subscriber, (err: BusinessError) => {
         if (err) {
           LogUtils.e('ESBroadcastModule',
