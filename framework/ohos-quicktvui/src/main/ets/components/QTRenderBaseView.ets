@@ -1,5 +1,5 @@
 import {HippyRenderBaseView,NativeRenderContext,HippyAny,HippyRenderCallback,HippyCustomComponentView} from 'hippy'
-import { TAG_QUICKTVUI } from '../Constant'
+import {  TAG_QUICKTVUI } from '../Constant'
 import { QTBaseComponentView } from './QTBaseComponentView';
 
 type InsertListener = (childTag: number, childViewName: string, childIndex: number)=>void;
@@ -42,7 +42,12 @@ export default abstract class QTRenderBaseView extends  QTBaseComponentView{
   }
 
 
+  notifyChildSizeChanged(child:HippyRenderBaseView,changedView:HippyRenderBaseView,width: number, height: number){
 
+    if(this.parentView instanceof QTRenderBaseView){
+      this.parentView.notifyChildSizeChanged(this,changedView,width,height)
+    }
+  }
 
 
   // 注册监听器

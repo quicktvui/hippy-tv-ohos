@@ -29,6 +29,24 @@ export class QTPixelUtil{
     }
   }
 
+  public static setScaledRenderViewSize(view : HippyRenderBaseView | null, size : number[] ){
+    if(view){
+      view.setRenderViewFrame(QTPixelUtil.devRect2Vp(new HRRect(view.cssPositionX,view.cssPositionY,size[0],size[1])),null)
+    }
+  }
+
+  public static setScaledRenderViewLayout(view : HippyRenderBaseView | null, layout : number[] ){
+    if(view){
+      view.setRenderViewFrame(QTPixelUtil.devRect2Vp(new HRRect(layout[0],layout[1],layout[2],layout[3])),null)
+    }
+  }
+
+  public static setScaledRenderPadding(view : HippyRenderBaseView | null, padding : number[] ){
+    if(view){
+      view.setRenderViewFrame(new HRRect(view.cssPositionX,view.cssPositionY,view.cssWidth,view.cssHeight),new HRPadding(padding[0],padding[1],padding[2],padding[3]))
+    }
+  }
+
   public static getDimensionValue(value : HippyAny) : number{
     // return QTPixelUtil.dev2Vp(HRValueUtils.getNumber(value))
     return HRValueUtils.getNumber(value)

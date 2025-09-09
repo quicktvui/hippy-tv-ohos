@@ -36,6 +36,8 @@ private:
   static napi_value GetWidthNapi(napi_env env, napi_callback_info info);
   static napi_value GetHeightNapi(napi_env env, napi_callback_info info);
   static napi_value GetLeftNapi(napi_env env, napi_callback_info info);
+  static napi_value GetPaddingNapi(napi_env env, napi_callback_info info);
+  static napi_value GetMarginNapi(napi_env env, napi_callback_info info);
   static napi_value GetTopNapi(napi_env env, napi_callback_info info);
   static napi_value GetRightNapi(napi_env env, napi_callback_info info);
   static napi_value GetBottomNapi(napi_env env, napi_callback_info info);

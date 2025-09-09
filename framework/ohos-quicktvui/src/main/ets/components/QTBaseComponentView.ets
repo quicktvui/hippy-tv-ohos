@@ -17,6 +17,7 @@ export class QTBaseComponentView extends HippyCustomComponentView {
   public templateView : HippyRenderBaseView | null = null;
   sid : String | null = null;
   name: String | null = null;
+  qtPadding: Padding = { top: 0, right: 0, bottom: 0, left: 0 }
   public isVirtual : boolean = false;
   constructor(ctx: NativeRenderContext) {
     super(ctx)

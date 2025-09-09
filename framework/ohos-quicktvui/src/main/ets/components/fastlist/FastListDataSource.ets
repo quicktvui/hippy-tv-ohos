@@ -113,8 +113,8 @@ export class FastListDataSource implements IDataSource {
       wi.tag = -1
       wi.isVirtual = true;
       wi.viewType = 'FastItemView'
-      let layout = new HRRect(0,0,renderView.cssWidth,renderView.cssHeight)
-      QTPixelUtil.setScaledRenderViewFrame(wi,layout,null)
+      // let layout = new HRRect(0,0,renderView.cssWidth,renderView.cssHeight)
+      // QTPixelUtil.setScaledRenderViewFrame(wi,layout,null)
       wi.addSubRenderView(renderView,0)
       LayoutAttach.obtainLayoutAttach(wi).insertChild(LayoutAttach.obtainLayoutAttach(renderView),0)
       return wi;
@@ -182,12 +182,18 @@ export class FastListDataSource implements IDataSource {
         })
         //在属性全部执行完以后，计算layout
         if(item.renderView && rv){
-          LayoutAttach.obtainLayoutAttach(item.renderView).calculateLayout(800,600)
-          applyLayoutTraverse(item.renderView)
-          //强制itemView的宽高与item内部一致
-          QTPixelUtil.setScaledRenderViewFrame(item.renderView,new HRRect(0,0,
-            LayoutAttach.obtainLayoutAttach(rv).getWidth(),
-            LayoutAttach.obtainLayoutAttach(rv).getHeight()),null)
+          if(item.renderView instanceof QTFastItemView){
+            item.renderView.layoutItem(rv)
+            console.error(TAG_LAYOUT,`setItem Width:${item.renderView.cssWidth},height:${item.renderView.cssHeight}`)
+          }else{
+            LayoutAttach.obtainLayoutAttach(item.renderView).calculateLayout(800,600)
+            applyLayoutTraverse(item.renderView)
+            //强制itemView的宽高与item内部一致
+            console.error(TAG_LAYOUT,`setItem Width:${LayoutAttach.obtainLayoutAttach(rv).getWidth()},height:${LayoutAttach.obtainLayoutAttach(rv).getHeight()}`)
+            QTPixelUtil.setScaledRenderViewFrame(item.renderView,new HRRect(0,0,
+              LayoutAttach.obtainLayoutAttach(rv).getWidth(),
+              LayoutAttach.obtainLayoutAttach(rv).getHeight()),null)
+          }
         }else{
           console.error(TAG_QUICKTVUI,`error on rv is null`)
         }

@@ -1,6 +1,6 @@
 import { QTFastListView } from "./QTFastListView"
 import {HippyObservedArray,HRDiv,HIPPY_COMPONENT_KEY_PREFIX,HippyRenderBaseView,buildHippyRenderView,HippyMap,HippyEndBatchCallback} from 'hippy'
-import { TAG_QUICKTVUI } from "../../Constant";
+import { TAG_LAYOUT, TAG_QUICKTVUI } from "../../Constant";
 import { FastListDataSource } from "./FastListDataSource";
 import { ItemView, renderItem } from "./ItemView";
 import { NodeUtils } from "../../utils/NodeUtils";
@@ -14,7 +14,23 @@ export struct  QTFastList {
   dataSource: FastListDataSource | null = null;
   @State bgColor : Color = Color.Transparent
   private endBatchCallback: HippyEndBatchCallback | null = null
+  @Consume('autoSize') @Watch('onAutoSizeChange') autoSize? : number[]
 
+  // 监听autoSize变化的回调函数
+  onAutoSizeChange(newValue: number[], oldValue: number[]) {
+    console.error(TAG_LAYOUT,'onAutoSizeChange notifyReload')
+    // let la = LayoutAttach.obtainLayoutAttach(this.renderView)
+    // if(la.isAutoWidth){
+    //   console.info(TAG_LAYOUT,`AutoWidth changed from ${oldValue} to [${newValue[0]},${newValue[1]}]`)
+    //   la.setWidth(newValue[0])
+    //   this.renderView.cssWidth = newValue[0]
+    // }
+    // if(la.isAutoHeight){
+    //   la.setWidth(newValue[1])
+    //   this.renderView.cssHeight = newValue[1]
+    // }
+    this.notifyReload()
+  }
 
   build(): void {
     Stack() {

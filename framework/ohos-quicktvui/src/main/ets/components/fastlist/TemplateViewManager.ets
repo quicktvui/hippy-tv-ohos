@@ -7,6 +7,8 @@ import { TemplateCodeParser } from './TemplateCodeParser'
 import { QTBaseComponentView } from '../QTBaseComponentView';
 import { LayoutAttach } from './LayoutAttach';
 import { QTPixelUtil } from '../../utils/QTPixelUtil';
+import { TAG_LAYOUT } from '../../Constant';
+import { CommonUtils } from '../../utils/CommonUtils';
 
 export class BuildResult{
   renderView : HippyRenderBaseView | null = null;
@@ -63,10 +65,11 @@ export function applyLayoutTraverse(renderView:HippyRenderBaseView | null){
 
 export function  applyLayout(renderView:HippyRenderBaseView){
   let attach = LayoutAttach.obtainLayoutAttach(renderView);
-  let layout : HRRect= new HRRect(attach.getLeft(),attach.getTop(),attach.getWidth(),attach.getHeight());
+  let layout : HRRect= new HRRect(attach.getLeft(),attach.getTop(),attach.fixedWidth > 0 ? attach.fixedWidth: attach.getWidth(),attach.fixedHeight > 0 ? attach.fixedHeight :  attach.getHeight());
   // console.info(TAG_LAYOUT,`applyLayout:type:${attach.viewType},name:${attach.name},layout:[${layout.x},${layout.y},${layout.width},${layout.height}]`)
   QTPixelUtil.setScaledRenderViewFrame(renderView,layout,null)
 }
+
 function applyInit(renderView : HippyRenderBaseView,template: HippyRenderBaseView,templateProps:HippyMap,childIndex:number) : HippyRenderBaseView{
   const attach  = new LayoutAttach();
   renderView.attachedInfo = attach;
@@ -147,14 +150,14 @@ export function gatherToUpdateMap(rendView:HippyRenderBaseView ,templateProps:Hi
           let dataFromValue = TemplateCodeParser.getValueFromCode(itemData,pendingProp)
           // console.info(QUICKTVUI_TAG,`++put pendingProp key:${key},dataFromValue:${dataFromValue},pendingProp:${pendingProp} ,value:${value},data:${CommonUtils.hippyAny2String(dataFromValue)}`)
           //从${xx}取出dataFromValue数据
-          if(!updateLayoutStyle(key,dataFromValue,patch)){
+          if(!handleCustomProps(key,dataFromValue,patch)){
             toUpdate.set(key,dataFromValue)
           }
         }else{
           // console.log(QUICKTVUI_TAG,`--gatherToUpdateMap discard key:${key},data:${CommonUtils.hippyAny2String(value)}`)
           // toUpdate.set(key,value)
           //原数据没有${xx}，直接按value处理
-          if(!updateLayoutStyle(key,value,patch)){
+          if(!handleCustomProps(key,value,patch)){
             toUpdate.set(key,value)
           }
         }
@@ -164,16 +167,16 @@ export function gatherToUpdateMap(rendView:HippyRenderBaseView ,templateProps:Hi
   return patch
 }
 
-function updateLayoutStyle(key:String,value:HippyAny,p:PathUpdate) : boolean{
+function handleCustomProps(key:String,value:HippyAny,p:PathUpdate) : boolean{
   switch (key){
     case 'width':
       // (p.renderView.attachedInfo as StyleAttach).style().setStyles()
       // p.layout[2] = HRValueUtils.getNumber(value);
-      LayoutAttach.obtainLayoutAttach(p.renderView).setWidth(QTPixelUtil.getDimensionValue(value))
+      LayoutAttach.obtainLayoutAttach(p.renderView).setFixedWidth(QTPixelUtil.getDimensionValue(value))
       return true;
     case 'height':
       //p.layout[3] = HRValueUtils.getNumber(value);
-      LayoutAttach.obtainLayoutAttach(p.renderView).setHeight(QTPixelUtil.getDimensionValue(value))
+      LayoutAttach.obtainLayoutAttach(p.renderView).setFixedHeight(QTPixelUtil.getDimensionValue(value))
       return true;
     case 'translation':
       let ts = value as number[]
@@ -189,7 +192,7 @@ function updateLayoutStyle(key:String,value:HippyAny,p:PathUpdate) : boolean{
       let style = HRValueUtils.getMap(value)
       // if(style){
       //   style.forEach((value,key)=>{
-      //     updateLayoutStyle(key,value,p)
+      //     console.log(TAG_LAYOUT,`handleCustomProps style key:${key},value:${CommonUtils.hippyAny2String(value)}`)
       //   })
       // }
       if(style){
@@ -207,8 +210,8 @@ function updateLayoutStyle(key:String,value:HippyAny,p:PathUpdate) : boolean{
       // }
       if(array && array.length == 4 && LayoutAttach.obtainLayoutAttach(p.renderView)){
         LayoutAttach.obtainLayoutAttach(p.renderView).setPosition(QTPixelUtil.vp2Vp(array[0]),QTPixelUtil.vp2Vp(array[1]))
-        LayoutAttach.obtainLayoutAttach(p.renderView).setWidth(QTPixelUtil.vp2Vp(array[2]))
-        LayoutAttach.obtainLayoutAttach(p.renderView).setHeight(QTPixelUtil.vp2Vp(array[3]))
+        LayoutAttach.obtainLayoutAttach(p.renderView).setFixedWidth(QTPixelUtil.vp2Vp(array[2]))
+        LayoutAttach.obtainLayoutAttach(p.renderView).setFixedHeight(QTPixelUtil.vp2Vp(array[3]))
       }
       return true;
     case 'size':
@@ -219,8 +222,21 @@ function updateLayoutStyle(key:String,value:HippyAny,p:PathUpdate) : boolean{
       // }else{
       //   console.warn(QUICKTVUI_TAG,`setSize error array:${size},value:${value},viewType:${p.renderView.viewType}`)
       // }
-      LayoutAttach.obtainLayoutAttach(p.renderView).setWidth(QTPixelUtil.vp2Vp(size[0]))
-      LayoutAttach.obtainLayoutAttach(p.renderView).setHeight(QTPixelUtil.vp2Vp(size[1]))
+      LayoutAttach.obtainLayoutAttach(p.renderView).setFixedWidth(QTPixelUtil.vp2Vp(size[0]))
+      LayoutAttach.obtainLayoutAttach(p.renderView).setFixedHeight(QTPixelUtil.vp2Vp(size[1]))
+      return true;
+    case 'autoWidth':
+      LayoutAttach.obtainLayoutAttach(p.renderView).isAutoWidth = true;
+      LayoutAttach.obtainLayoutAttach(p.renderView).setFixedWidth(-1)
+      return true;
+    case 'autoHeight':
+      LayoutAttach.obtainLayoutAttach(p.renderView).isAutoHeight = false;
+      LayoutAttach.obtainLayoutAttach(p.renderView).setFixedHeight(-1)
+      return true;
+    case 'eventClick':
+      return true;
+    case 'eventFocus':
+
       return true;
   }
   return false;

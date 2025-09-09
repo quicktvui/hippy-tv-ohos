@@ -245,6 +245,31 @@ bool GetArg<bool>(napi_env env, napi_value value) {
       return nullptr;
   }
 
+  napi_value LayoutNapi::GetPaddingNapi(napi_env env, napi_callback_info info) {
+        size_t argc = 1;
+        napi_value args[1], thisVar;
+        napi_get_cb_info(env, info, &argc, args, &thisVar, nullptr);
+        auto node =  LayoutNapi::UnwrapNode(env, thisVar)->node;
+        int32_t edge;
+        napi_get_value_int32(env, args[0], &edge);
+        float result = node->GetPadding(static_cast<Edge>(edge)); 
+        napi_value jsVal; 
+        napi_create_double(env, result, &jsVal); 
+        return jsVal;
+    }
+  napi_value LayoutNapi::GetMarginNapi(napi_env env, napi_callback_info info) {
+        size_t argc = 1;
+        napi_value args[1], thisVar;
+        napi_get_cb_info(env, info, &argc, args, &thisVar, nullptr);
+        auto node =  LayoutNapi::UnwrapNode(env, thisVar)->node;
+        int32_t edge;
+        napi_get_value_int32(env, args[0], &edge);
+        float result = node->GetMargin(static_cast<Edge>(edge)); 
+        napi_value jsVal; 
+        napi_create_double(env, result, &jsVal); 
+        return jsVal;
+    }
+
   DEFINE_LAYOUT_METHOD_BOOL(HasNewLayout)
   //DEFINE_LAYOUT_SETTER_BOOL(Set)
   DEFINE_LAYOUT_METHOD_BOOL(IsDirty)
@@ -407,6 +432,8 @@ napi_value LayoutNapi::Init(napi_env env, napi_value exports) {
         { "GetBottom", nullptr, GetBottomNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
         { "GetStyleWidth", nullptr, GetStyleWidthNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
         { "GetStyleHeight", nullptr, GetStyleHeightNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
+        { "GetPadding", nullptr, GetPaddingNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
+        { "GetMargin", nullptr, GetMarginNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
 
         { "SetWidth", nullptr, SetWidthNapi, nullptr, nullptr, nullptr, napi_default, nullptr },
         { "SetHeight", nullptr, SetHeightNapi, nullptr, nullptr, nullptr, napi_default, nullptr },

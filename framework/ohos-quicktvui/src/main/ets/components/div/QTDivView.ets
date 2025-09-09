@@ -18,7 +18,10 @@
  * limitations under the License.
  */
 import deviceInfo  from '@ohos.deviceInfo';
-import {HippyAny,buildHippyRenderView,NativeRenderContext,HippyRenderBaseView,HippyObservedArray,HIPPY_COMPONENT_KEY_PREFIX} from 'hippy'
+import {HippyAny,HippyArray,buildHippyRenderView,NativeRenderContext,HippyRenderBaseView,HippyObservedArray,HIPPY_COMPONENT_KEY_PREFIX} from 'hippy'
+import { TAG_LAYOUT } from '../../Constant';
+import { HRValueUtils } from '../../HRValueUtils';
+import { LayoutAttach } from '../fastlist/LayoutAttach';
 import QTRenderBaseView from '../QTRenderBaseView';
 
 
@@ -33,12 +36,36 @@ export class QTDivView extends QTRenderBaseView {
   setProp(propKey: string, propValue: HippyAny): boolean {
     return super.setProp(propKey, propValue)
   }
+
+  notifyChildSizeChanged(child:HippyRenderBaseView,changedView:HippyRenderBaseView,width: number, height: number){
+    let la = LayoutAttach.findLayoutAttach(this)
+    if(la){
+      // console.log(TAG_LAYOUT,`div notify sizechanged, padingLeft:${la.getPaddingLeft()},paddingRight:${la.getPaddingRight()}`)
+      if(la.isAutoWidth){
+        // console.log(TAG_LAYOUT,`notifyChildSizeChanged on isAutoWidth child type:${child.viewType},width:${width},height:${height}`)
+        la.setFixedWidth(width + la.getPaddingLeft() + la.getPaddingRight())
+      }
+      if(la.isAutoHeight){
+        la.setFixedHeight(height + la.getPaddingTop() + la.getPaddingBottom())
+      }
+    }
+    super.notifyChildSizeChanged(child,changedView,width,height)
+  }
 }
 
 @Component
 export struct QTDiv {
   @ObjectLink renderView: QTDivView
   @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
+  @Consume('autoSize') @Watch('onAutoSizeChange') autoSize? : number[]
+
+  // 监听autoSize变化的回调函数
+  onAutoSizeChange(newValue: number[], oldValue: number[]) {
+
+
+  }
+
+
 
   shouldAddGesture() {
     return deviceInfo.sdkApiVersion >= 11 && (

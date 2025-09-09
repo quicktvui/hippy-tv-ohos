@@ -1,18 +1,19 @@
 
-import {HippyRenderBaseView,HippyObservedArray,HRRect,HRPadding,NativeRenderContext,HippyAny,HippyRenderCallback,HIPPY_COMPONENT_KEY_PREFIX} from 'hippy'
-import { TAG_QUICKTVUI } from '../../Constant';
+import {HippyRenderBaseView,HippyObservedArray,HRRect,HRPadding,NativeRenderContext,HippyAny,HippyRenderCallback,HIPPY_COMPONENT_KEY_PREFIX,HippyArray} from 'hippy'
 import { HRValueUtils } from '../../HRValueUtils';
 import QTRenderBaseView from '../QTRenderBaseView';
 import { ViewUtils } from '../../utils/ViewUtils';
 import MeasureText from '@ohos.measure';
+import { LayoutAttach } from '../fastlist/LayoutAttach';
+import { QTPixelUtil } from '../../utils/QTPixelUtil';
 
 
 @Observed
 export class QTTextView extends QTRenderBaseView{
-  cssPadding: Padding = { top: 0, right: 0, bottom: 0, left: 0 }
+
   maxLines: number = 10000000
   lines: number = 1
-  text: string = "haha"
+  text: string = ""
   fontColor: ResourceColor | null = null
   fontSize: Dimension = 20
   lineHeight: number | null = null
@@ -50,6 +51,7 @@ export class QTTextView extends QTRenderBaseView{
 
         return true;
       case "gravity":
+      case "textAlign":
         // this. = HRValueUtils.getNumber(propValue)
         this.textAlign = ViewUtils.getTextGravity(HRValueUtils.getString(propValue))
         return true;
@@ -57,7 +59,8 @@ export class QTTextView extends QTRenderBaseView{
         this.fontSize = HRValueUtils.getNumber(propValue)
         return true;
       case "paddingRect":
-
+        let padding = propValue as HippyArray
+        this.qtPadding = { top: HRValueUtils.getNumber(padding[1]), right: HRValueUtils.getNumber(padding[2]), bottom: HRValueUtils.getNumber(padding[3]), left: HRValueUtils.getNumber(padding[0]) }
         return true;
       case "textAlignment":
 
@@ -75,7 +78,8 @@ export class QTTextView extends QTRenderBaseView{
         this.maxLines = HRValueUtils.getNumber(propValue)
         return true;
       case "textColor":
-        this.fontColor = HRValueUtils.getString(propValue)
+      case "color":
+        this.fontColor = HRValueUtils.getNumber(propValue)
         return true;
       case "lineHeight":
         this.lineHeight = HRValueUtils.getNumber(propValue)
@@ -141,7 +145,7 @@ export class QTTextView extends QTRenderBaseView{
 export struct  QTText {
   @ObjectLink renderView: QTTextView
   @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
-
+  @Consume('autoSize') autoSize?: number[]
 
   @State textSize: SizeOptions = MeasureText.measureTextSize({
     textContent: this.renderView.text,
@@ -153,6 +157,21 @@ export struct  QTText {
     Text(this.renderView.text)
       .width(this.renderView.cssWidth > 0 ? this.renderView.cssWidth : this.textSize.width)
       .height(this.renderView.cssHeight > 0 ? this.renderView.cssHeight :  this.textSize.height)
+      .padding(this.renderView.qtPadding)
+      .onAreaChange((oldValue: Area, newValue: Area) => {
+        if( newValue.width != oldValue.width || newValue.height != oldValue.height){
+          if(this.renderView.parentView instanceof QTRenderBaseView){
+            if(LayoutAttach.obtainLayoutAttach(this.renderView).isAutoWidth || LayoutAttach.obtainLayoutAttach(this.renderView).isAutoHeight){
+              if(LayoutAttach.obtainLayoutAttach(this.renderView).isAutoWidth){
+                 LayoutAttach.obtainLayoutAttach(this.renderView).setWidth(Number(newValue.width))
+              }else{
+                LayoutAttach.obtainLayoutAttach(this.renderView).setHeight(Number(newValue.height))
+              }
+              this.renderView.parentView.notifyChildSizeChanged(this.renderView,this.renderView,Number(newValue.width),Number(newValue.height))
+            }
+          }
+        }
+      })
       .applyRenderViewBaseAttr(this.renderView)
       .fontSize(this.renderView.fontSize)
       .fontColor(this.renderView.fontColor)

@@ -109,6 +109,8 @@ struct Debug {
   private rootViewWrapper: HippyRootViewWrapper = new HippyRootViewWrapper()
   @State isEngineInitialized: boolean = false
 
+  @Provide('autoSize')  autoSize? : number[] = []
+
   async aboutToAppear() {
     LogUtils.e(this.TAG, 'Lifecycle: aboutToAppear');
     this.initDebugServer()
