@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {HippyRenderBaseView,HippyObservedArray,NativeRenderContext,NativeRender,HRRect} from 'hippy'
+import {HippyObservedArray,NativeRenderContext,NativeRender,HRRect} from 'hippy'
 import { TAG_LAYOUT as TAG_LAYOUT, TAG_QUICKTVUI as TAG_QUICKTVUI } from '../../Constant';
 import {HippyMap,HippyArray,HippyAny} from 'hippy'
 import {ItemView,getItemType, ItemTemplate} from './ItemView'
@@ -29,6 +29,7 @@ import { QTBaseComponentView } from '../QTBaseComponentView';
 import { QTPixelUtil } from '../../utils/QTPixelUtil';
 import { LayoutAttach } from './LayoutAttach';
 import { CommonUtils } from '../../utils/CommonUtils';
+import { QTView } from '../../QTTypes';
 
 
 // class ItemEntry{
@@ -42,13 +43,14 @@ import { CommonUtils } from '../../utils/CommonUtils';
 
 export class FastListDataSource implements IDataSource {
   private listeners: DataChangeListener[] = [];
-  private templates: HippyObservedArray<HippyRenderBaseView> = [];
+  private templates: HippyObservedArray<QTView> = [];
   private dataList: HippyObservedArray<ItemView> = [];
 
   private ctx : NativeRenderContext;
   private templatesMap : Map<number,ItemTemplate> = new Map()
 
   public static  DEFAULT_TYPE : number = 1;
+  public rootListId :number = -1;
 
   constructor(ctx : NativeRenderContext,dataList:HippyObservedArray<ItemView>) {
     this.ctx = ctx;
@@ -57,14 +59,17 @@ export class FastListDataSource implements IDataSource {
     this.dataList = dataList;
   }
 
-  public setTemplates(templates : HippyObservedArray<HippyRenderBaseView>){
+  public setTemplates(templates : HippyObservedArray<QTView>){
     this.templates = templates;
     console.info(TAG_QUICKTVUI, `setTemplates total:${templates.length}`)
   }
 
-  public registerTemplate(parent:HippyRenderBaseView, child: HippyRenderBaseView,childIndex: number,isVirtual : boolean  = false){
-    let childTag =  child.tag
+  public itemIndexOfDataList(itemView:ItemView) : number{
+    return this.dataList.indexOf(itemView)
+  }
 
+  public registerTemplate(parent:QTView, child: QTView,childIndex: number,isVirtual : boolean  = false){
+    let childTag =  child.tag
     // if(isVirtual && child instanceof QTBaseComponentView){
     //   console.error(QUICKTVUI_TAG,`registerTemplat isVirtual template ,childTag:${child.templateView?.tag},viewName:${child.viewType}`)
     //   childTag = child.templateView!!.tag
@@ -105,11 +110,13 @@ export class FastListDataSource implements IDataSource {
 
 
 
-  wrappedItemIfNeed(renderView : HippyRenderBaseView) : HippyRenderBaseView{
+  wrappedItemIfNeed(renderView : QTView,item:ItemView) : QTView{
     if(renderView.viewType == 'FastItemView'){
+      (renderView as QTFastItemView).itemView = item;
       return renderView;
     }else{
       let wi = new QTFastItemView(this.ctx)
+      wi.itemView = item;
       wi.tag = -1
       wi.isVirtual = true;
       wi.viewType = 'FastItemView'
@@ -121,7 +128,7 @@ export class FastListDataSource implements IDataSource {
     }
   }
 
-  public buildItem(item: ItemView): ItemView{
+  public buildItem(item: ItemView,position:number): ItemView{
     let type = getItemType(item.raw)
     if(!type){
       type = FastListDataSource.DEFAULT_TYPE
@@ -139,13 +146,12 @@ export class FastListDataSource implements IDataSource {
       if(it){
         let  updates:Array<PathUpdate> = []
         //1. 遍历模板和数据，生成根布局
-        let rv = buildRenderViewTraverse(this.ctx,it.templateView,it.props,item.raw as HippyMap,null,0,updates)
-        let wrapped = this.wrappedItemIfNeed(rv!!);
+        let rv = buildRenderViewTraverse(this.rootListId,this.ctx,it.templateView,it.props,item.raw as HippyMap,null,0,updates)
+        let wrapped = this.wrappedItemIfNeed(rv!!,item);
 
         //2. 预先执行所有update
         updates?.map((p)=>{
           //更新尺寸
-
           // let layout = new HRRect(p.layout[0],p.layout[1],p.layout[2],p.layout[3]);
           // if(p.renderView === rv){
           //   //根view
@@ -233,7 +239,7 @@ export class FastListDataSource implements IDataSource {
 
   public getData(index: number): ItemView {
     let item = this.dataList[index]
-    this.buildItem(item)
+    this.buildItem(item,index)
     console.log(TAG_QUICKTVUI,`getData index:${index}`)
     if(item.renderView && item.renderView.cssWidth < 1 || item.renderView!!.cssHeight < 1){
       console.error(TAG_LAYOUT,`getData layout Error index:${index},type:${item.renderView?.viewType}`)

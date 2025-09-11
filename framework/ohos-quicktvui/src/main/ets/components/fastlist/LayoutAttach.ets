@@ -2,8 +2,8 @@ import { QTAttach } from '../QTAttach';
 import {HippyRenderBaseView,HippyAny} from 'hippy'
 import {QTNativeLayout} from 'libquicktvui.so'
 import { HRValueUtils } from '../../HRValueUtils';
-import { TAG_LAYOUT } from '../../Constant';
-import { CommonUtils } from '../../utils/CommonUtils';
+import { VirtualExtra } from './VirtualExtra';
+import { QTView } from '../../QTTypes';
 
 // constexpr static const char * PADDING_LEFT = "paddingLeft";
 // constexpr static const char * PADDING_RIGHT = "paddingRight";
@@ -19,6 +19,10 @@ export class LayoutAttach extends QTAttach{
   fixedHeight: number = -1;
   // fixedX : number = -1;
   // fixedY : number = -1;
+
+  //others
+  virtualExtra : VirtualExtra = new VirtualExtra();
+
   private style() : QTNativeLayout{
     if(!this.styleNode){
       this.styleNode = new QTNativeLayout();
@@ -157,7 +161,7 @@ export class LayoutAttach extends QTAttach{
     this.style().SetPosition(1,y)
   }
 
-  public static obtainLayoutAttach(renderView:HippyRenderBaseView) : LayoutAttach{
+  public static obtainLayoutAttach(renderView:QTView) : LayoutAttach{
     if(renderView.attachedInfo instanceof LayoutAttach){
       return renderView.attachedInfo as LayoutAttach
     }
@@ -165,7 +169,7 @@ export class LayoutAttach extends QTAttach{
     return renderView.attachedInfo as LayoutAttach
   }
 
-  public static findLayoutAttach(renderView:HippyRenderBaseView) : LayoutAttach | null{
+  public static findLayoutAttach(renderView:QTView) : LayoutAttach | null{
     if(renderView.attachedInfo instanceof LayoutAttach){
       return renderView.attachedInfo as LayoutAttach
     }

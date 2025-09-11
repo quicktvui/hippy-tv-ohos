@@ -10,11 +10,12 @@ import {
 } from 'hippy'
 import { TAG_QUICKTVUI } from '../Constant';
 import { HRValueUtils } from '../HRValueUtils';
+import { QTView } from '../QTTypes';
 import { CommonUtils } from '../utils/CommonUtils';
 
 export class QTBaseComponentView extends HippyCustomComponentView {
   childSlot: NodeContent | null = null
-  public templateView : HippyRenderBaseView | null = null;
+  public templateView : QTView | null = null;
   sid : String | null = null;
   name: String | null = null;
   qtPadding: Padding = { top: 0, right: 0, bottom: 0, left: 0 }
@@ -23,7 +24,7 @@ export class QTBaseComponentView extends HippyCustomComponentView {
     super(ctx)
   }
 
-  onCreateByTemplate(templateView : HippyRenderBaseView){
+  onCreateByTemplate(templateView : QTView){
 
   }
 

@@ -1,5 +1,6 @@
-import {HippyRenderBaseView,NativeRenderContext,HippyAny,HippyRenderCallback,HippyCustomComponentView} from 'hippy'
+import {NativeRenderContext,HippyAny,HippyRenderCallback,HippyCustomComponentView,HippyRenderBaseView} from 'hippy'
 import {  TAG_QUICKTVUI } from '../Constant'
+import { QTView } from '../QTTypes';
 import { QTBaseComponentView } from './QTBaseComponentView';
 
 type InsertListener = (childTag: number, childViewName: string, childIndex: number)=>void;
@@ -26,7 +27,7 @@ export default abstract class QTRenderBaseView extends  QTBaseComponentView{
   //   return new HRMeasureResult(0, 0)
   // }
 
-  addSubRenderView(subView: HippyRenderBaseView, index: number): void {
+  addSubRenderView(subView: QTView, index: number): void {
     super.addSubRenderView(subView,index)
   }
 
@@ -42,7 +43,7 @@ export default abstract class QTRenderBaseView extends  QTBaseComponentView{
   }
 
 
-  notifyChildSizeChanged(child:HippyRenderBaseView,changedView:HippyRenderBaseView,width: number, height: number){
+  notifyChildSizeChanged(child:QTView,changedView:QTView,width: number, height: number){
 
     if(this.parentView instanceof QTRenderBaseView){
       this.parentView.notifyChildSizeChanged(this,changedView,width,height)

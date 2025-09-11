@@ -103,5 +103,7 @@ export * from "./src/main/ets/renderer_native/node/HRVirtualNode"
 export * from "./src/main/ets/renderer_native/node/HRVirtualNodeManager"
 export * from "./src/main/ets/renderer_native/uimanager/HRViewManager"
 export * from "./src/main/ets/renderer_native/utils/HRTypes"
+export * from "./src/main/ets/renderer_native/utils/HREventUtils"
+
 
 

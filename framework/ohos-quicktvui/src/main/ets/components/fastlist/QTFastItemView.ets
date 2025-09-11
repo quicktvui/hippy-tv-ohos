@@ -1,27 +1,30 @@
 import {
-  HippyRenderBaseView,
   HippyObservedArray,
   NativeRenderContext,
+  HippyRenderBaseView,
   HippyAny,
   HIPPY_COMPONENT_KEY_PREFIX,
   HippyRenderCallback,
   buildHippyRenderView,
 } from 'hippy'
+import { QTView } from '../../QTTypes';
 import { QTPixelUtil } from '../../utils/QTPixelUtil';
-import { QTDiv, QTDivView } from '../div/QTDivView';
+import QTRenderBaseView from '../QTRenderBaseView';
+import { ItemView } from './ItemView';
 import { LayoutAttach } from './LayoutAttach';
 import { applyLayoutTraverse } from './TemplateViewManager';
 
 
 @Observed
-export class QTFastItemView extends QTDivView{
+export class QTFastItemView extends QTRenderBaseView{
 
+  itemView:ItemView |  null = null;
 
   constructor(ctx: NativeRenderContext) {
     super(ctx)
   }
 
-  notifyChildSizeChanged(child: HippyRenderBaseView, changedView: HippyRenderBaseView, width: number, height: number): void {
+  notifyChildSizeChanged(child: QTView, changedView: QTView, width: number, height: number): void {
     // console.info(TAG_LAYOUT,`notifyChildSizeChanged on FastItem,isVirtual${this.isVirtual} changeViewType:${changedView.viewType},width:${width},height:${height},child width:${LayoutAttach.obtainLayoutAttach(child).fixedWidth}`)
     //主里直接阻断向上，只处理一层
     //super.notifyChildSizeChanged
@@ -29,7 +32,7 @@ export class QTFastItemView extends QTDivView{
     //this.layoutItem(child.)
   }
 
-  layoutItem(childView:HippyRenderBaseView ){
+  layoutItem(childView:QTView ){
     if(this.parentView){
       LayoutAttach.obtainLayoutAttach(this).calculateLayout(this.parentView.cssWidth,this.parentView.cssHeight)
     }else{
@@ -96,13 +99,13 @@ export class QTFastItemView extends QTDivView{
 @Component
 export struct QTFastItem {
   @ObjectLink renderView: QTFastItemView
-  @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
+  @ObjectLink children: HippyObservedArray<QTView>
 
   build(): void {
     Stack() {
-      ForEach(this.children, (item: HippyRenderBaseView) => {
+      ForEach(this.children, (item: QTView) => {
         buildHippyRenderView(item, null)
-      }, (item: HippyRenderBaseView) => item.tag + '')
+      }, (item: QTView) => item.tag + '')
     }
     .applyRenderViewBaseAttr(this.renderView)
   }
@@ -113,14 +116,14 @@ export struct QTFastItem {
 }
 
 @Extend(Stack)
-function applyRenderViewBaseAttr($$: HippyRenderBaseView) {
+function applyRenderViewBaseAttr($$: QTView) {
   .key(HIPPY_COMPONENT_KEY_PREFIX + $$.tag)
   .backgroundColor($$.cssBackgroundColor)
   .position({x: $$.cssPositionX, y: $$.cssPositionY})
   .size({width:$$.cssWidth, height: $$.cssHeight})
   .opacity($$.cssOpacity)
   .clip($$.cssOverflow)
-  .visibility(($$ as HippyRenderBaseView).cssVisibility) // must add as, otherwise the compiler has error
+  .visibility(($$ as QTView).cssVisibility) // must add as, otherwise the compiler has error
   .zIndex($$.cssZIndex)
   .accessibilityText($$.cssAccessibilityLabel)
   .focusable($$.cssFocusable)

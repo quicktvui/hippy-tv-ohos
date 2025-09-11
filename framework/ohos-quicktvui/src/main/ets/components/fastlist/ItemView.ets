@@ -1,12 +1,13 @@
-import {HippyRenderBaseView,HippyMap,HippyAny,buildHippyRenderView,HRDivView} from 'hippy'
+import {buildHippyRenderView,HippyRenderBaseView,HippyMap} from 'hippy'
+import { QTView } from '../../QTTypes';
 import { QTPlaceholderView } from './QTPlaceholderView';
 
 export class ItemTemplate  {
-  templateView: HippyRenderBaseView;
+  templateView: QTView;
   viewType:number;
   props:HippyMap;
 
-  constructor(templateView: HippyRenderBaseView, viewType: number, props: HippyMap) {
+  constructor(templateView: QTView, viewType: number, props: HippyMap) {
     this.templateView = templateView;
     this.viewType = viewType;
     this.props = props;
@@ -15,12 +16,12 @@ export class ItemTemplate  {
 
 @Observed
 export class ItemView{
-  // template: HippyRenderBaseView | undefined = undefined;
+  // template: QTView | undefined = undefined;
   template:ItemTemplate | undefined = undefined
   position: number;
   id : String | null = null;
   raw:HippyMap | null;
-  renderView:HippyRenderBaseView | null = null;
+  renderView : QTView | null = null;
   constructor(position: number, raw : HippyMap | null) {
     this.position = position
     this.raw = raw
@@ -30,7 +31,7 @@ export class ItemView{
 
 
 // @Builder
-// export function createView4Template(template : ItemTemplate) : HippyRenderBaseView{
+// export function createView4Template(template : ItemTemplate) : QTView{
 //   return buildRenderViewByTemplate(template,)
 // }
 //

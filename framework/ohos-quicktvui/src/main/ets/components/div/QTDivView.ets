@@ -19,8 +19,8 @@
  */
 import deviceInfo  from '@ohos.deviceInfo';
 import {HippyAny,HippyArray,buildHippyRenderView,NativeRenderContext,HippyRenderBaseView,HippyObservedArray,HIPPY_COMPONENT_KEY_PREFIX} from 'hippy'
-import { TAG_LAYOUT } from '../../Constant';
-import { HRValueUtils } from '../../HRValueUtils';
+import { QTView } from '../../QTTypes';
+import { FastListUtils } from '../fastlist/FastListUtils';
 import { LayoutAttach } from '../fastlist/LayoutAttach';
 import QTRenderBaseView from '../QTRenderBaseView';
 
@@ -37,12 +37,10 @@ export class QTDivView extends QTRenderBaseView {
     return super.setProp(propKey, propValue)
   }
 
-  notifyChildSizeChanged(child:HippyRenderBaseView,changedView:HippyRenderBaseView,width: number, height: number){
+  notifyChildSizeChanged(child:QTView,changedView:QTView,width: number, height: number){
     let la = LayoutAttach.findLayoutAttach(this)
     if(la){
-      // console.log(TAG_LAYOUT,`div notify sizechanged, padingLeft:${la.getPaddingLeft()},paddingRight:${la.getPaddingRight()}`)
       if(la.isAutoWidth){
-        // console.log(TAG_LAYOUT,`notifyChildSizeChanged on isAutoWidth child type:${child.viewType},width:${width},height:${height}`)
         la.setFixedWidth(width + la.getPaddingLeft() + la.getPaddingRight())
       }
       if(la.isAutoHeight){
@@ -56,7 +54,7 @@ export class QTDivView extends QTRenderBaseView {
 @Component
 export struct QTDiv {
   @ObjectLink renderView: QTDivView
-  @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
+  @ObjectLink children: HippyObservedArray<QTView>
   @Consume('autoSize') @Watch('onAutoSizeChange') autoSize? : number[]
 
   // 监听autoSize变化的回调函数
@@ -80,6 +78,10 @@ export struct QTDiv {
     )
   }
 
+  isEventClick(){
+    return this.renderView.isVirtual && LayoutAttach.obtainLayoutAttach(this.renderView).virtualExtra.eventClick
+  }
+
   aboutToAppear() {
     if (this.renderView.eventAttachedToWindow) {
       this.renderView.eventAttachedToWindow()
@@ -94,34 +96,61 @@ export struct QTDiv {
 
   build() {
     if(this.shouldAddGesture()){
-      Stack() {
-        ForEach(this.children, (item: HippyRenderBaseView) => {
-          buildHippyRenderView(item, null)
-        }, (item: HippyRenderBaseView) => item.tag + '')
+      if(this.isEventClick()){
+        Stack() {
+          ForEach(this.children, (item: QTView) => {
+            buildHippyRenderView(item, null)
+          }, (item: QTView) => item.tag + '')
+        }
+        .applyRenderViewBaseAttr(this.renderView)
+        .applyGestures(this.renderView)
+        .onClick((event=>{
+          FastListUtils.handleItemClick(this.renderView)
+        }))
+      }else{
+        Stack() {
+          ForEach(this.children, (item: QTView) => {
+            buildHippyRenderView(item, null)
+          }, (item: QTView) => item.tag + '')
+        }
+        .applyRenderViewBaseAttr(this.renderView)
+        .applyGestures(this.renderView)
       }
-      .applyRenderViewBaseAttr(this.renderView)
-      .applyGestures(this.renderView)
+
     }else {
-      Stack() {
-        ForEach(this.children, (item: HippyRenderBaseView) => {
-          buildHippyRenderView(item, null)
-        }, (item: HippyRenderBaseView) => item.tag + '')
+      if(this.isEventClick()){
+        Stack() {
+          ForEach(this.children, (item: QTView) => {
+            buildHippyRenderView(item, null)
+          }, (item: QTView) => item.tag + '')
+        }
+        .applyRenderViewBaseAttr(this.renderView)
+        .onClick((event=>{
+          FastListUtils.handleItemClick(this.renderView)
+        }))
+      }else{
+        Stack() {
+          ForEach(this.children, (item: QTView) => {
+            buildHippyRenderView(item, null)
+          }, (item: QTView) => item.tag + '')
+        }
+        .applyRenderViewBaseAttr(this.renderView)
       }
-      .applyRenderViewBaseAttr(this.renderView)
+
     }
   }
 }
 
 // base props for all components
 @Extend(Stack)
-function applyRenderViewBaseAttr($$: HippyRenderBaseView) {
+function applyRenderViewBaseAttr($$: QTView) {
   .key(HIPPY_COMPONENT_KEY_PREFIX + $$.tag)
   .backgroundColor($$.cssBackgroundColor)
   .position({x: $$.cssPositionX, y: $$.cssPositionY})
   .size({width:$$.cssWidth, height: $$.cssHeight})
   .opacity($$.cssOpacity)
   .clip($$.cssOverflow)
-  .visibility(($$ as HippyRenderBaseView).cssVisibility) // must add as, otherwise the compiler has error
+  .visibility(($$ as QTView).cssVisibility) // must add as, otherwise the compiler has error
   .zIndex($$.cssZIndex)
   .accessibilityText($$.cssAccessibilityLabel)
   .focusable($$.cssFocusable)
@@ -140,7 +169,7 @@ function applyRenderViewBaseAttr($$: HippyRenderBaseView) {
 }
 
 @Extend(Stack)
-function applyGestures($$: HippyRenderBaseView) {
+function applyGestures($$: QTView) {
   .onGestureJudgeBegin((gestureInfo: GestureInfo, event: BaseGestureEvent): GestureJudgeResult => {
     if (gestureInfo.tag != HippyGestureTag) {
       // let other gestures continue

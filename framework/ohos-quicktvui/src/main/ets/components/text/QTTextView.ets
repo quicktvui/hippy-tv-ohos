@@ -6,6 +6,7 @@ import { ViewUtils } from '../../utils/ViewUtils';
 import MeasureText from '@ohos.measure';
 import { LayoutAttach } from '../fastlist/LayoutAttach';
 import { QTPixelUtil } from '../../utils/QTPixelUtil';
+import { QTView } from '../../QTTypes';
 
 
 @Observed
@@ -144,7 +145,7 @@ export class QTTextView extends QTRenderBaseView{
 @Component
 export struct  QTText {
   @ObjectLink renderView: QTTextView
-  @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
+  @ObjectLink children: HippyObservedArray<QTView>
   @Consume('autoSize') autoSize?: number[]
 
   @State textSize: SizeOptions = MeasureText.measureTextSize({
@@ -185,13 +186,13 @@ export struct  QTText {
 }
 
 @Extend(Text)
-function applyRenderViewBaseAttr($$: HippyRenderBaseView) {
+function applyRenderViewBaseAttr($$: QTView) {
   .key(HIPPY_COMPONENT_KEY_PREFIX + $$.tag)
   .backgroundColor($$.cssBackgroundColor)
   .position({x: $$.cssPositionX, y: $$.cssPositionY})
   .opacity($$.cssOpacity)
   .clip($$.cssOverflow)
-  .visibility(($$ as HippyRenderBaseView).cssVisibility) // must add as, otherwise the compiler has error
+  .visibility(($$ as QTView).cssVisibility) // must add as, otherwise the compiler has error
   .zIndex($$.cssZIndex)
   .accessibilityText($$.cssAccessibilityLabel)
   .focusable($$.cssFocusable)

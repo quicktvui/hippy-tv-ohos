@@ -212,6 +212,13 @@ export class QTFastListView extends QTRenderBaseView{
   }
 
 
+  public itemIndexOfDataList(itemView:ItemView | null) : number{
+    if(!itemView){
+      return -1;
+    }
+    return this.dataList.indexOf(itemView)
+  }
+
   onDataChanged(data : HippyArray | null){
     if(data && data.length > 0){
       this.dataList.push(...

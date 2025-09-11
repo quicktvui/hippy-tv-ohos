@@ -4,11 +4,12 @@ import { TAG_LAYOUT, TAG_QUICKTVUI } from "../../Constant";
 import { FastListDataSource } from "./FastListDataSource";
 import { ItemView, renderItem } from "./ItemView";
 import { NodeUtils } from "../../utils/NodeUtils";
+import { QTView } from "../../QTTypes";
 
 @Component
 export struct  QTFastList {
   @ObjectLink renderView: QTFastListView
-  @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
+  @ObjectLink children: HippyObservedArray<QTView>
 
   test : boolean = false
   dataSource: FastListDataSource | null = null;
@@ -31,6 +32,8 @@ export struct  QTFastList {
     // }
     this.notifyReload()
   }
+
+
 
   build(): void {
     Stack() {
@@ -79,6 +82,7 @@ export struct  QTFastList {
     console.log(TAG_QUICKTVUI,`FastList aboutToAppear childrenCount:${this.children.length}`)
     this.renderView.uiCtx = this.getUIContext()
     this.dataSource = new FastListDataSource(this.renderView.ctx,this.renderView.dataList)
+    this.dataSource.rootListId = this.renderView.tag
     this.renderView.ui  = this
 
     this.handleOnChildrenUpdated()

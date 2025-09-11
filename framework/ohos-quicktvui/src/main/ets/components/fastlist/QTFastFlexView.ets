@@ -28,9 +28,15 @@ export class QTFastFlexView extends QTRenderBaseView {
     this.dataSource = new FastListDataSource(ctx,this.dataList)
   }
 
-
   onChildInserted(childTag: number, childViewName: string, childIndex: number): void {
     console.error(TAG_QUICKTVUI,`QTFastFlexView onChildInserted tag :${childTag},childViewName:${childViewName},childIndex:${childIndex}`)
+  }
+
+  public itemIndexOfDataList(itemView:ItemView | null) : number{
+    if(!itemView){
+      return -1;
+    }
+    return this.dataList.indexOf(itemView)
   }
 
   aboutToUpdate(): void {
@@ -52,7 +58,7 @@ export class QTFastFlexView extends QTRenderBaseView {
     if(data && data.length > 0){
       for(let  i = 0; i < data.length; i++){
         let item : ItemView = new ItemView(i,data[i] as HippyMap);
-        this.dataSource?.buildItem(item)
+        this.dataSource?.buildItem(item,i)
         this.dataList.push(item)
         // console.log(QUICKTVUI_TAG,`FastFlex put item index:${i},data:`)
         CommonUtils.printMapPretty(item.raw as HippyMap,'FastFlex:',false)

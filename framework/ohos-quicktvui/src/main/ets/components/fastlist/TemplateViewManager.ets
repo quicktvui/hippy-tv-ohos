@@ -7,8 +7,7 @@ import { TemplateCodeParser } from './TemplateCodeParser'
 import { QTBaseComponentView } from '../QTBaseComponentView';
 import { LayoutAttach } from './LayoutAttach';
 import { QTPixelUtil } from '../../utils/QTPixelUtil';
-import { TAG_LAYOUT } from '../../Constant';
-import { CommonUtils } from '../../utils/CommonUtils';
+
 
 export class BuildResult{
   renderView : HippyRenderBaseView | null = null;
@@ -29,6 +28,7 @@ export class PathUpdate{
     this.props = props;
   }
 }
+
 
 
 
@@ -62,6 +62,8 @@ export function applyLayoutTraverse(renderView:HippyRenderBaseView | null){
     })
   }
 }
+
+
 
 export function  applyLayout(renderView:HippyRenderBaseView){
   let attach = LayoutAttach.obtainLayoutAttach(renderView);
@@ -109,7 +111,7 @@ function applyBasicStyle(rendView:HippyRenderBaseView | null,styleMap: HippyMap)
 
 
 
-export function buildRenderViewTraverse(ctx:NativeRenderContext | null, template : HippyRenderBaseView | null, templateProps:HippyMap,itemData : HippyMap,parent: HippyRenderBaseView | null,index:number,
+export function buildRenderViewTraverse(rootListId:number, ctx:NativeRenderContext | null, template : HippyRenderBaseView | null, templateProps:HippyMap,itemData : HippyMap,parent: HippyRenderBaseView | null,index:number,
     updates:Array<PathUpdate>
 ): HippyRenderBaseView | null{
   if(!ctx){
@@ -119,19 +121,19 @@ export function buildRenderViewTraverse(ctx:NativeRenderContext | null, template
   if(!patch){
     return null;
   }
+  LayoutAttach.obtainLayoutAttach(patch.renderView).virtualExtra.rootListId = rootListId;
   updates.push(patch)
   if(parent){
     parent.addSubRenderView(patch.renderView,index)
     //添加layout node
     LayoutAttach.obtainLayoutAttach(parent).insertChild(LayoutAttach.obtainLayoutAttach(patch.renderView),index)
-    //parent.attachedInfo
   }
   template?.children?.map((child,index)=>{
     let childNode = NodeUtils.getNodeById(ctx,child.tag)
     if(!childNode){
       throw new IllegalStateException(`child node is null tag :${child.tag},viewType:${child.viewType}`)
     }
-    buildRenderViewTraverse(ctx,child,childNode!!.props!!,itemData,patch!!.renderView,index,updates)
+    buildRenderViewTraverse(rootListId,ctx,child,childNode!!.props!!,itemData,patch!!.renderView,index,updates)
   })
   return patch.renderView
 }
@@ -234,10 +236,14 @@ function handleCustomProps(key:String,value:HippyAny,p:PathUpdate) : boolean{
       LayoutAttach.obtainLayoutAttach(p.renderView).setFixedHeight(-1)
       return true;
     case 'eventClick':
+      // console.log(TAG_CLICK,`set eventClick view:${ExtendUtil.debugView(p.renderView)}`)
+      LayoutAttach.obtainLayoutAttach(p.renderView).virtualExtra.eventClick = true;
       return true;
     case 'eventFocus':
-
+      // console.log(TAG_CLICK,`set eventClick view:${ExtendUtil.debugView(p.renderView)}`)
+      LayoutAttach.obtainLayoutAttach(p.renderView).virtualExtra.eventFocus = true;
       return true;
   }
   return false;
 }
+
