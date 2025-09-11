@@ -1,7 +1,6 @@
 import {HippyMap,HippyRenderBaseView,HippyAny} from 'hippy'
 import { TAG_CLICK } from '../../Constant'
 import { ExtendUtil } from '../../utils/ExtendUtil'
-import { QTBaseComponentView } from '../QTBaseComponentView'
 import { ItemView } from './ItemView'
 import { LayoutAttach } from './LayoutAttach'
 import { QTFastFlexView } from './QTFastFlexView'
@@ -15,28 +14,32 @@ export class FastListUtils{
     console.info(TAG_CLICK,`onClick rootID:${LayoutAttach.obtainLayoutAttach(clickView).virtualExtra.rootListId}`)
     let rootListId = LayoutAttach.obtainLayoutAttach(clickView).virtualExtra.rootListId
     if(rootListId != -1){
-      let itemView :ItemView | null | undefined = FastListUtils.findItemView(clickView)?.itemView
+      let fastItem : QTFastItemView | null = FastListUtils.findItemView(clickView)
+      let itemView :ItemView | null | undefined = fastItem?.itemView
       if(!itemView){
         console.error(TAG_CLICK,"handleItemClick error findItemView null ")
         return;
       }
-      let parentList = FastListUtils.findListParent(itemView.renderView)
-      let pendingList : QTPendingListView | null = null;
+      let parentList : QTPendingListView | null = FastListUtils.findListParent(fastItem)
       let itemPosition  = -1
-      // if(parentList){
-      //   pendingList = parentList as QTPendingListView
-      //   itemPosition = pendingList.itemIndexOfDataList(itemView)
-      // }else{
-      //   console.error(TAG_CLICK,`handleItemClick error find pendingList null ,itemView parent:${itemView.renderView?.parentView}`)
-      // }
+      if(parentList){
+        itemPosition = parentList.itemIndexOfDataList(fastItem)
+      }else{
+        console.error(TAG_CLICK,`handleItemClick error find pendingList null ,itemView parent:${itemView.renderView?.parentView}`)
+      }
       let itemRaw = itemView.raw
       let name = LayoutAttach.obtainLayoutAttach(clickView).name
       let sid = LayoutAttach.obtainLayoutAttach(clickView).sid
       let index = clickView.parentView?.children.indexOf(clickView)
       let map = new Map<string,HippyAny>()
       let parentPosition = -1;
-      if(pendingList){
-        parentPosition = FastListUtils.findParentItemPosition(pendingList)
+      if(parentList){
+        let parentItem : QTFastItemView  | null = FastListUtils.findItemView(parentList as QTView)
+        if(parentItem){
+            parentPosition = FastListUtils.findItemPosition(parentItem)
+        }else{
+          console.error(TAG_CLICK,"handleItemClick error find parentItem null ")
+        }
       }
       //basic
       map.set('index',index)
@@ -64,17 +67,11 @@ export class FastListUtils{
     return FastListUtils.findItemView(view.parentView)
   }
 
-  static findListParent(view: QTView  |  null) : QTView | null{
-    if(view == null){
+  static findListParent(fastItem: QTFastItemView  |  null) : QTPendingListView | null{
+    if(fastItem == null){
       return null;
     }
-    if(view instanceof QTFastListView){
-      return view;
-    }
-    if(view instanceof QTFastFlexView){
-      return view;
-    }
-    return FastListUtils.findListParent(view.parentView)
+    return fastItem.parentList
   }
 
   static findItemPosition(view:QTView | null) : number{
@@ -82,7 +79,7 @@ export class FastListUtils{
     if(!fi){
       return -1;
     }
-    let parentView = FastListUtils.findListParent(view)
+    let parentView = FastListUtils.findListParent(fi)
     if(parentView instanceof QTFastListView){
       return parentView.itemIndexOfDataList(fi)
     }
@@ -92,19 +89,6 @@ export class FastListUtils{
     return -1;
   }
 
-  static findParentItemPosition(view:QTView | null): number{
-    //向一寻找一层嵌套的列表
-    let directParentList = FastListUtils.findListParent(view)
-    if(directParentList instanceof QTBaseComponentView){
-      if(!directParentList.isVirtual){
-          //如果直接parentList，不是一个virtual的View,直接返回-1,因为它不是一个嵌套的列表
-      }
-    }
-    if(directParentList){
-      return FastListUtils.findItemPosition(directParentList)
-    }else{
-      return -1;
-    }
-  }
+
 
 }

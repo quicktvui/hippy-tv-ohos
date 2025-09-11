@@ -61,7 +61,7 @@ export class QTFastFlexView extends QTRenderBaseView {
       for(let  i = 0; i < data.length; i++){
         let item : ItemView = new ItemView(i,data[i] as HippyMap);
         // this.dataSource?.buildItem(item,i)
-        let fi : QTFastItemView=  new QTFastItemView(this.ctx).init(item)
+        let fi : QTFastItemView=  new QTFastItemView(this.ctx).init(this,item)
         this.dataSource?.buildItem(fi,i)
         this.virtualChildren.push(fi)
         // console.log(QUICKTVUI_TAG,`FastFlex put item index:${i},data:`)

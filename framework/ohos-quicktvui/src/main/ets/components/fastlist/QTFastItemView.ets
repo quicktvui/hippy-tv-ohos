@@ -6,7 +6,7 @@ import {
   HippyRenderCallback,
   buildHippyRenderView,
 } from 'hippy'
-import { QTView } from '../../QTTypes';
+import { QTPendingListView, QTView } from '../../QTTypes';
 import { QTPixelUtil } from '../../utils/QTPixelUtil';
 import QTRenderBaseView from '../QTRenderBaseView';
 import { ItemView } from './ItemView';
@@ -18,12 +18,14 @@ import { applyLayoutTraverse } from './TemplateViewManager';
 export class QTFastItemView extends QTRenderBaseView{
 
   itemView:ItemView |  null = null;
+  parentList : QTPendingListView | null = null;
 
   constructor(ctx: NativeRenderContext) {
     super(ctx)
   }
 
-  init(item:ItemView): QTFastItemView{
+  init(parent : QTPendingListView,item:ItemView): QTFastItemView{
+    this.parentList = parent;
     this.itemView = item
     return this;
   }

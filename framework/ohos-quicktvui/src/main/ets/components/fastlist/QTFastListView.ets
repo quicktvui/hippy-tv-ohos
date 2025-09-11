@@ -229,7 +229,7 @@ export class QTFastListView extends QTRenderBaseView{
           console.log(TAG_QUICKTVUI,`onDataChanged crate item :`)
           CommonUtils.printMapPretty(item as HippyMap,'FastListView:',false)
           let it =  new ItemView(index,item as HippyMap)
-          return new QTFastItemView(this.ctx).init(it)
+          return new QTFastItemView(this.ctx).init(this,it)
         })
       )
       this.ui?.notifyReload()

@@ -14,7 +14,6 @@ export class ItemTemplate  {
   }
 }
 
-@Observed
 export class ItemView{
   // template: QTView | undefined = undefined;
   template:ItemTemplate | undefined = undefined
