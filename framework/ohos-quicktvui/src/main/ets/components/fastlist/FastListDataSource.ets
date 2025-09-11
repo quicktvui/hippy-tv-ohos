@@ -18,7 +18,9 @@
  * limitations under the License.
  */
 import {HippyObservedArray,NativeRenderContext,NativeRender,HRRect} from 'hippy'
-import { TAG_LAYOUT as TAG_LAYOUT, TAG_QUICKTVUI as TAG_QUICKTVUI } from '../../Constant';
+import {
+  TAG_FASTLIST,
+  TAG_LAYOUT as TAG_LAYOUT, TAG_QUICKTVUI as TAG_QUICKTVUI } from '../../Constant';
 import {HippyMap,HippyArray,HippyAny} from 'hippy'
 import {ItemView,getItemType, ItemTemplate} from './ItemView'
 import assertNull from '@ohos/hypium/src/main/module/assert/assertNull';
@@ -44,7 +46,7 @@ import { QTView } from '../../QTTypes';
 export class FastListDataSource implements IDataSource {
   private listeners: DataChangeListener[] = [];
   private templates: HippyObservedArray<QTView> = [];
-  private dataList: HippyObservedArray<ItemView> = [];
+  private dataList: HippyObservedArray<QTView> = [];
 
   private ctx : NativeRenderContext;
   private templatesMap : Map<number,ItemTemplate> = new Map()
@@ -52,7 +54,7 @@ export class FastListDataSource implements IDataSource {
   public static  DEFAULT_TYPE : number = 1;
   public rootListId :number = -1;
 
-  constructor(ctx : NativeRenderContext,dataList:HippyObservedArray<ItemView>) {
+  constructor(ctx : NativeRenderContext,dataList:HippyObservedArray<QTView>) {
     this.ctx = ctx;
     assertNull(ctx) ?? 'ctx is null'
     // this.mockData()
@@ -64,7 +66,7 @@ export class FastListDataSource implements IDataSource {
     console.info(TAG_QUICKTVUI, `setTemplates total:${templates.length}`)
   }
 
-  public itemIndexOfDataList(itemView:ItemView) : number{
+  public itemIndexOfDataList(itemView:QTFastItemView) : number{
     return this.dataList.indexOf(itemView)
   }
 
@@ -110,25 +112,33 @@ export class FastListDataSource implements IDataSource {
 
 
 
-  wrappedItemIfNeed(renderView : QTView,item:ItemView) : QTView{
-    if(renderView.viewType == 'FastItemView'){
-      (renderView as QTFastItemView).itemView = item;
-      return renderView;
-    }else{
-      let wi = new QTFastItemView(this.ctx)
-      wi.itemView = item;
-      wi.tag = -1
-      wi.isVirtual = true;
-      wi.viewType = 'FastItemView'
-      // let layout = new HRRect(0,0,renderView.cssWidth,renderView.cssHeight)
-      // QTPixelUtil.setScaledRenderViewFrame(wi,layout,null)
-      wi.addSubRenderView(renderView,0)
-      LayoutAttach.obtainLayoutAttach(wi).insertChild(LayoutAttach.obtainLayoutAttach(renderView),0)
-      return wi;
-    }
+  // wrappedItemIfNeed(renderView : QTView,item:ItemView) : QTFastItemView{
+  //   if(renderView.viewType == 'FastItemView'){
+  //     (renderView as QTFastItemView).itemView = item;
+  //     return renderView as QTFastItemView;
+  //   }else{
+  //     let wi = new QTFastItemView(this.ctx)
+  //     wi.itemView = item;
+  //     wi.tag = -1
+  //     wi.isVirtual = true;
+  //     wi.viewType = 'FastItemView'
+  //     // let layout = new HRRect(0,0,renderView.cssWidth,renderView.cssHeight)
+  //     // QTPixelUtil.setScaledRenderViewFrame(wi,layout,null)
+  //     wi.addSubRenderView(renderView,0)
+  //     LayoutAttach.obtainLayoutAttach(wi).insertChild(LayoutAttach.obtainLayoutAttach(renderView),0)
+  //     return wi;
+  //   }
+  // }
+
+  fillContent(renderView : QTView,wi : QTFastItemView){
+    wi.isVirtual = true;
+    wi.addSubRenderView(renderView,0)
+    LayoutAttach.obtainLayoutAttach(wi).insertChild(LayoutAttach.obtainLayoutAttach(renderView),0)
   }
 
-  public buildItem(item: ItemView,position:number): ItemView{
+
+  public buildItem(fi: QTFastItemView,position:number){
+    let item: ItemView = fi.itemView!!
     let type = getItemType(item.raw)
     if(!type){
       type = FastListDataSource.DEFAULT_TYPE
@@ -147,7 +157,7 @@ export class FastListDataSource implements IDataSource {
         let  updates:Array<PathUpdate> = []
         //1. 遍历模板和数据，生成根布局
         let rv = buildRenderViewTraverse(this.rootListId,this.ctx,it.templateView,it.props,item.raw as HippyMap,null,0,updates)
-        let wrapped = this.wrappedItemIfNeed(rv!!,item);
+        // let wrapped = this.wrappedItemIfNeed(rv!!,item);
 
         //2. 预先执行所有update
         updates?.map((p)=>{
@@ -168,7 +178,8 @@ export class FastListDataSource implements IDataSource {
         // if(rv){
         //   rv = this.wrappedItemIfNeed(rv);
         // }
-        item.renderView = wrapped;
+        //item.renderView = wrapped;
+        this.fillContent(rv!!,fi)
         //3. 执行所有props
         updates?.map((p)=>{
           p.props.forEach((value,key)=>{
@@ -187,18 +198,19 @@ export class FastListDataSource implements IDataSource {
           })
         })
         //在属性全部执行完以后，计算layout
-        if(item.renderView && rv){
-          if(item.renderView instanceof QTFastItemView){
-            item.renderView.layoutItem(rv)
-            console.error(TAG_LAYOUT,`setItem Width:${item.renderView.cssWidth},height:${item.renderView.cssHeight}`)
+        if(fi && rv){
+          if(fi instanceof QTFastItemView){
+            fi.layoutItem(rv)
+            console.error(TAG_LAYOUT,`setItem Width:${fi.cssWidth},height:${fi.cssHeight}`)
           }else{
-            LayoutAttach.obtainLayoutAttach(item.renderView).calculateLayout(800,600)
-            applyLayoutTraverse(item.renderView)
-            //强制itemView的宽高与item内部一致
-            console.error(TAG_LAYOUT,`setItem Width:${LayoutAttach.obtainLayoutAttach(rv).getWidth()},height:${LayoutAttach.obtainLayoutAttach(rv).getHeight()}`)
-            QTPixelUtil.setScaledRenderViewFrame(item.renderView,new HRRect(0,0,
-              LayoutAttach.obtainLayoutAttach(rv).getWidth(),
-              LayoutAttach.obtainLayoutAttach(rv).getHeight()),null)
+            console.error(TAG_FASTLIST,`buildItemError !!!`)
+            // LayoutAttach.obtainLayoutAttach(item.renderView).calculateLayout(800,600)
+            // applyLayoutTraverse(item.renderView)
+            // //强制itemView的宽高与item内部一致
+            // console.error(TAG_LAYOUT,`setItem Width:${LayoutAttach.obtainLayoutAttach(rv).getWidth()},height:${LayoutAttach.obtainLayoutAttach(rv).getHeight()}`)
+            // QTPixelUtil.setScaledRenderViewFrame(item.renderView,new HRRect(0,0,
+            //   LayoutAttach.obtainLayoutAttach(rv).getWidth(),
+            //   LayoutAttach.obtainLayoutAttach(rv).getHeight()),null)
           }
         }else{
           console.error(TAG_QUICKTVUI,`error on rv is null`)
@@ -220,9 +232,6 @@ export class FastListDataSource implements IDataSource {
         //
         // })
 
-        if(!wrapped){
-          console.error(TAG_QUICKTVUI,`buildRenderView null `)
-        }
       }else{
         console.error(TAG_QUICKTVUI,'getData error template is null')
       }
@@ -230,24 +239,24 @@ export class FastListDataSource implements IDataSource {
       console.error(TAG_QUICKTVUI,'getData type is undefined')
     }
 
-    return item
+    // return item.renderView as QTFastItemView
   }
 
   public preCreateAll(){
 
   }
 
-  public getData(index: number): ItemView {
-    let item = this.dataList[index]
-    this.buildItem(item,index)
-    console.log(TAG_QUICKTVUI,`getData index:${index}`)
-    if(item.renderView && item.renderView.cssWidth < 1 || item.renderView!!.cssHeight < 1){
-      console.error(TAG_LAYOUT,`getData layout Error index:${index},type:${item.renderView?.viewType}`)
+  public getData(index: number): QTFastItemView {
+    let fi = this.dataList[index] as QTFastItemView
+    this.buildItem(fi,index)
+    // console.log(TAG_QUICKTVUI,`getData index:${index}`)
+    if(fi.cssWidth < 1 || fi.cssHeight < 1){
+      console.error(TAG_LAYOUT,`getData layout Error index:${index}`)
     }
-    if(item.renderView){
-      NodeUtils.printViewTreePretty(item.renderView,'',false)
-    }
-    return item
+    // if(item.renderView){
+    //   NodeUtils.printViewTreePretty(item.renderView,'',false)
+    // }
+    return fi as QTFastItemView
   }
 
   // public setListData(rawList : HippyArray){
@@ -298,13 +307,13 @@ export class FastListDataSource implements IDataSource {
   }
 
   mockData(){
-    const total = 100;
-    for(let i = 0; i < total; i++){
-      let map : Map<string, HippyAny> = new Map()
-      map.set('type',10001)
-      let item = new ItemView(i,map)
-      this.dataList.push(item)
-    }
-    this.notifyReload()
+    // const total = 100;
+    // for(let i = 0; i < total; i++){
+    //   let map : Map<string, HippyAny> = new Map()
+    //   map.set('type',10001)
+    //   let item = new ItemView(i,map)
+    //   this.dataList.push(item)
+    // }
+    // this.notifyReload()
   }
 }

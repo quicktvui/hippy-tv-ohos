@@ -1,7 +1,6 @@
 import {
   HippyObservedArray,
   NativeRenderContext,
-  HippyRenderBaseView,
   HippyAny,
   HIPPY_COMPONENT_KEY_PREFIX,
   HippyRenderCallback,
@@ -24,6 +23,12 @@ export class QTFastItemView extends QTRenderBaseView{
     super(ctx)
   }
 
+  init(item:ItemView): QTFastItemView{
+    this.itemView = item
+    return this;
+  }
+
+
   notifyChildSizeChanged(child: QTView, changedView: QTView, width: number, height: number): void {
     // console.info(TAG_LAYOUT,`notifyChildSizeChanged on FastItem,isVirtual${this.isVirtual} changeViewType:${changedView.viewType},width:${width},height:${height},child width:${LayoutAttach.obtainLayoutAttach(child).fixedWidth}`)
     //主里直接阻断向上，只处理一层
@@ -40,8 +45,8 @@ export class QTFastItemView extends QTRenderBaseView{
       LayoutAttach.obtainLayoutAttach(this).calculateLayout(1920,1080)
     }
     applyLayoutTraverse(this)
-    // LayoutAttach.obtainLayoutAttach(this).setFixedWidth(LayoutAttach.obtainLayoutAttach(childView).fixedWidth)
-    // LayoutAttach.obtainLayoutAttach(this).setHeight(LayoutAttach.obtainLayoutAttach(childView).fixedHeight)
+    LayoutAttach.obtainLayoutAttach(this).setFixedWidth(LayoutAttach.obtainLayoutAttach(childView).getWidth())
+    LayoutAttach.obtainLayoutAttach(this).setFixedHeight(LayoutAttach.obtainLayoutAttach(childView).getHeight())
     // console.warn(TAG_LAYOUT,`set FastItem size:[${childView.cssWidth},height:${childView.cssHeight}]`)
     QTPixelUtil.setScaledRenderViewLayout(this,[0,0,childView.cssWidth,childView.cssHeight]);
   }

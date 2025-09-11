@@ -2,10 +2,12 @@
 import {HippyObservedArray,NativeRenderContext,HippyAny,HippyRenderCallback,HippyArray,HippyMap} from 'hippy'
 import { TAG_QUICKTVUI } from '../../Constant';
 import { HRValueUtils } from '../../HRValueUtils';
+import { QTView } from '../../QTTypes';
 import { CommonUtils } from '../../utils/CommonUtils';
 
 import QTRenderBaseView from '../QTRenderBaseView';
 import { ItemView } from './ItemView';
+import { QTFastItemView } from './QTFastItemView';
 import { QTFastList } from './QTFastList';
 
 
@@ -13,7 +15,8 @@ import { QTFastList } from './QTFastList';
 export class QTFastListView extends QTRenderBaseView{
 
   public uiCtx: UIContext | null = null
-  public dataList: HippyObservedArray<ItemView> = new HippyObservedArray()
+  // public dataList: HippyObservedArray<ItemView> = new HippyObservedArray()
+  public virtualChildren: HippyObservedArray<QTView> = new HippyObservedArray()
   public ui : QTFastList | null = null;
   isHorizontal : boolean = false;
 
@@ -212,25 +215,26 @@ export class QTFastListView extends QTRenderBaseView{
   }
 
 
-  public itemIndexOfDataList(itemView:ItemView | null) : number{
+  public itemIndexOfDataList(itemView:QTFastItemView | null) : number{
     if(!itemView){
       return -1;
     }
-    return this.dataList.indexOf(itemView)
+    return this.virtualChildren.indexOf(itemView)
   }
 
   onDataChanged(data : HippyArray | null){
     if(data && data.length > 0){
-      this.dataList.push(...
+      this.virtualChildren.push(...
         data?.map((item,index)=>{
           console.log(TAG_QUICKTVUI,`onDataChanged crate item :`)
           CommonUtils.printMapPretty(item as HippyMap,'FastListView:',false)
-          return new ItemView(index,item as HippyMap)
+          let it =  new ItemView(index,item as HippyMap)
+          return new QTFastItemView(this.ctx).init(it)
         })
       )
       this.ui?.notifyReload()
     }else{
-      this.dataList = []
+      this.virtualChildren = []
       this.ui?.notifyReload()
     }
   }

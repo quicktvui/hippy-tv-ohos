@@ -23,12 +23,12 @@ export class FastListUtils{
       let parentList = FastListUtils.findListParent(itemView.renderView)
       let pendingList : QTPendingListView | null = null;
       let itemPosition  = -1
-      if(parentList){
-        pendingList = parentList as QTPendingListView
-        itemPosition = pendingList.itemIndexOfDataList(itemView)
-      }else{
-        console.error(TAG_CLICK,`handleItemClick error find pendingList null ,itemView parent:${itemView.renderView?.parentView}`)
-      }
+      // if(parentList){
+      //   pendingList = parentList as QTPendingListView
+      //   itemPosition = pendingList.itemIndexOfDataList(itemView)
+      // }else{
+      //   console.error(TAG_CLICK,`handleItemClick error find pendingList null ,itemView parent:${itemView.renderView?.parentView}`)
+      // }
       let itemRaw = itemView.raw
       let name = LayoutAttach.obtainLayoutAttach(clickView).name
       let sid = LayoutAttach.obtainLayoutAttach(clickView).sid
@@ -84,10 +84,10 @@ export class FastListUtils{
     }
     let parentView = FastListUtils.findListParent(view)
     if(parentView instanceof QTFastListView){
-      return parentView.itemIndexOfDataList(fi.itemView)
+      return parentView.itemIndexOfDataList(fi)
     }
     if(parentView instanceof QTFastFlexView){
-      return parentView.itemIndexOfDataList(fi.itemView)
+      return parentView.itemIndexOfDataList(fi)
     }
     return -1;
   }

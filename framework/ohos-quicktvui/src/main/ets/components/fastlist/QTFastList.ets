@@ -2,9 +2,9 @@ import { QTFastListView } from "./QTFastListView"
 import {HippyObservedArray,HRDiv,HIPPY_COMPONENT_KEY_PREFIX,HippyRenderBaseView,buildHippyRenderView,HippyMap,HippyEndBatchCallback} from 'hippy'
 import { TAG_LAYOUT, TAG_QUICKTVUI } from "../../Constant";
 import { FastListDataSource } from "./FastListDataSource";
-import { ItemView, renderItem } from "./ItemView";
 import { NodeUtils } from "../../utils/NodeUtils";
 import { QTView } from "../../QTTypes";
+import { QTFastItem, QTFastItemView } from "./QTFastItemView";
 
 @Component
 export struct  QTFastList {
@@ -38,12 +38,15 @@ export struct  QTFastList {
   build(): void {
     Stack() {
       List(){
-        LazyForEach(this.dataSource,(item : ItemView,index : number)=>{
+        LazyForEach(this.dataSource,(item : QTFastItemView,index : number)=>{
           ListItem() {
-            renderItem(item)
+            QTFastItem({
+              renderView:item as QTFastItemView,
+              children: item.children,
+            })
           }
-          .width(item.renderView?.cssWidth)
-          .height(item.renderView?.cssHeight)
+          .width(item?.cssWidth)
+          .height(item?.cssHeight)
         })
       }
       .listDirection(this.renderView.isHorizontal ? Axis.Horizontal : Axis.Vertical)
@@ -81,7 +84,7 @@ export struct  QTFastList {
   aboutToAppear(): void {
     console.log(TAG_QUICKTVUI,`FastList aboutToAppear childrenCount:${this.children.length}`)
     this.renderView.uiCtx = this.getUIContext()
-    this.dataSource = new FastListDataSource(this.renderView.ctx,this.renderView.dataList)
+    this.dataSource = new FastListDataSource(this.renderView.ctx,this.renderView.virtualChildren)
     this.dataSource.rootListId = this.renderView.tag
     this.renderView.ui  = this
 

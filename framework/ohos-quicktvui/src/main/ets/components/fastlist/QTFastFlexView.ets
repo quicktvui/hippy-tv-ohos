@@ -11,32 +11,34 @@ import {
 } from 'hippy'
 import { TAG_QUICKTVUI } from '../../Constant';
 import { HRValueUtils } from '../../HRValueUtils';
+import { QTView } from '../../QTTypes';
 import { CommonUtils } from '../../utils/CommonUtils';
 import { NodeUtils } from '../../utils/NodeUtils';
 import QTRenderBaseView from '../QTRenderBaseView';
 import { FastListDataSource } from './FastListDataSource';
 import { ItemView, renderItem } from './ItemView';
+import { QTFastItem, QTFastItemView } from './QTFastItemView';
 
 
 @Observed
 export class QTFastFlexView extends QTRenderBaseView {
-  public dataList: HippyObservedArray<ItemView> = new HippyObservedArray()
+  public virtualChildren: HippyObservedArray<QTView> = new HippyObservedArray()
   dataSource: FastListDataSource | null = null;
 
   constructor(ctx: NativeRenderContext) {
     super(ctx)
-    this.dataSource = new FastListDataSource(ctx,this.dataList)
+    this.dataSource = new FastListDataSource(ctx,this.virtualChildren)
   }
 
   onChildInserted(childTag: number, childViewName: string, childIndex: number): void {
     console.error(TAG_QUICKTVUI,`QTFastFlexView onChildInserted tag :${childTag},childViewName:${childViewName},childIndex:${childIndex}`)
   }
 
-  public itemIndexOfDataList(itemView:ItemView | null) : number{
+  public itemIndexOfDataList(itemView:QTView | null) : number{
     if(!itemView){
       return -1;
     }
-    return this.dataList.indexOf(itemView)
+    return this.virtualChildren.indexOf(itemView)
   }
 
   aboutToUpdate(): void {
@@ -58,8 +60,10 @@ export class QTFastFlexView extends QTRenderBaseView {
     if(data && data.length > 0){
       for(let  i = 0; i < data.length; i++){
         let item : ItemView = new ItemView(i,data[i] as HippyMap);
-        this.dataSource?.buildItem(item,i)
-        this.dataList.push(item)
+        // this.dataSource?.buildItem(item,i)
+        let fi : QTFastItemView=  new QTFastItemView(this.ctx).init(item)
+        this.dataSource?.buildItem(fi,i)
+        this.virtualChildren.push(fi)
         // console.log(QUICKTVUI_TAG,`FastFlex put item index:${i},data:`)
         CommonUtils.printMapPretty(item.raw as HippyMap,'FastFlex:',false)
       }
@@ -69,7 +73,7 @@ export class QTFastFlexView extends QTRenderBaseView {
       //   })
       // )
     }else{
-      this.dataList = []
+      this.virtualChildren = []
     }
   }
 
@@ -169,7 +173,7 @@ export class QTFastFlexView extends QTRenderBaseView {
 @Component
 export struct QTFastFlex {
   @ObjectLink renderView: QTFastFlexView
-  @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
+  @ObjectLink children: HippyObservedArray<QTView>
   private endBatchCallback: HippyEndBatchCallback | null = null
 
   private handleOnChildrenUpdated() {
@@ -179,10 +183,13 @@ export struct QTFastFlex {
 
   build(): void {
     Row() {
-      ForEach(this.renderView.dataList,(item : ItemView)=>{
-        renderItem(item)
-      },(item : ItemView,index)=>{
-        return item.id as string
+      ForEach(this.renderView.virtualChildren,(item : QTFastItemView)=>{
+        QTFastItem({
+          renderView:item as QTFastItemView,
+          children: item.children,
+        })
+      },(item : QTFastItemView,index)=>{
+        return item.itemView!!.id as string
       })
       // ContentSlot(this.renderView.childSlot)
     }
