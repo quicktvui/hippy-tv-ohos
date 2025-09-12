@@ -1,8 +1,8 @@
 
 import {HippyObservedArray,NativeRenderContext,HippyAny,HippyRenderCallback,HippyArray,HippyMap} from 'hippy'
-import { TAG_QUICKTVUI } from '../../Constant';
+import { TAG_FASTLIST, TAG_QUICKTVUI } from '../../Constant';
 import { HRValueUtils } from '../../HRValueUtils';
-import { QTView } from '../../QTTypes';
+import { QTAny, QTArray, QTMap, QTView } from '../../QTTypes';
 import { CommonUtils } from '../../utils/CommonUtils';
 import { ExtendUtil } from '../../utils/ExtendUtil';
 
@@ -254,10 +254,89 @@ export class QTFastListView extends QTRenderBaseView{
     }
   }
 
+  deleteItemRange(start : number,cout:number){
+    this.virtualChildren.splice(start, cout)
+    this.ui?.notifyReload()
+  }
+
+  updateItemRange(start : number,count:number,data:HippyArray){
+    let replaced : HippyObservedArray<QTView>= []
+    replaced.push(...
+      data?.map((item,index)=>{
+        console.log(TAG_QUICKTVUI,`updateItemRange crate item :`)
+        CommonUtils.printMapPretty(item as HippyMap,'FastListView:',false)
+        let it =  new ItemView(index + start,item as HippyMap)
+        return new QTFastItemView(this.ctx).init(this,it)
+      })
+    )
+    this.virtualChildren.splice(start,count,...replaced)
+    if(count > 1){
+      this.ui?.dataSource?.notifyDataChanged(start,count)
+    }else{
+      this.ui?.dataSource?.notifyDataChange(start)
+    }
+  }
+
+  updateItemData(postion : number,data:HippyMap){
+    let fi  = this.virtualChildren[postion]
+    if(fi){
+     let itemMap : QTMap | null | undefined=  (fi as QTFastItemView).itemView?.raw
+      CommonUtils.updateMap(itemMap,data)
+      this.ui?.dataSource?.notifyDataChange(postion)
+    }else{
+      console.warn(TAG_FASTLIST,`updateItemData error item on ${postion} is null`)
+    }
+  }
+
+  insertItemRange(start : number,data:HippyArray){
+    let replaced : HippyObservedArray<QTView>= []
+    replaced.push(...
+    data?.map((item,index)=>{
+      console.log(TAG_QUICKTVUI,`insertItemRange crate item :`)
+      CommonUtils.printMapPretty(item as HippyMap,'FastListView:',false)
+      let it =  new ItemView(index + start,item as HippyMap)
+      return new QTFastItemView(this.ctx).init(this,it)
+    })
+    )
+    this.virtualChildren.splice(start,0,...replaced)
+    this.ui?.dataSource?.notifyDataAddRange(start,data.length)
+  }
+
+  clearData(){
+    this.virtualChildren = []
+    this.ui?.notifyReload()
+  }
+
+  appendItem(data : HippyArray){
+      if(!this.virtualChildren || this.virtualChildren.length < 1){
+        this.setListWithPrams(data,null)
+      }else{
+        let start = this.virtualChildren.length;
+        this.virtualChildren.push(...
+          data?.map((item,index)=>{
+            console.log(TAG_QUICKTVUI,`insertItemRange crate item :`)
+            CommonUtils.printMapPretty(item as HippyMap,'FastListView:',false)
+            let it =  new ItemView(index + start,item as HippyMap)
+            return new QTFastItemView(this.ctx).init(this,it)
+          })
+        )
+        this.ui?.notifyReload()
+      }
+  }
+
   aboutToUpdate(): void {
     super.aboutToUpdate()
     if(this.ui){
       this.ui.handleOnChildrenUpdated()
+    }
+  }
+
+  setListWithPrams(data:QTArray | null | undefined,params:QTAny | null | undefined){
+    if(data){
+      console.info(TAG_FASTLIST,`setListWithPrams data:${data?.length}`)
+      this.onDataChanged(data)
+    }else{
+      this.onDataChanged(null)
     }
   }
 
@@ -311,40 +390,42 @@ export class QTFastListView extends QTRenderBaseView{
 
           break;
         case 'updateItem':
-
+          this.updateItemRange(params[0] as number,1,params[1] as HippyArray)
           break;
         case 'updateItemRange':
-
+          this.updateItemRange(params[0] as number,params[1] as number,params[2] as HippyArray)
           break;
         case 'insertItemRange':
-
+          this.insertItemRange(params[0] as number,params[1] as HippyArray)
           break;
         case 'updateItemMatched':
+          //TODO
 
           break;
         case 'deleteItemRange':
-
+          let start = params[0] as number
+          let count = params[1] as number
+          console.info(TAG_FASTLIST,`deleteItemRange start:${start},end:${count}`)
+          this.deleteItemRange(start,count)
           break;
         case 'setListDataWithParams':
           let dataArray = HRValueUtils.getArray(params)
           if(dataArray && dataArray[0]){
-            console.info(TAG_QUICKTVUI,`setListDataWithParams data:${dataArray[0]}`)
-            let args0 : HippyArray | null = HRValueUtils.getArray(dataArray[0] as HippyArray)
-            this.onDataChanged(args0)
+            this.setListWithPrams(dataArray[0] as QTArray,null)
           }else{
-            this.onDataChanged(null)
+            this.setListWithPrams(null,null)
           }
           break;
         case 'setListData':
           console.info(TAG_QUICKTVUI,`setListData data:${HRValueUtils.getArray(params)}`)
           let data = HRValueUtils.getArray(params)
-          this.onDataChanged(data)
+          this.setListWithPrams(data,null)
           break;
         case 'addListData':
-
+          this.appendItem(params[0] as HippyArray)
           break;
         case 'addListDataWithParams':
-
+          this.appendItem(params[0] as HippyArray)
           break;
         case 'scrollToTop':
 
@@ -359,7 +440,7 @@ export class QTFastListView extends QTRenderBaseView{
 
           break;
         case 'clearData':
-
+          this.clearData()
           break;
         case 'setSpanCount':
           break;

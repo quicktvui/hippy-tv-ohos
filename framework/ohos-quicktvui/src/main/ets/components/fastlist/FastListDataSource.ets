@@ -28,7 +28,6 @@ import {buildRenderViewTraverse, PathUpdate,applyLayoutTraverse} from './Templat
 import { NodeUtils } from '../../utils/NodeUtils';
 import { QTFastItemView } from './QTFastItemView';
 import { QTBaseComponentView } from '../QTBaseComponentView';
-import { QTPixelUtil } from '../../utils/QTPixelUtil';
 import { LayoutAttach } from './LayoutAttach';
 import { CommonUtils } from '../../utils/CommonUtils';
 import { QTView } from '../../QTTypes';
@@ -209,8 +208,8 @@ export class FastListDataSource implements IDataSource {
             // //强制itemView的宽高与item内部一致
             // console.error(TAG_LAYOUT,`setItem Width:${LayoutAttach.obtainLayoutAttach(rv).getWidth()},height:${LayoutAttach.obtainLayoutAttach(rv).getHeight()}`)
             // QTPixelUtil.setScaledRenderViewFrame(item.renderView,new HRRect(0,0,
-            //   LayoutAttach.obtainLayoutAttach(rv).getWidth(),
-            //   LayoutAttach.obtainLayoutAttach(rv).getHeight()),null)
+            // LayoutAttach.obtainLayoutAttach(rv).getWidth(),
+            // LayoutAttach.obtainLayoutAttach(rv).getHeight()),null)
           }
         }else{
           console.error(TAG_QUICKTVUI,`error on rv is null`)
@@ -303,6 +302,36 @@ export class FastListDataSource implements IDataSource {
   notifyDataAdd(index : number) {
     this.listeners.forEach(listener => {
       listener.onDataAdd(index)
+    })
+  }
+
+  notifyDataAddRange(index : number,count:number) {
+    this.listeners.forEach(listener => {
+      listener.onDataReloaded()
+    })
+  }
+
+  notifyDataRemove(index: number){
+    this.listeners.forEach(listener => {
+      listener.onDataDelete(index)
+    })
+  }
+
+  notifyDataMove(from: number,to:number){
+    this.listeners.forEach(listener => {
+      listener.onDataMove(from,to)
+    })
+  }
+
+  notifyDataChanged(start: number,count:number){
+    this.listeners.forEach(listener => {
+      listener.onDataReloaded()
+    })
+  }
+
+  notifyDataChange(index: number){
+    this.listeners.forEach(listener => {
+      listener.onDataChange(index)
     })
   }
 

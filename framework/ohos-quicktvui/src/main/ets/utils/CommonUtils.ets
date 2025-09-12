@@ -1,5 +1,6 @@
 import {HippyMap,HippyAny} from 'hippy'
 import { TAG_QUICKTVUI } from '../Constant'
+import { QTMap } from '../QTTypes';
 
 interface MapEntry {
   key: string;
@@ -26,6 +27,13 @@ export  class CommonUtils{
       }
     }
 
+    static updateMap(target : QTMap | null | undefined,update: QTMap | null | undefined){
+      if(target && update){
+        update.forEach((value,key)=>{
+          target.set(key,value)
+        })
+      }
+    }
 
   static  printObject(obj: HippyAny | null, indent: string = ''): void {
       if(!obj){

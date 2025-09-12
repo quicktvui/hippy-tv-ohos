@@ -1,13 +1,13 @@
 import {buildHippyRenderView,HippyRenderBaseView,HippyMap} from 'hippy'
-import { QTView } from '../../QTTypes';
+import { QTMap, QTView } from '../../QTTypes';
 import { QTPlaceholderView } from './QTPlaceholderView';
 
 export class ItemTemplate  {
   templateView: QTView;
   viewType:number;
-  props:HippyMap;
+  props:QTMap;
 
-  constructor(templateView: QTView, viewType: number, props: HippyMap) {
+  constructor(templateView: QTView, viewType: number, props: QTMap) {
     this.templateView = templateView;
     this.viewType = viewType;
     this.props = props;
@@ -20,9 +20,9 @@ export class ItemView{
   template:ItemTemplate | undefined = undefined
   position: number;
   id : String | null = null;
-  raw:HippyMap | null;
+  raw:QTMap | null;
   renderView : QTView | null = null;
-  constructor(position: number, raw : HippyMap | null) {
+  constructor(position: number, raw : QTMap | null) {
     this.position = position
     this.raw = raw
   }
@@ -75,12 +75,12 @@ export function  renderItem(item : ItemView){
 
 }
 
-export function getItemType(map : HippyMap | null) : number | null{
+export function getItemType(map : QTMap | null) : number | null{
   return getAsNumber(map,'type')
 }
 
 // 从 Map 中安全提取并转换值的函数
-function getAsNumber(map: HippyMap | null, key: string): number | null {
+function getAsNumber(map: QTMap | null, key: string): number | null {
   if (map === undefined || map === null) {
     return null;
   }
