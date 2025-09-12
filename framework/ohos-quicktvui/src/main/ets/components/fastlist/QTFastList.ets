@@ -13,9 +13,8 @@ export struct  QTFastList {
 
   test : boolean = false
   dataSource: FastListDataSource | null = null;
-  @State bgColor : Color = Color.Transparent
+  @State bgColor : Color = Color.Yellow
   private endBatchCallback: HippyEndBatchCallback | null = null
-  @Consume('autoSize') @Watch('onAutoSizeChange') autoSize? : number[]
 
   // 监听autoSize变化的回调函数
   onAutoSizeChange(newValue: number[], oldValue: number[]) {
@@ -36,26 +35,73 @@ export struct  QTFastList {
 
 
   build(): void {
-    Stack() {
-      List(){
-        LazyForEach(this.dataSource,(item : QTFastItemView,index : number)=>{
-          ListItem() {
-            QTFastItem({
-              renderView:item as QTFastItemView,
-              children: item.children,
+    if(this.renderView.spanCount){
+      if(this.renderView.isHorizontal){
+        Stack() {
+          Grid(){
+            LazyForEach(this.dataSource,(item : QTFastItemView,index : number)=>{
+              GridItem() {
+                QTFastItem({
+                  renderView:item as QTFastItemView,
+                  children: item.children,
+                })
+              }
             })
           }
-          .width(item?.cssWidth)
-          .height(item?.cssHeight)
-        })
+          .alignItems(GridItemAlignment.STRETCH)
+          .rowsTemplate(this.renderView.spanCount)
+          //.direction(this.renderView.isHorizontal ? Axis.Horizontal : Axis.Vertical)
+          .width('100%')
+          .height('100%')
+          // ContentSlot(this.renderView.childSlot)
+        }
+        .applyRenderViewBaseAttr(this.renderView)
+        .backgroundColor(this.bgColor)
+      }else{
+        Stack() {
+          Grid(){
+            LazyForEach(this.dataSource,(item : QTFastItemView,index : number)=>{
+              GridItem() {
+                QTFastItem({
+                  renderView:item as QTFastItemView,
+                  children: item.children,
+                })
+              }
+            })
+          }
+          .alignItems(GridItemAlignment.STRETCH)
+          .columnsTemplate(this.renderView.spanCount)
+          //.direction(this.renderView.isHorizontal ? Axis.Horizontal : Axis.Vertical)
+          .width('100%')
+          .height('100%')
+          // ContentSlot(this.renderView.childSlot)
+        }
+        .applyRenderViewBaseAttr(this.renderView)
+        .backgroundColor(this.bgColor)
       }
-      .listDirection(this.renderView.isHorizontal ? Axis.Horizontal : Axis.Vertical)
-      .width('100%')
-      .height('100%')
-      // ContentSlot(this.renderView.childSlot)
+    }else{
+      Stack() {
+        List(){
+          LazyForEach(this.dataSource,(item : QTFastItemView,index : number)=>{
+            ListItem() {
+              QTFastItem({
+                renderView:item as QTFastItemView,
+                children: item.children,
+              })
+            }
+            .width(item?.cssWidth)
+            .height(item?.cssHeight)
+          })
+        }
+        .listDirection(this.renderView.isHorizontal ? Axis.Horizontal : Axis.Vertical)
+        .width('100%')
+        .height('100%')
+        // ContentSlot(this.renderView.childSlot)
+      }
+      .applyRenderViewBaseAttr(this.renderView)
+      .backgroundColor(this.bgColor)
     }
-    .applyRenderViewBaseAttr(this.renderView)
-    .backgroundColor(this.bgColor)
+
   }
 
   public notifyReload(){

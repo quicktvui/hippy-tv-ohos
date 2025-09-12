@@ -4,6 +4,7 @@ import { TAG_QUICKTVUI } from '../../Constant';
 import { HRValueUtils } from '../../HRValueUtils';
 import { QTView } from '../../QTTypes';
 import { CommonUtils } from '../../utils/CommonUtils';
+import { ExtendUtil } from '../../utils/ExtendUtil';
 
 import QTRenderBaseView from '../QTRenderBaseView';
 import { ItemView } from './ItemView';
@@ -15,10 +16,10 @@ import { QTFastList } from './QTFastList';
 export class QTFastListView extends QTRenderBaseView{
 
   public uiCtx: UIContext | null = null
-  // public dataList: HippyObservedArray<ItemView> = new HippyObservedArray()
   public virtualChildren: HippyObservedArray<QTView> = new HippyObservedArray()
   public ui : QTFastList | null = null;
   isHorizontal : boolean = false;
+  spanCount : string | null= null;
 
   constructor(ctx: NativeRenderContext) {
     super(ctx)
@@ -174,7 +175,20 @@ export class QTFastListView extends QTRenderBaseView{
         return true;
       case "horizontal":
         this.isHorizontal  = HRValueUtils.getBoolean(propValue,true)
-        console.error(TAG_QUICKTVUI,`FastList set Horizontal:${this.isHorizontal}`)
+        return true;
+      case "spanCount":
+        let spanCount = HRValueUtils.getNumber(propValue)
+        if(spanCount > 0){
+          this.spanCount = ''
+        }
+        for(let i = 0; i < spanCount; i++){
+          this.spanCount += '1fr'
+          this.spanCount += ' '
+        }
+        if(this.spanCount && spanCount > 1){
+          this.spanCount.substring(0,this.spanCount.length-1)
+        }
+        console.error(TAG_QUICKTVUI,`FastList set spanCount:${this.spanCount}:${ExtendUtil.debugView(this)}`)
         return true;
 
     }
@@ -223,6 +237,7 @@ export class QTFastListView extends QTRenderBaseView{
   }
 
   onDataChanged(data : HippyArray | null){
+    console.debug(TAG_QUICKTVUI,`onDataChanged data size:${data ? data.length : 0} spanCount:${this.spanCount},this:${ExtendUtil.debugView(this)}`)
     if(data && data.length > 0){
       this.virtualChildren.push(...
         data?.map((item,index)=>{
@@ -311,8 +326,14 @@ export class QTFastListView extends QTRenderBaseView{
 
           break;
         case 'setListDataWithParams':
-          console.info(TAG_QUICKTVUI,`setListDataWithParams data:${HRValueUtils.getArray(params)}`)
-
+          let dataArray = HRValueUtils.getArray(params)
+          if(dataArray && dataArray[0]){
+            console.info(TAG_QUICKTVUI,`setListDataWithParams data:${dataArray[0]}`)
+            let args0 : HippyArray | null = HRValueUtils.getArray(dataArray[0] as HippyArray)
+            this.onDataChanged(args0)
+          }else{
+            this.onDataChanged(null)
+          }
           break;
         case 'setListData':
           console.info(TAG_QUICKTVUI,`setListData data:${HRValueUtils.getArray(params)}`)
@@ -341,7 +362,6 @@ export class QTFastListView extends QTRenderBaseView{
 
           break;
         case 'setSpanCount':
-
           break;
         case 'searchReplaceItem':
 

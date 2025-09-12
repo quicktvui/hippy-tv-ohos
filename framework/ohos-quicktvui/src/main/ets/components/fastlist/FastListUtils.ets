@@ -38,7 +38,7 @@ export class FastListUtils{
         if(parentItem){
             parentPosition = FastListUtils.findItemPosition(parentItem)
         }else{
-          console.error(TAG_CLICK,"handleItemClick error find parentItem null ")
+          console.warn(TAG_CLICK,"handleItemClick find parentItem null ")
         }
       }
       //basic
