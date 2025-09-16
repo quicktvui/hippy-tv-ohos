@@ -6,6 +6,7 @@ import {
   HippyRenderCallback,
   buildHippyRenderView,
 } from 'hippy'
+import { TAG_QUICKTVUI, TAG_REUSE } from '../../Constant';
 import { QTPendingListView, QTView } from '../../QTTypes';
 import { QTPixelUtil } from '../../utils/QTPixelUtil';
 import QTRenderBaseView from '../QTRenderBaseView';
@@ -38,6 +39,16 @@ export class QTFastItemView extends QTRenderBaseView{
     this.layoutItem(child)
     //this.layoutItem(child.)
   }
+
+  getReuseId():string | null{
+    if(this.itemView?.template?.templateView){
+      return  `tp-${this.itemView?.template?.templateView.tag}-type-${LayoutAttach.obtainLayoutAttach(this).virtualExtra.itemType}`
+    }else{
+      return `type${LayoutAttach.obtainLayoutAttach(this).virtualExtra.itemType}`
+    }
+  }
+
+
 
   layoutItem(childView:QTView ){
     if(this.parentView){
@@ -102,6 +113,7 @@ export class QTFastItemView extends QTRenderBaseView{
 
   }
 }
+
 @Reusable
 @Component
 export struct QTFastItem {
@@ -119,6 +131,14 @@ export struct QTFastItem {
 
   aboutToAppear(): void {
 
+  }
+
+  aboutToRecycle(): void {
+    console.log(TAG_REUSE,'aboutToRecycle ')
+  }
+
+  aboutToReuse(params: Record<string, Object>): void {
+    console.log(TAG_REUSE,'aboutToReuse')
   }
 }
 

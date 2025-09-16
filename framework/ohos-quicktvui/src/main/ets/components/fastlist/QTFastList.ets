@@ -1,10 +1,11 @@
 import { QTFastListView } from "./QTFastListView"
 import {HippyObservedArray,HRDiv,HIPPY_COMPONENT_KEY_PREFIX,HippyRenderBaseView,buildHippyRenderView,HippyMap,HippyEndBatchCallback} from 'hippy'
-import { TAG_LAYOUT, TAG_QUICKTVUI } from "../../Constant";
+import { TAG_FASTLIST, TAG_LAYOUT, TAG_QUICKTVUI } from "../../Constant";
 import { FastListDataSource } from "./FastListDataSource";
 import { NodeUtils } from "../../utils/NodeUtils";
-import { QTView } from "../../QTTypes";
+import { QTAny, QTView } from "../../QTTypes";
 import { QTFastItem, QTFastItemView } from "./QTFastItemView";
+import { LayoutAttach } from "./LayoutAttach";
 
 @Component
 export struct  QTFastList {
@@ -32,6 +33,23 @@ export struct  QTFastList {
     this.notifyReload()
   }
 
+  keyGenerate(item : QTView,index : number) : string{
+    if(item instanceof QTFastItemView){
+      let id = LayoutAttach.obtainLayoutAttach(item).sid
+      if(id){
+        console.debug(TAG_FASTLIST,`keyGenerate id from sid:${id}`)
+        return id
+      }
+      if(item.itemView){
+        id =  item.itemView.getItemId()
+        if(id){
+          console.debug(TAG_FASTLIST,`keyGenerate id by item:${id}`)
+          return LayoutAttach.obtainLayoutAttach(item).virtualExtra.itemType + ''+ id;
+        }
+      }
+    }
+    return 'view-'+index
+  }
 
 
   build(): void {
@@ -44,9 +62,9 @@ export struct  QTFastList {
                 QTFastItem({
                   renderView:item as QTFastItemView,
                   children: item.children,
-                })
+                }).reuseId(item.getReuseId())
               }
-            })
+            },this.keyGenerate)
           }
           .alignItems(GridItemAlignment.STRETCH)
           .rowsTemplate(this.renderView.spanCount)
@@ -65,9 +83,9 @@ export struct  QTFastList {
                 QTFastItem({
                   renderView:item as QTFastItemView,
                   children: item.children,
-                })
+                }).reuseId(item.getReuseId())
               }
-            })
+            },this.keyGenerate)
           }
           .alignItems(GridItemAlignment.STRETCH)
           .columnsTemplate(this.renderView.spanCount)
@@ -87,11 +105,11 @@ export struct  QTFastList {
               QTFastItem({
                 renderView:item as QTFastItemView,
                 children: item.children,
-              })
+              }).reuseId(item.getReuseId())
             }
             .width(item?.cssWidth)
             .height(item?.cssHeight)
-          })
+          },this.keyGenerate)
         }
         .listDirection(this.renderView.isHorizontal ? Axis.Horizontal : Axis.Vertical)
         .width('100%')

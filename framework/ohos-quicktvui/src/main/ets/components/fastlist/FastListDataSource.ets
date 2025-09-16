@@ -150,6 +150,7 @@ export class FastListDataSource implements IDataSource {
       console.error(TAG_QUICKTVUI,`put fallback id :${item.position}`)
     }
     if(type){
+      LayoutAttach.obtainLayoutAttach(fi).virtualExtra.itemType = type;
       let it = this.templatesMap.get(type);
       item.template = it;
       if(it){
@@ -200,7 +201,6 @@ export class FastListDataSource implements IDataSource {
         if(fi && rv){
           if(fi instanceof QTFastItemView){
             fi.layoutItem(rv)
-            console.error(TAG_LAYOUT,`setItem Width:${fi.cssWidth},height:${fi.cssHeight}`)
           }else{
             console.error(TAG_FASTLIST,`buildItemError !!!`)
             // LayoutAttach.obtainLayoutAttach(item.renderView).calculateLayout(800,600)
@@ -248,7 +248,7 @@ export class FastListDataSource implements IDataSource {
   public getData(index: number): QTFastItemView {
     let fi = this.dataList[index] as QTFastItemView
     this.buildItem(fi,index)
-    // console.log(TAG_QUICKTVUI,`getData index:${index}`)
+    console.log(TAG_FASTLIST,`getData index:${index}`)
     if(fi.cssWidth < 1 || fi.cssHeight < 1){
       console.error(TAG_LAYOUT,`getData layout Error index:${index}`)
     }
