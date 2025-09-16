@@ -20,11 +20,19 @@ export class QTFastListView extends QTRenderBaseView{
   public ui : QTFastList | null = null;
   isHorizontal : boolean = false;
   spanCount : string | null= null;
-
+  initialPosition : number = 0;
+  listSpace: number = 5;
+  scroller: ListScroller = new ListScroller();
+  scrollOffset: number =  0
+  autofocusPosition: number = -1;
   constructor(ctx: NativeRenderContext) {
     super(ctx)
   }
 
+
+  exeScroll(){
+    this.scroller.scrollToIndex(this.initialPosition)
+  }
 
   setProp(propKey: string, propValue: HippyAny): boolean {
     console.log(TAG_QUICKTVUI,`FastList:propKey:${propKey},value:${propValue}`)
@@ -33,10 +41,31 @@ export class QTFastListView extends QTRenderBaseView{
     // }
     switch (propKey){
       case "scrollOffset":
-
+        this.scrollOffset = HRValueUtils.getNumber(propValue)
         return true;
       case "initPosition":
-
+        let map = HRValueUtils.getMap(propValue)
+        let position = HRValueUtils.getNumberValue('focusPosition',map,-1)
+        if(position < 0){
+          position = HRValueUtils.getNumberValue('position',map,-1)
+        }
+        let scrollToPosition = HRValueUtils.getNumberValue('scrollToPosition',map,-1)
+        let scrollOffset = HRValueUtils.getNumberValue('scrollOffset',map,0)
+        let target = HRValueUtils.getStringValue('target',map,null)
+        let blockOthers = HRValueUtils.getBooleanValue('blockOthers',map,false)
+        let alignCenter = HRValueUtils.getBooleanValue('alignCenter',map,false)
+        let autofocus = HRValueUtils.getBooleanValue('autofocus',map,false)
+        let delay = HRValueUtils.getNumberValue('delay',map,0)
+        let nextTargetFocusPosition = HRValueUtils.getNumberValue('nextTargetFocusPosition',map,0)
+        //TODO
+        this.initialPosition = scrollToPosition
+        if(delay > 0){
+          setTimeout(()=>{
+            this.exeScroll()
+          },delay)
+        }else{
+          this.exeScroll()
+        }
         return true;
 
       case "enableItemAnimator":
@@ -158,20 +187,25 @@ export class QTFastListView extends QTRenderBaseView{
 
         return true;
       case "autofocusPosition":
-
+        this.autofocusPosition = HRValueUtils.getNumber(propValue)
         return true;
       case "autoscrollPosition":
-
+        this.initialPosition = HRValueUtils.getNumber(propValue)
         return true;
       case "autoscroll":
-
+        let scroll = HRValueUtils.getArray(propValue as HippyArray)
+        if(scroll){
+          this.initialPosition = scroll[0] as number
+          let force = scroll[1] as boolean
+          let offset = scroll[2] as number
+          this.exeScroll()
+        }
         return true;
       case "list":
         let data = HRValueUtils.getArray(propValue as HippyArray)
         this.onDataChanged(data)
         return true;
       case "sharedItemStore":
-
         return true;
       case "horizontal":
         this.isHorizontal  = HRValueUtils.getBoolean(propValue,true)
@@ -338,6 +372,11 @@ export class QTFastListView extends QTRenderBaseView{
     }else{
       this.onDataChanged(null)
     }
+    this.scroller.scrollToIndex(this.initialPosition)
+  }
+
+  isGridLayout() : boolean{
+    return this.spanCount != null && this.spanCount != undefined
   }
 
   call(method: string, params: Array<HippyAny>, callback: HippyRenderCallback | null): void {

@@ -12,6 +12,7 @@ export struct  QTFastList {
   @ObjectLink renderView: QTFastListView
   @ObjectLink children: HippyObservedArray<QTView>
 
+
   test : boolean = false
   dataSource: FastListDataSource | null = null;
   @State bgColor : Color = Color.Yellow
@@ -56,7 +57,7 @@ export struct  QTFastList {
     if(this.renderView.spanCount){
       if(this.renderView.isHorizontal){
         Stack() {
-          Grid(){
+          Grid(this.renderView.scroller){
             LazyForEach(this.dataSource,(item : QTFastItemView,index : number)=>{
               GridItem() {
                 QTFastItem({
@@ -77,7 +78,7 @@ export struct  QTFastList {
         .backgroundColor(this.bgColor)
       }else{
         Stack() {
-          Grid(){
+          Grid(this.renderView.scroller){
             LazyForEach(this.dataSource,(item : QTFastItemView,index : number)=>{
               GridItem() {
                 QTFastItem({
@@ -99,7 +100,7 @@ export struct  QTFastList {
       }
     }else{
       Stack() {
-        List(){
+        List({ space: this.renderView.listSpace, initialIndex: this.renderView.initialPosition, scroller: this.renderView.scroller }){
           LazyForEach(this.dataSource,(item : QTFastItemView,index : number)=>{
             ListItem() {
               QTFastItem({
@@ -114,6 +115,10 @@ export struct  QTFastList {
         .listDirection(this.renderView.isHorizontal ? Axis.Horizontal : Axis.Vertical)
         .width('100%')
         .height('100%')
+        .onAttach(()=>{
+          console.error(TAG_FASTLIST,`List on Aattch!!`)
+          // this.renderView.scroller.scrollToIndex(5)
+        })
         // ContentSlot(this.renderView.childSlot)
       }
       .applyRenderViewBaseAttr(this.renderView)
