@@ -20,7 +20,8 @@
 import {HippyObservedArray,NativeRenderContext,NativeRender,HRRect} from 'hippy'
 import {
   TAG_FASTLIST,
-  TAG_LAYOUT as TAG_LAYOUT, TAG_QUICKTVUI as TAG_QUICKTVUI } from '../../Constant';
+  TAG_LAYOUT as TAG_LAYOUT, TAG_QUICKTVUI as TAG_QUICKTVUI,
+  TAG_REUSE } from '../../Constant';
 import {HippyMap,HippyArray,HippyAny} from 'hippy'
 import {ItemView,getItemType, ItemTemplate} from './ItemView'
 import assertNull from '@ohos/hypium/src/main/module/assert/assertNull';
@@ -30,7 +31,8 @@ import { QTFastItemView } from './QTFastItemView';
 import { QTBaseComponentView } from '../QTBaseComponentView';
 import { LayoutAttach } from './LayoutAttach';
 import { CommonUtils } from '../../utils/CommonUtils';
-import { QTView } from '../../QTTypes';
+import { QTPendingListView, QTView } from '../../QTTypes';
+import { FastListUtils } from './FastListUtils';
 
 
 // class ItemEntry{
@@ -52,6 +54,12 @@ export class FastListDataSource implements IDataSource {
 
   public static  DEFAULT_TYPE : number = 1;
   public rootListId :number = -1;
+  public listView : QTPendingListView | null = null;
+
+  private bindEventDirty : boolean = true;
+  private lastEventPosition = -1;
+
+  //
 
   constructor(ctx : NativeRenderContext,dataList:HippyObservedArray<QTView>) {
     this.ctx = ctx;
@@ -132,6 +140,7 @@ export class FastListDataSource implements IDataSource {
   fillContent(renderView : QTView,wi : QTFastItemView){
     wi.isVirtual = true;
     wi.addSubRenderView(renderView,0)
+    LayoutAttach.obtainLayoutAttach(wi).virtualExtra.rootListId = this.rootListId
     LayoutAttach.obtainLayoutAttach(wi).insertChild(LayoutAttach.obtainLayoutAttach(renderView),0)
   }
 
@@ -247,15 +256,27 @@ export class FastListDataSource implements IDataSource {
 
   public getData(index: number): QTFastItemView {
     let fi = this.dataList[index] as QTFastItemView
+    fi.dataPosition = index
     this.buildItem(fi,index)
     console.log(TAG_FASTLIST,`getData index:${index}`)
+    console.log(TAG_REUSE,`getData index:${index}`)
     if(fi.cssWidth < 1 || fi.cssHeight < 1){
       console.error(TAG_LAYOUT,`getData layout Error index:${index}`)
     }
     // if(item.renderView){
     //   NodeUtils.printViewTreePretty(item.renderView,'',false)
     // }
+    if(this.bindEventDirty || this.lastEventPosition != index){
+      FastListUtils.handleItemEvent(fi,FastListUtils.EVENT_BIND,true,index,this.listView!!)
+      this.lastEventPosition = index;
+      this.bindEventDirty = false;
+    }
+
     return fi as QTFastItemView
+  }
+
+  makeBindEventDirty(){
+    this.bindEventDirty = true;
   }
 
   // public setListData(rawList : HippyArray){

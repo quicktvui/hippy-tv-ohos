@@ -341,19 +341,19 @@ export class QTFastListView extends QTRenderBaseView{
     this.ui?.notifyReload()
   }
 
-  appendItem(data : HippyArray){
+  appendItem(data : HippyArray,deleteCount:number){
+    console.log(TAG_FASTLIST,`appendItem dataSize:${data.length},deleteCount:${deleteCount}`)
       if(!this.virtualChildren || this.virtualChildren.length < 1){
         this.setListWithPrams(data,null)
       }else{
         let start = this.virtualChildren.length;
-        this.virtualChildren.push(...
-          data?.map((item,index)=>{
-            console.log(TAG_QUICKTVUI,`insertItemRange crate item :`)
-            CommonUtils.printMapPretty(item as HippyMap,'FastListView:',false)
-            let it =  new ItemView(index + start,item as HippyMap)
-            return new QTFastItemView(this.ctx).init(this,it)
-          })
-        )
+        let newData = data?.map((item,index)=>{
+          console.log(TAG_QUICKTVUI,`insertItemRange crate item :`)
+          CommonUtils.printMapPretty(item as HippyMap,'FastListView:',false)
+          let it =  new ItemView(index + start,item as HippyMap)
+          return new QTFastItemView(this.ctx).init(this,it)
+        })
+        this.virtualChildren.splice(this.virtualChildren.length - deleteCount,deleteCount,...newData)
         this.ui?.notifyReload()
       }
   }
@@ -380,7 +380,7 @@ export class QTFastListView extends QTRenderBaseView{
   }
 
   call(method: string, params: Array<HippyAny>, callback: HippyRenderCallback | null): void {
-    console.log(TAG_QUICKTVUI,`QTFastListView call function : ${method},params:${params}`)
+    console.log(TAG_FASTLIST,`QTFastListView call function : ${method},params:${params}`)
     this.uiCtx?.runScopedTask(() => {
       switch (method){
         case 'scrollToPositionWithOffsetInfiniteMode':
@@ -461,10 +461,10 @@ export class QTFastListView extends QTRenderBaseView{
           this.setListWithPrams(data,null)
           break;
         case 'addListData':
-          this.appendItem(params[0] as HippyArray)
+          this.appendItem(params[0] as HippyArray,0)
           break;
         case 'addListDataWithParams':
-          this.appendItem(params[0] as HippyArray)
+          this.appendItem(params[0] as HippyArray,params[1] as number)
           break;
         case 'scrollToTop':
 

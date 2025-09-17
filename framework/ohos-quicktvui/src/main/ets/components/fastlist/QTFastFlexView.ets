@@ -28,6 +28,7 @@ export class QTFastFlexView extends QTRenderBaseView {
   constructor(ctx: NativeRenderContext) {
     super(ctx)
     this.dataSource = new FastListDataSource(ctx,this.virtualChildren)
+    this.dataSource.listView = this;
   }
 
   onChildInserted(childTag: number, childViewName: string, childIndex: number): void {

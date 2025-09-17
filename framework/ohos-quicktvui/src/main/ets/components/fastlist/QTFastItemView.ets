@@ -6,7 +6,7 @@ import {
   HippyRenderCallback,
   buildHippyRenderView,
 } from 'hippy'
-import { TAG_QUICKTVUI, TAG_REUSE } from '../../Constant';
+import { TAG_FASTLIST, TAG_FAST_EVENT, TAG_QUICKTVUI, TAG_REUSE } from '../../Constant';
 import { QTPendingListView, QTView } from '../../QTTypes';
 import { QTPixelUtil } from '../../utils/QTPixelUtil';
 import QTRenderBaseView from '../QTRenderBaseView';
@@ -20,6 +20,9 @@ export class QTFastItemView extends QTRenderBaseView{
 
   itemView:ItemView |  null = null;
   parentList : QTPendingListView | null = null;
+  dataPosition : number = -1;
+
+  //
 
   constructor(ctx: NativeRenderContext) {
     super(ctx)
@@ -127,6 +130,12 @@ export struct QTFastItem {
       }, (item: QTView) => item.tag + '')
     }
     .applyRenderViewBaseAttr(this.renderView)
+    .onAttach(()=>{
+      console.log(TAG_REUSE,`++onItemAttach position:${this.renderView.dataPosition}`)
+    })
+    .onDetach(()=>{
+      console.log(TAG_REUSE,`--onDetach position:${this.renderView.dataPosition}`)
+    })
   }
 
   aboutToAppear(): void {
@@ -134,11 +143,11 @@ export struct QTFastItem {
   }
 
   aboutToRecycle(): void {
-    console.log(TAG_REUSE,'aboutToRecycle ')
+    console.log(TAG_REUSE,`--aboutToRecycle dataPosition:${this.renderView.dataPosition}`)
   }
 
   aboutToReuse(params: Record<string, Object>): void {
-    console.log(TAG_REUSE,'aboutToReuse')
+    console.warn(TAG_REUSE,`++aboutToReuse dataPosition:${this.renderView.dataPosition}`)
   }
 }
 

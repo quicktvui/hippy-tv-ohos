@@ -3,7 +3,7 @@ import {HippyObservedArray,HRDiv,HIPPY_COMPONENT_KEY_PREFIX,HippyRenderBaseView,
 import { TAG_FASTLIST, TAG_LAYOUT, TAG_QUICKTVUI } from "../../Constant";
 import { FastListDataSource } from "./FastListDataSource";
 import { NodeUtils } from "../../utils/NodeUtils";
-import { QTAny, QTView } from "../../QTTypes";
+import { QTView } from "../../QTTypes";
 import { QTFastItem, QTFastItemView } from "./QTFastItemView";
 import { LayoutAttach } from "./LayoutAttach";
 
@@ -119,6 +119,9 @@ export struct  QTFastList {
           console.error(TAG_FASTLIST,`List on Aattch!!`)
           // this.renderView.scroller.scrollToIndex(5)
         })
+        .onScrollVisibleContentChange(()=>{
+          this.dataSource?.makeBindEventDirty()
+        })
         // ContentSlot(this.renderView.childSlot)
       }
       .applyRenderViewBaseAttr(this.renderView)
@@ -155,6 +158,7 @@ export struct  QTFastList {
     this.renderView.uiCtx = this.getUIContext()
     this.dataSource = new FastListDataSource(this.renderView.ctx,this.renderView.virtualChildren)
     this.dataSource.rootListId = this.renderView.tag
+    this.dataSource.listView = this.renderView
     this.renderView.ui  = this
 
     this.handleOnChildrenUpdated()
