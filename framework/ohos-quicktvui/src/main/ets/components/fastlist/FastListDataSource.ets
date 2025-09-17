@@ -154,6 +154,7 @@ export class FastListDataSource implements IDataSource {
     if(item.raw instanceof  Map){
         item.id = FastListDataSource.getIdFromData(item.raw)
     }
+    fi.dataPosition = position
     if(!item.id){
       item.id = item.position +''
       console.error(TAG_QUICKTVUI,`put fallback id :${item.position}`)
@@ -256,7 +257,7 @@ export class FastListDataSource implements IDataSource {
 
   public getData(index: number): QTFastItemView {
     let fi = this.dataList[index] as QTFastItemView
-    fi.dataPosition = index
+
     this.buildItem(fi,index)
     console.log(TAG_FASTLIST,`getData index:${index}`)
     console.log(TAG_REUSE,`getData index:${index}`)

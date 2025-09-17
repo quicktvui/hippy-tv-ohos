@@ -9,7 +9,7 @@ import {
   HippyEndBatchCallback,
   HippyRenderBaseView
 } from 'hippy'
-import { TAG_QUICKTVUI } from '../../Constant';
+import { TAG_FASTLIST, TAG_QUICKTVUI } from '../../Constant';
 import { HRValueUtils } from '../../HRValueUtils';
 import { QTView } from '../../QTTypes';
 import { CommonUtils } from '../../utils/CommonUtils';
@@ -17,6 +17,7 @@ import { NodeUtils } from '../../utils/NodeUtils';
 import QTRenderBaseView from '../QTRenderBaseView';
 import { FastListDataSource } from './FastListDataSource';
 import { ItemView, renderItem } from './ItemView';
+import { LayoutAttach } from './LayoutAttach';
 import { QTFastItem, QTFastItemView } from './QTFastItemView';
 
 
@@ -76,6 +77,24 @@ export class QTFastFlexView extends QTRenderBaseView {
     }else{
       this.virtualChildren = []
     }
+  }
+
+  keyGenerate(item : QTView,index : number) : string{
+    if(item instanceof QTFastItemView){
+      let id = LayoutAttach.obtainLayoutAttach(item).sid
+      if(id){
+        console.debug(TAG_FASTLIST,`keyGenerate id from sid:${id}`)
+        return id
+      }
+      if(item.itemView){
+        id =  item.itemView.getItemId()
+        if(id){
+          console.debug(TAG_FASTLIST,`keyGenerate id by item:${id}`)
+          return LayoutAttach.obtainLayoutAttach(item).virtualExtra.itemType + ''+ id;
+        }
+      }
+    }
+    return 'view-'+index
   }
 
   setProp(propKey: string, propValue: HippyAny): boolean {
@@ -188,9 +207,9 @@ export struct QTFastFlex {
         QTFastItem({
           renderView:item as QTFastItemView,
           children: item.children,
-        })
+        }).reuseId(item.getReuseId())
       },(item : QTFastItemView,index)=>{
-        return item.itemView!!.id as string
+        return this.renderView.keyGenerate(item,index)
       })
       // ContentSlot(this.renderView.childSlot)
     }

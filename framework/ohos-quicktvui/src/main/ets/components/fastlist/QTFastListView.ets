@@ -467,7 +467,8 @@ export class QTFastListView extends QTRenderBaseView{
           this.appendItem(params[0] as HippyArray,params[1] as number)
           break;
         case 'scrollToTop':
-
+          this.initialPosition = 0;
+          this.exeScroll()
           break;
         case 'updateItemProps':
 
