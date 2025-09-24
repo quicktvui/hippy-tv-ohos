@@ -34,6 +34,7 @@ import { CommonUtils } from '../../utils/CommonUtils';
 import { QTMap, QTPendingListView, QTView } from '../../QTTypes';
 import { FastListUtils } from './FastListUtils';
 import { HRValueUtils } from '../../HRValueUtils';
+import { QTPixelUtil } from '../../utils/QTPixelUtil';
 
 
 // class ItemEntry{
@@ -160,6 +161,7 @@ export class FastListDataSource implements IDataSource {
           fi.decoration.top = HRValueUtils.getNumberValue('top',decoration,0)
           fi.decoration.right = HRValueUtils.getNumberValue('right',decoration,0)
           fi.decoration.bottom = HRValueUtils.getNumberValue('bottom',decoration,0)
+          QTPixelUtil.devPadding2Vp(fi.decoration)
         }
     }
     fi.dataPosition = position

@@ -57,7 +57,7 @@ export class QTTextView extends QTRenderBaseView{
         this.textAlign = ViewUtils.getTextGravity(HRValueUtils.getString(propValue))
         return true;
       case "fontSize":
-        this.fontSize = HRValueUtils.getNumber(propValue)
+        this.fontSize = QTPixelUtil.dev2Vp(HRValueUtils.getNumber(propValue));
         return true;
       case "paddingRect":
         let padding = propValue as HippyArray
@@ -122,7 +122,7 @@ export class QTTextView extends QTRenderBaseView{
           this.text = HRValueUtils.getString(propValue)
           break;
         case 'setTextSize':
-          this.fontSize = HRValueUtils.getNumber(propValue)
+          this.fontSize = QTPixelUtil.dev2Vp(HRValueUtils.getNumber(propValue))
           break;
         case 'setTextColor':
           this.fontColor = HRValueUtils.getString(propValue)
