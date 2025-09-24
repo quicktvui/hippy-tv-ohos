@@ -35,6 +35,8 @@ import { QTMap, QTPendingListView, QTView } from '../../QTTypes';
 import { FastListUtils } from './FastListUtils';
 import { HRValueUtils } from '../../HRValueUtils';
 import { QTPixelUtil } from '../../utils/QTPixelUtil';
+import { inspector } from '@kit.ArkUI';
+import { QTFastFlexView } from './QTFastFlexView';
 
 
 // class ItemEntry{
@@ -219,7 +221,7 @@ export class FastListDataSource implements IDataSource {
         //在属性全部执行完以后，计算layout
         if(fi && rv){
           if(fi instanceof QTFastItemView){
-            fi.layoutItem(rv)
+            fi.layoutItem(rv,this.listView instanceof  QTFastFlexView)
           }else{
             console.error(TAG_FASTLIST,`buildItemError !!!`)
             // LayoutAttach.obtainLayoutAttach(item.renderView).calculateLayout(800,600)

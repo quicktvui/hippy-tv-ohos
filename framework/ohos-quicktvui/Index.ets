@@ -28,4 +28,6 @@ export { QTAnimation, QTAnimationView } from './src/main/ets/components/animatio
 
 export { QTItemFrame, QTItemFrameView } from './src/main/ets/components/item/QTItemFrameView'
 
-export { QTLottie, QTLottieView } from './src/main/ets/components/lottie/QTLottieView'
+export { QTLottie,QTLottieView } from './src/main/ets/components/lottie/QTLottieView'
+export { QTTabsView,QTTabs } from './src/main/ets/components/tabs/QTTabsView'
+export { InnerViewPagerView,InnerViewPager } from './src/main/ets/components/tabs/InnerViewPagerView'

@@ -6,7 +6,7 @@
     "mainElement": "RuntimeEntryAbility",
     "deviceTypes": [
       "default",
-      "tablet"
+      "tablet",
     ],
     "querySchemes": [
       "esapp"

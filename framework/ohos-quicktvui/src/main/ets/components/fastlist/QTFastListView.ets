@@ -1,13 +1,16 @@
 
-import {HippyObservedArray,NativeRenderContext,HippyAny,HippyRenderCallback,HippyArray,HippyMap} from 'hippy'
+import {HippyObservedArray,NativeRenderContext,HippyAny,HippyRenderCallback,HippyArray,HippyMap,HippyEndBatchCallback} from 'hippy'
 import { TAG_FASTLIST } from '../../Constant';
 import { HRValueUtils } from '../../HRValueUtils';
 import { QTAny, QTArray, QTMap, QTView } from '../../QTTypes';
 import { CommonUtils } from '../../utils/CommonUtils';
 import { ExtendUtil } from '../../utils/ExtendUtil';
+import { NodeUtils } from '../../utils/NodeUtils';
 
 import QTRenderBaseView from '../QTRenderBaseView';
+import { FastListDataSource } from './FastListDataSource';
 import { ItemView } from './ItemView';
+import { LayoutAttach } from './LayoutAttach';
 import { QTFastItemView } from './QTFastItemView';
 import { QTFastList } from './QTFastList';
 
@@ -15,16 +18,20 @@ import { QTFastList } from './QTFastList';
 @Observed
 export class QTFastListView extends QTRenderBaseView{
 
-  public uiCtx: UIContext | null = null
   public virtualChildren: HippyObservedArray<QTView> = new HippyObservedArray()
-  public ui : QTFastList | null = null;
   isHorizontal : boolean = false;
   spanCount : string | null= null;
   initialPosition : number = 0;
-  listSpace: number = 5;
+  listSpace: number = 0;
   scroller: ListScroller = new ListScroller();
   scrollOffset: number =  0
   autofocusPosition: number = -1;
+  dataSource: FastListDataSource | null = null;
+
+  // private customTemplate: QTView | null = null;
+
+  private endBatchCallback: HippyEndBatchCallback | null = null
+
   constructor(ctx: NativeRenderContext) {
     super(ctx)
   }
@@ -33,6 +40,67 @@ export class QTFastListView extends QTRenderBaseView{
   exeScroll(){
     this.scroller.scrollToIndex(this.initialPosition)
   }
+
+  getTemplate() : HippyObservedArray<QTView>{
+    return this.templateView ? this.templateView.children : this.children
+  }
+
+  setCustomTemplate(customTemplate: QTView | null){
+    this.templateView = customTemplate;
+  }
+
+  public prepareTemplate() {
+    // this.bgColor = Color.Pink
+    console.log(TAG_FASTLIST,`QTFastList: handleOnChildrenUpdated`)
+    // NodeUtils.printViewTreePretty(this,'',false)
+    if(this.isVirtual){
+      if(!this.templateView){
+        console.error(TAG_FASTLIST,`handleOnChildrenUpdated registerTemplate error for virtual FastList,this.templateView is null`)
+      }
+      this.templateView?.children.map((c,index)=>{
+        this.dataSource?.registerTemplate(this,c,index,true)
+      })
+    }else{
+      this.getTemplate().map((c,index)=>{
+        // console.log(QUICKTVUI_TAG,`template: viewType：`+c.viewType+",node:"+NodeUtils.getNodeById(this.renderView.ctx,c.tag))
+        this.dataSource?.registerTemplate(this,c,index,this.isVirtual)
+      })
+    }
+    // this.dataSource?.notifyReload()
+  }
+
+  onUIAboutToAppear(ui : QTFastList){
+    console.log(TAG_FASTLIST,`FastList onUIAboutToAppear`)
+    this.setupDataSource(this.tag)
+  }
+
+  nativeSetupIfNeed(rootListID : number,customTemplate: QTView){
+    if(!this.dataSource){
+      this.setCustomTemplate(customTemplate)
+      this.setupDataSource(rootListID)
+    }
+  }
+
+  setupDataSource(rootListID : number){
+    this.dataSource = new FastListDataSource(this.ctx,this.virtualChildren)
+    this.dataSource.rootListId = rootListID
+    this.dataSource.listView = this
+    this.prepareTemplate()
+    this.endBatchCallback = () =>{
+      this.prepareTemplate()
+    }
+    this.ctx.getNativeRender().addEndBatchCallback(this.ctx.getRootId(),this.endBatchCallback)
+    if (this.eventAttachedToWindow) {
+      this.eventAttachedToWindow()
+    }
+  }
+
+  onUIAboutToDisappear(){
+    if(this.endBatchCallback){
+      this.ctx.getNativeRender().removeEndBatchCallback(this.ctx.getRootId(),this.endBatchCallback)
+    }
+  }
+
 
   setProp(propKey: string, propValue: HippyAny): boolean {
     console.log(TAG_FASTLIST,`FastList:propKey:${propKey},value:${propValue}`)
@@ -203,7 +271,9 @@ export class QTFastListView extends QTRenderBaseView{
         return true;
       case "list":
         let data = HRValueUtils.getArray(propValue as HippyArray)
-        this.onDataChanged(data)
+        //this.onDataChanged(data)
+        console.info(TAG_FASTLIST,`set list prop data:${data?.length} this:${ExtendUtil.debugView(this)}`)
+        this.setListWithPrams(data,null)
         return true;
       case "sharedItemStore":
         return true;
@@ -275,22 +345,22 @@ export class QTFastListView extends QTRenderBaseView{
     if(data && data.length > 0){
       this.virtualChildren.push(...
         data?.map((item,index)=>{
-          console.log(TAG_FASTLIST,`onDataChanged crate item :`)
-          CommonUtils.printMapPretty(item as HippyMap,'FastListView:',false)
+          console.log(TAG_FASTLIST,`onDataChanged crate item :${CommonUtils.hippyAny2String(item)}`)
+          //CommonUtils.printMapPretty(item as HippyMap,'FastListView:',false)
           let it =  new ItemView(index,item as HippyMap)
           return new QTFastItemView(this.ctx).init(this,it)
         })
       )
-      this.ui?.notifyReload()
+      this.notifyReload()
     }else{
       this.virtualChildren = []
-      this.ui?.notifyReload()
+      this.notifyReload()
     }
   }
 
   deleteItemRange(start : number,cout:number){
     this.virtualChildren.splice(start, cout)
-    this.ui?.notifyReload()
+    this.notifyReload()
   }
 
   updateItemRange(start : number,count:number,data:HippyArray){
@@ -305,9 +375,9 @@ export class QTFastListView extends QTRenderBaseView{
     )
     this.virtualChildren.splice(start,count,...replaced)
     if(count > 1){
-      this.ui?.dataSource?.notifyDataChanged(start,count)
+      this.dataSource?.notifyDataChanged(start,count)
     }else{
-      this.ui?.dataSource?.notifyDataChange(start)
+      this.dataSource?.notifyDataChange(start)
     }
   }
 
@@ -316,7 +386,7 @@ export class QTFastListView extends QTRenderBaseView{
     if(fi){
      let itemMap : QTMap | null | undefined=  (fi as QTFastItemView).itemView?.raw
       CommonUtils.updateMap(itemMap,data)
-      this.ui?.dataSource?.notifyDataChange(postion)
+      this.dataSource?.notifyDataChange(postion)
     }else{
       console.warn(TAG_FASTLIST,`updateItemData error item on ${postion} is null`)
     }
@@ -333,12 +403,12 @@ export class QTFastListView extends QTRenderBaseView{
     })
     )
     this.virtualChildren.splice(start,0,...replaced)
-    this.ui?.dataSource?.notifyDataAddRange(start,data.length)
+    this.dataSource?.notifyDataAddRange(start,data.length)
   }
 
   clearData(){
     this.virtualChildren = []
-    this.ui?.notifyReload()
+    this.notifyReload()
   }
 
   appendItem(data : HippyArray,deleteCount:number){
@@ -354,20 +424,22 @@ export class QTFastListView extends QTRenderBaseView{
           return new QTFastItemView(this.ctx).init(this,it)
         })
         this.virtualChildren.splice(this.virtualChildren.length - deleteCount,deleteCount,...newData)
-        this.ui?.notifyReload()
+        this.notifyReload()
       }
+  }
+
+  public notifyReload(){
+    this.dataSource?.notifyReload()
   }
 
   aboutToUpdate(): void {
     super.aboutToUpdate()
-    if(this.ui){
-      this.ui.handleOnChildrenUpdated()
-    }
+    this.prepareTemplate()
   }
 
   setListWithPrams(data:QTArray | null | undefined,params:QTAny | null | undefined){
+    console.info(TAG_FASTLIST,`setListWithPrams data:${data?.length} this:${ExtendUtil.debugView(this)}`)
     if(data){
-      console.info(TAG_FASTLIST,`setListWithPrams data:${data?.length}`)
       this.onDataChanged(data)
     }else{
       this.onDataChanged(null)

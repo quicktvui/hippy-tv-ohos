@@ -46,6 +46,10 @@ import  {
   QTItemFrame,
   QTLottieView,
   QTLottie,
+  QTTabsView,
+  QTTabs,
+  InnerViewPagerView,
+  InnerViewPager,
 } from 'quicktvui';
 import { QTVideoPlayer, QTVideoPlayerView } from '../components/video/QTVideoPlayerView';
 import { QTPageRouter, QTPageRouterView } from '../components/router/QTPageRouterView';
@@ -83,7 +87,7 @@ struct Debug {
   @State versionCode: string = ''
   @State deviceIp: string = '0.0.0.0' //TODO 不要修改 => 设备的IP地址
   //----------------------------------------------------------------------------------
-  @State debugServerHost: string = '192.168.80.235' //TODO 调试服务地址
+  @State debugServerHost: string = '192.168.80.199' //TODO 调试服务地址
   @State debugServerAvailable: boolean = false
   private checkHostAvailableTimerId: number = -1
   private readonly ACTION_CHANGE_DEBUG_SERVER: string =
@@ -629,6 +633,16 @@ function buildCustomRenderView($$: HippyRenderBaseView) {
   } else if ($$ instanceof QTFastFlexView) {
     QTFastFlex({
       renderView: $$ as QTFastFlexView,
+      children: $$.children,
+    })
+  } else if ($$ instanceof QTTabsView) {
+    QTTabs({
+      renderView: $$ as QTTabsView,
+      children: $$.children,
+    })
+  } else if ($$ instanceof InnerViewPagerView) {
+    InnerViewPager({
+      renderView: $$ as InnerViewPagerView,
       children: $$.children,
     })
   } else {

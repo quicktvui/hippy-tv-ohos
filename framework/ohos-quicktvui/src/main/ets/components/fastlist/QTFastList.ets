@@ -14,9 +14,10 @@ export struct  QTFastList {
 
 
   test : boolean = false
-  dataSource: FastListDataSource | null = null;
-  @State bgColor : Color = Color.Yellow
-  private endBatchCallback: HippyEndBatchCallback | null = null
+
+
+
+
 
   // 监听autoSize变化的回调函数
   onAutoSizeChange(newValue: number[], oldValue: number[]) {
@@ -31,8 +32,10 @@ export struct  QTFastList {
     //   la.setWidth(newValue[1])
     //   this.renderView.cssHeight = newValue[1]
     // }
-    this.notifyReload()
+    this.renderView.notifyReload()
   }
+
+
 
   keyGenerate(item : QTView,index : number) : string{
     if(item instanceof QTFastItemView){
@@ -58,7 +61,7 @@ export struct  QTFastList {
       if(this.renderView.isHorizontal){
         Stack() {
           Grid(this.renderView.scroller){
-            LazyForEach(this.dataSource,(item : QTFastItemView,index : number)=>{
+            LazyForEach(this.renderView.dataSource,(item : QTFastItemView,index : number)=>{
               GridItem() {
                 QTFastItem({
                   renderView:item as QTFastItemView,
@@ -75,11 +78,10 @@ export struct  QTFastList {
           // ContentSlot(this.renderView.childSlot)
         }
         .applyRenderViewBaseAttr(this.renderView)
-        .backgroundColor(this.bgColor)
       }else{
         Stack() {
           Grid(this.renderView.scroller){
-            LazyForEach(this.dataSource,(item : QTFastItemView,index : number)=>{
+            LazyForEach(this.renderView.dataSource,(item : QTFastItemView,index : number)=>{
               GridItem() {
                 QTFastItem({
                   renderView:item as QTFastItemView,
@@ -96,12 +98,11 @@ export struct  QTFastList {
           // ContentSlot(this.renderView.childSlot)
         }
         .applyRenderViewBaseAttr(this.renderView)
-        .backgroundColor(this.bgColor)
       }
     }else{
       Stack() {
         List({ space: this.renderView.listSpace, initialIndex: this.renderView.initialPosition, scroller: this.renderView.scroller }){
-          LazyForEach(this.dataSource,(item : QTFastItemView,index : number)=>{
+          LazyForEach(this.renderView.dataSource,(item : QTFastItemView,index : number)=>{
             ListItem() {
               QTFastItem({
                 renderView:item as QTFastItemView,
@@ -110,6 +111,7 @@ export struct  QTFastList {
             }
             .width(item?.cssWidth)
             .height(item?.cssHeight)
+            .margin(item.decoration)
           },this.keyGenerate)
         }
         .listDirection(this.renderView.isHorizontal ? Axis.Horizontal : Axis.Vertical)
@@ -120,56 +122,24 @@ export struct  QTFastList {
           // this.renderView.scroller.scrollToIndex(5)
         })
         .onScrollVisibleContentChange(()=>{
-          this.dataSource?.makeBindEventDirty()
+          this.renderView.dataSource?.makeBindEventDirty()
         })
         // ContentSlot(this.renderView.childSlot)
       }
       .applyRenderViewBaseAttr(this.renderView)
-      .backgroundColor(this.bgColor)
     }
 
   }
 
-  public notifyReload(){
-    this.dataSource?.notifyReload()
-  }
 
-  public handleOnChildrenUpdated() {
-    // this.bgColor = Color.Pink
-    console.log(TAG_FASTLIST,`QTFastList: handleOnChildrenUpdated children:${this.children.length}`)
-    NodeUtils.printViewTreePretty(this.renderView,'',false)
-    if(this.renderView.isVirtual){
-      console.error(TAG_FASTLIST,`handleOnChildrenUpdated registerTemplate for virtual FastList`)
-      this.renderView.templateView?.children.map((c,index)=>{
-        this.dataSource?.registerTemplate(this.renderView,c,index,true)
-      })
-    }else{
-      this.children.map((c,index)=>{
-        // console.log(QUICKTVUI_TAG,`template: viewType：`+c.viewType+",node:"+NodeUtils.getNodeById(this.renderView.ctx,c.tag))
-        this.dataSource?.registerTemplate(this.renderView,c,index,this.renderView.isVirtual)
-      })
-    }
-    // this.dataSource?.notifyReload()
-  }
+
+
 
 
 
   aboutToAppear(): void {
-    console.log(TAG_FASTLIST,`FastList aboutToAppear childrenCount:${this.children.length}`)
-    this.renderView.uiCtx = this.getUIContext()
-    this.dataSource = new FastListDataSource(this.renderView.ctx,this.renderView.virtualChildren)
-    this.dataSource.rootListId = this.renderView.tag
-    this.dataSource.listView = this.renderView
-    this.renderView.ui  = this
+    this.renderView.onUIAboutToAppear(this)
 
-    this.handleOnChildrenUpdated()
-    this.endBatchCallback = () =>{
-      this.handleOnChildrenUpdated()
-    }
-    this.renderView.ctx.getNativeRender().addEndBatchCallback(this.renderView.ctx.getRootId(),this.endBatchCallback)
-    if (this.renderView.eventAttachedToWindow) {
-      this.renderView.eventAttachedToWindow()
-    }
   }
 
   aboutToDisappear() {
@@ -177,9 +147,7 @@ export struct  QTFastList {
       this.renderView.eventDetachedFromWindow()
     }
     this.renderView.clearListener()
-    if(this.endBatchCallback){
-      this.renderView.ctx.getNativeRender().removeEndBatchCallback(this.renderView.ctx.getRootId(),this.endBatchCallback)
-    }
+    this.renderView.onUIAboutToDisappear()
   }
 
 }

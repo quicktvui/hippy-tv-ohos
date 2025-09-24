@@ -4,6 +4,7 @@ import {
   HippyAny,
   HIPPY_COMPONENT_KEY_PREFIX,
   HippyRenderCallback,
+  HRPadding,
   buildHippyRenderView,
 } from 'hippy'
 import { TAG_FASTLIST, TAG_FAST_EVENT, TAG_QUICKTVUI, TAG_REUSE } from '../../Constant';
@@ -21,7 +22,7 @@ export class QTFastItemView extends QTRenderBaseView{
   itemView:ItemView |  null = null;
   parentList : QTPendingListView | null = null;
   dataPosition : number = -1;
-
+  decoration :Padding = { top: 0, right: 0, bottom: 0, left: 0 }
   //
 
   constructor(ctx: NativeRenderContext) {
@@ -39,7 +40,7 @@ export class QTFastItemView extends QTRenderBaseView{
     // console.info(TAG_LAYOUT,`notifyChildSizeChanged on FastItem,isVirtual${this.isVirtual} changeViewType:${changedView.viewType},width:${width},height:${height},child width:${LayoutAttach.obtainLayoutAttach(child).fixedWidth}`)
     //主里直接阻断向上，只处理一层
     //super.notifyChildSizeChanged
-    this.layoutItem(child)
+    this.layoutItem(child,false)
     //this.layoutItem(child.)
   }
 
@@ -53,7 +54,7 @@ export class QTFastItemView extends QTRenderBaseView{
 
 
 
-  layoutItem(childView:QTView ){
+  layoutItem(childView:QTView ,flexLayout: boolean){
     if(this.parentView){
       LayoutAttach.obtainLayoutAttach(this).calculateLayout(this.parentView.cssWidth,this.parentView.cssHeight)
     }else{
@@ -64,8 +65,21 @@ export class QTFastItemView extends QTRenderBaseView{
     LayoutAttach.obtainLayoutAttach(this).setFixedWidth(LayoutAttach.obtainLayoutAttach(childView).getWidth())
     LayoutAttach.obtainLayoutAttach(this).setFixedHeight(LayoutAttach.obtainLayoutAttach(childView).getHeight())
     // console.warn(TAG_LAYOUT,`set FastItem size:[${childView.cssWidth},height:${childView.cssHeight}]`)
-    QTPixelUtil.setScaledRenderViewLayout(this,[0,0,childView.cssWidth,childView.cssHeight]);
+    if(flexLayout){
+      QTPixelUtil.setRenderViewLayout(this,[childView.cssPositionX,childView.cssPositionY,childView.cssWidth,childView.cssHeight]);
+      QTPixelUtil.setRenderViewLayout(childView,[0,0,childView.cssWidth,childView.cssHeight]);
+    }else{
+      QTPixelUtil.setRenderViewLayout(this,[0,0,childView.cssWidth,childView.cssHeight]);
+    }
+
   }
+  onAboutToReuse(){
+    if(this.children[0]){
+      QTPixelUtil.setRenderViewLayout(this,[this.children[0].cssPositionX,this.children[0].cssPositionY,this.children[0].cssWidth,this.children[0].cssHeight]);
+      QTPixelUtil.setRenderViewLayout(this.children[0],[0,0,this.children[0].cssWidth,this.children[0].cssHeight]);
+    }
+  }
+
 
   setProp(propKey: string, propValue: HippyAny): boolean {
     switch (propKey) {
@@ -136,6 +150,7 @@ export struct QTFastItem {
     .onDetach(()=>{
       console.log(TAG_REUSE,`--onDetach position:${this.renderView.dataPosition}`)
     })
+    .backgroundColor(Color.Red)
   }
 
   aboutToAppear(): void {
@@ -148,6 +163,7 @@ export struct QTFastItem {
 
   aboutToReuse(params: Record<string, Object>): void {
     console.warn(TAG_REUSE,`++aboutToReuse dataPosition:${this.renderView.dataPosition}`)
+    this.renderView.onAboutToReuse()
   }
 }
 

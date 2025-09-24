@@ -29,6 +29,7 @@ import { QTSliderView } from './slider/QTSliderView';
 import { QTAnimationView } from './animation/QTAnimationView';
 import { QTItemFrameView } from './item/QTItemFrameView';
 import { QTLottieView } from './lottie/QTLottieView';
+import { InnerViewPagerView, QTTabsView } from '../../../../Index';
 
 export class QTAPIProvider extends HippyAPIProvider {
   getCustomNativeModuleCreatorMap(): Map<string, HippyNativeModuleCreator> | null {
@@ -48,6 +49,8 @@ export class QTAPIProvider extends HippyAPIProvider {
     registerMap.set("FastListView", (ctx): HippyRenderBaseView => new QTFastListView(ctx))
     registerMap.set("FastFlexView", (ctx): HippyRenderBaseView => new QTFastFlexView(ctx))
     registerMap.set("FastItemView", (ctx): HippyRenderBaseView => new QTFastItemView(ctx))
+    registerMap.set("TabsView", (ctx): HippyRenderBaseView => new QTTabsView(ctx))
+    registerMap.set("RecyclerViewPager", (ctx): HippyRenderBaseView => new InnerViewPagerView(ctx))
 
     //测试
     registerMap.set("LoadingViewComponent", (ctx): HippyRenderBaseView => new QTLoadingView(ctx))
