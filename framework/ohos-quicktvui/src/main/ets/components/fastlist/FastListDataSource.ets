@@ -31,8 +31,9 @@ import { QTFastItemView } from './QTFastItemView';
 import { QTBaseComponentView } from '../QTBaseComponentView';
 import { LayoutAttach } from './LayoutAttach';
 import { CommonUtils } from '../../utils/CommonUtils';
-import { QTPendingListView, QTView } from '../../QTTypes';
+import { QTMap, QTPendingListView, QTView } from '../../QTTypes';
 import { FastListUtils } from './FastListUtils';
+import { HRValueUtils } from '../../HRValueUtils';
 
 
 // class ItemEntry{
@@ -87,7 +88,7 @@ export class FastListDataSource implements IDataSource {
     let node = NodeUtils.getNodeById(this.ctx,childTag)
     // let renderView = getRenderView(this.ctx,childTag)
     if(child == null || node == null){
-      console.error(TAG_QUICKTVUI,`registerTemplate error renderView:${child},node:${node},viewName:${childViewName}`)
+      console.error(TAG_FASTLIST,`registerTemplate error renderView:${child},node:${node},viewName:${childViewName}`)
       return;
     }
     if(node?.props){
@@ -97,7 +98,7 @@ export class FastListDataSource implements IDataSource {
          type = FastListDataSource.DEFAULT_TYPE
       }
       if(type && child){
-        console.log(TAG_QUICKTVUI,`registerTemplate type:${type},node.props:${CommonUtils.hippyMap2String(node.props)}`)
+        console.log(TAG_FASTLIST,`registerTemplate type:${type},node.props:${CommonUtils.hippyMap2String(node.props)}`)
         let it : ItemTemplate = new ItemTemplate(child,type,node.props)
         this.templatesMap.set(type,it)
       }
@@ -153,6 +154,13 @@ export class FastListDataSource implements IDataSource {
     }
     if(item.raw instanceof  Map){
         item.id = FastListDataSource.getIdFromData(item.raw)
+        let decoration = item.raw.get('decoration')
+        if(decoration instanceof Map){
+          fi.decoration.left = HRValueUtils.getNumberValue('left',decoration,0)
+          fi.decoration.top = HRValueUtils.getNumberValue('top',decoration,0)
+          fi.decoration.right = HRValueUtils.getNumberValue('right',decoration,0)
+          fi.decoration.bottom = HRValueUtils.getNumberValue('bottom',decoration,0)
+        }
     }
     fi.dataPosition = position
     if(!item.id){
@@ -168,7 +176,6 @@ export class FastListDataSource implements IDataSource {
         //1. 遍历模板和数据，生成根布局
         let rv = buildRenderViewTraverse(this.rootListId,this.ctx,it.templateView,it.props,item.raw as HippyMap,null,0,updates)
         // let wrapped = this.wrappedItemIfNeed(rv!!,item);
-
         //2. 预先执行所有update
         updates?.map((p)=>{
           //更新尺寸
@@ -297,7 +304,7 @@ export class FastListDataSource implements IDataSource {
   // }
 
   public totalCount(): number {
-    console.log(TAG_QUICKTVUI,`dataSource:totalCount:${this.dataList.length}`)
+    console.log(TAG_FASTLIST,`dataSource:totalCount:${this.dataList.length}`)
     return this.dataList.length
   }
 
