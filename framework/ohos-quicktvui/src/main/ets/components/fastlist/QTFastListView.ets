@@ -532,7 +532,7 @@ export class QTFastListView extends QTRenderBaseView{
           this.setListWithPrams(data,null)
           break;
         case 'addListData':
-          this.appendItem(params[0] as HippyArray,0)
+          this.appendItem(params,0)
           break;
         case 'addListDataWithParams':
           this.appendItem(params[0] as HippyArray,params[1] as number)
