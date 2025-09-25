@@ -7,13 +7,13 @@ import {
   HRPadding,
   buildHippyRenderView,
 } from 'hippy'
-import { TAG_FASTLIST, TAG_FAST_EVENT, TAG_QUICKTVUI, TAG_REUSE } from '../../Constant';
+import { TAG_FASTLIST, TAG_FAST_EVENT, TAG_LAYOUT, TAG_QUICKTVUI, TAG_REUSE } from '../../Constant';
 import { QTPendingListView, QTView } from '../../QTTypes';
 import { QTPixelUtil } from '../../utils/QTPixelUtil';
 import QTRenderBaseView from '../QTRenderBaseView';
 import { ItemView } from './ItemView';
 import { LayoutAttach } from './LayoutAttach';
-import { applyLayoutTraverse } from './TemplateViewManager';
+import { applyLayoutTraverse, applyLayoutTraverseWithSkip } from './TemplateViewManager';
 
 
 @Observed
@@ -40,8 +40,13 @@ export class QTFastItemView extends QTRenderBaseView{
     // console.info(TAG_LAYOUT,`notifyChildSizeChanged on FastItem,isVirtual${this.isVirtual} changeViewType:${changedView.viewType},width:${width},height:${height},child width:${LayoutAttach.obtainLayoutAttach(child).fixedWidth}`)
     //主里直接阻断向上，只处理一层
     //super.notifyChildSizeChanged
-    this.layoutItem(child,false)
-    //this.layoutItem(child.)
+    LayoutAttach.obtainLayoutAttach(this).setFixedWidth(LayoutAttach.obtainLayoutAttach(child).getWidth())
+    LayoutAttach.obtainLayoutAttach(this).setFixedHeight(LayoutAttach.obtainLayoutAttach(child).getHeight())
+    //这里跳过changedView，解决文本通知parent变化，parent变化再让文本变化，导致死循环
+    applyLayoutTraverseWithSkip(this,changedView)
+    // console.warn(TAG_LAYOUT,`set FastItem size:[${childView.cssWidth},height:${childView.cssHeight}]`)
+    QTPixelUtil.setRenderViewLayout(this,[0,0,child.cssWidth,child.cssHeight]);
+
   }
 
   getReuseId():string | null{
@@ -61,9 +66,9 @@ export class QTFastItemView extends QTRenderBaseView{
       //fixme 暂时写死
       LayoutAttach.obtainLayoutAttach(this).calculateLayout(1920,1080)
     }
-    applyLayoutTraverse(this)
     LayoutAttach.obtainLayoutAttach(this).setFixedWidth(LayoutAttach.obtainLayoutAttach(childView).getWidth())
     LayoutAttach.obtainLayoutAttach(this).setFixedHeight(LayoutAttach.obtainLayoutAttach(childView).getHeight())
+    applyLayoutTraverse(this)
     // console.warn(TAG_LAYOUT,`set FastItem size:[${childView.cssWidth},height:${childView.cssHeight}]`)
     if(flexLayout){
       QTPixelUtil.setRenderViewLayout(this,[childView.cssPositionX,childView.cssPositionY,childView.cssWidth,childView.cssHeight]);
@@ -71,7 +76,6 @@ export class QTFastItemView extends QTRenderBaseView{
     }else{
       QTPixelUtil.setRenderViewLayout(this,[0,0,childView.cssWidth,childView.cssHeight]);
     }
-
   }
   onAboutToReuse(){
     if(this.children[0]){
@@ -150,7 +154,6 @@ export struct QTFastItem {
     .onDetach(()=>{
       console.log(TAG_REUSE,`--onDetach position:${this.renderView.dataPosition}`)
     })
-    .backgroundColor(Color.Red)
   }
 
   aboutToAppear(): void {

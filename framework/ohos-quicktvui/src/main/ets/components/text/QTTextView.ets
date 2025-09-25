@@ -31,6 +31,7 @@ export class QTTextView extends QTRenderBaseView{
     super(ctx)
   }
 
+
   setProp(propKey: string, propValue: HippyAny): boolean {
     switch (propKey){
       case "lineSpacing":
@@ -160,14 +161,17 @@ export struct  QTText {
       .height(this.renderView.cssHeight > 0 ? this.renderView.cssHeight :  this.textSize.height)
       .padding(this.renderView.qtPadding)
       .onAreaChange((oldValue: Area, newValue: Area) => {
-        if( newValue.width != oldValue.width || newValue.height != oldValue.height){
+        if(newValue.width != oldValue.width || newValue.height != oldValue.height){
           if(this.renderView.parentView instanceof QTRenderBaseView){
             if(LayoutAttach.obtainLayoutAttach(this.renderView).isAutoWidth || LayoutAttach.obtainLayoutAttach(this.renderView).isAutoHeight){
               if(LayoutAttach.obtainLayoutAttach(this.renderView).isAutoWidth){
                  LayoutAttach.obtainLayoutAttach(this.renderView).setWidth(Number(newValue.width))
+                this.renderView.cssWidth = Number(newValue.width)
               }else{
                 LayoutAttach.obtainLayoutAttach(this.renderView).setHeight(Number(newValue.height))
+                this.renderView.cssHeight = Number(newValue.height)
               }
+              // QTPixelUtil.setRenderViewLayout(this.renderView,[0,])
               this.renderView.parentView.notifyChildSizeChanged(this.renderView,this.renderView,Number(newValue.width),Number(newValue.height))
             }
           }
