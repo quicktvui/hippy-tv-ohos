@@ -204,7 +204,7 @@ export class FastListDataSource implements IDataSource {
         //3. 执行所有props
         updates?.map((p)=>{
           p.props.forEach((value,key)=>{
-            // console.log(QUICKTVUI_TAG,`updates p :${p.renderView.viewType},prop:${key},value:${value}`)
+            // console.log(TAG_FASTLIST,`updates p :${p.renderView.viewType},prop:${key},value:${value}`)
             //更新所有属性
             let handle = false
             switch (key){
@@ -270,8 +270,8 @@ export class FastListDataSource implements IDataSource {
     let fi = this.dataList[index] as QTFastItemView
 
     this.buildItem(fi,index)
-    console.log(TAG_FASTLIST,`getData index:${index}`)
-    console.log(TAG_REUSE,`getData index:${index}`)
+    // console.log(TAG_FASTLIST,`getData index:${index}`)
+    // console.log(TAG_REUSE,`getData index:${index}`)
     if(fi.cssWidth < 1 || fi.cssHeight < 1){
       console.error(TAG_LAYOUT,`getData layout Error index:${index}`)
     }
@@ -308,7 +308,7 @@ export class FastListDataSource implements IDataSource {
   // }
 
   public totalCount(): number {
-    console.log(TAG_FASTLIST,`dataSource:totalCount:${this.dataList.length}`)
+    // console.log(TAG_FASTLIST,`dataSource:totalCount:${this.dataList.length}`)
     return this.dataList.length
   }
 
@@ -333,12 +333,14 @@ export class FastListDataSource implements IDataSource {
   }
 
   notifyDataAdd(index : number) {
+    console.log(TAG_FASTLIST,`notifyDataAdd index:${index}`)
     this.listeners.forEach(listener => {
       listener.onDataAdd(index)
     })
   }
 
   notifyDataAddRange(index : number,count:number) {
+    console.log(TAG_FASTLIST,`notifyDataAddRange index:${index},count:${count}`)
     this.listeners.forEach(listener => {
       listener.onDataReloaded()
     })
@@ -357,25 +359,16 @@ export class FastListDataSource implements IDataSource {
   }
 
   notifyDataChanged(start: number,count:number){
+    console.log(TAG_FASTLIST,`notifyDataChanged start:${start},count:${count}`)
     this.listeners.forEach(listener => {
       listener.onDataReloaded()
     })
   }
 
   notifyDataChange(index: number){
+    console.log(TAG_FASTLIST,`notifyDataChanged index:${index}`)
     this.listeners.forEach(listener => {
       listener.onDataChange(index)
     })
-  }
-
-  mockData(){
-    // const total = 100;
-    // for(let i = 0; i < total; i++){
-    //   let map : Map<string, HippyAny> = new Map()
-    //   map.set('type',10001)
-    //   let item = new ItemView(i,map)
-    //   this.dataList.push(item)
-    // }
-    // this.notifyReload()
   }
 }

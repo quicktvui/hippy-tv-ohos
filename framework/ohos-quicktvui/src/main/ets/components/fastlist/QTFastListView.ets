@@ -364,16 +364,21 @@ export class QTFastListView extends QTRenderBaseView{
   }
 
   updateItemRange(start : number,count:number,data:HippyArray){
-    let replaced : HippyObservedArray<QTView>= []
-    replaced.push(...
-      data?.map((item,index)=>{
+    data?.forEach((item,index)=>{
+      let itemIndex = index + start;
+      let fi = this.virtualChildren[itemIndex]
+      if(fi instanceof QTFastItemView){
         console.log(TAG_FASTLIST,`updateItemRange crate item :`)
         CommonUtils.printMapPretty(item as HippyMap,'FastListView:',false)
-        let it =  new ItemView(index + start,item as HippyMap)
-        return new QTFastItemView(this.ctx).init(this,it)
-      })
-    )
-    this.virtualChildren.splice(start,count,...replaced)
+        // let it =  new ItemView(index + start,item as HippyMap)
+        // fi.itemView = it
+        CommonUtils.updateMap(fi.itemView?.raw,item as HippyMap)
+        fi.updateTimes += 1
+      }else{
+        console.error(TAG_FASTLIST,`updateItemRange error item is null index:${itemIndex}`)
+      }
+    })
+    // this.virtualChildren.splice(start,count,...replaced)
     if(count > 1){
       this.dataSource?.notifyDataChanged(start,count)
     }else{
@@ -429,6 +434,7 @@ export class QTFastListView extends QTRenderBaseView{
   }
 
   public notifyReload(){
+    console.info(TAG_FASTLIST,`notifyReload`)
     this.dataSource?.notifyReload()
   }
 
@@ -500,7 +506,8 @@ export class QTFastListView extends QTRenderBaseView{
 
           break;
         case 'updateItem':
-          this.updateItemRange(params[0] as number,1,params[1] as HippyArray)
+          console.log(TAG_FASTLIST,`updateItem params length:${params.length}`)
+          this.updateItemRange(params[0] as number,1,[params[1]])
           break;
         case 'updateItemRange':
           this.updateItemRange(params[0] as number,params[1] as number,params[2] as HippyArray)

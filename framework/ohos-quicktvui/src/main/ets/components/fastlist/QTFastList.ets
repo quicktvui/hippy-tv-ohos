@@ -21,7 +21,7 @@ export struct  QTFastList {
 
   // 监听autoSize变化的回调函数
   onAutoSizeChange(newValue: number[], oldValue: number[]) {
-    console.error(TAG_LAYOUT,'onAutoSizeChange notifyReload')
+    console.error(TAG_FASTLIST,'onAutoSizeChange notifyReload')
     // let la = LayoutAttach.obtainLayoutAttach(this.renderView)
     // if(la.isAutoWidth){
     //   console.info(TAG_LAYOUT,`AutoWidth changed from ${oldValue} to [${newValue[0]},${newValue[1]}]`)
@@ -41,15 +41,16 @@ export struct  QTFastList {
     if(item instanceof QTFastItemView){
       let id = LayoutAttach.obtainLayoutAttach(item).sid
       if(id){
-        console.debug(TAG_FASTLIST,`keyGenerate id from sid:${id}`)
-        return id
+        // console.debug(TAG_FASTLIST,`keyGenerate id from sid:${id}`)
+        return id +'-'+ item.updateTimes
       }
       if(item.itemView){
         id =  item.itemView.getItemId()
         if(id){
-          console.debug(TAG_FASTLIST,`keyGenerate id by item:${id}`)
-          return LayoutAttach.obtainLayoutAttach(item).virtualExtra.itemType + ''+ id;
+          // console.debug(TAG_FASTLIST,`keyGenerate id by item:${id}`)
+          return LayoutAttach.obtainLayoutAttach(item).virtualExtra.itemType + ''+ id + '-'+item.updateTimes;
         }
+        return `fi-:${index}-${item.updateTimes}`
       }
     }
     return 'view-'+index
@@ -68,7 +69,7 @@ export struct  QTFastList {
                   children: item.children,
                 }).reuseId(item.getReuseId())
               }
-            },this.keyGenerate)
+            }, this.keyGenerate)
           }
           .alignItems(GridItemAlignment.STRETCH)
           .rowsTemplate(this.renderView.spanCount)
@@ -88,7 +89,7 @@ export struct  QTFastList {
                   children: item.children,
                 }).reuseId(item.getReuseId())
               }
-            },this.keyGenerate)
+            }, this.keyGenerate)
           }
           .alignItems(GridItemAlignment.STRETCH)
           .columnsTemplate(this.renderView.spanCount)
@@ -112,7 +113,7 @@ export struct  QTFastList {
             .width(item?.cssWidth)
             .height(item?.cssHeight)
             .margin(item.decoration)
-          },this.keyGenerate)
+          }, this.keyGenerate)
         }
         .listDirection(this.renderView.isHorizontal ? Axis.Horizontal : Axis.Vertical)
         .width('100%')

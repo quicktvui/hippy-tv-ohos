@@ -24,6 +24,7 @@ export class QTFastItemView extends QTRenderBaseView{
   dataPosition : number = -1;
   decoration :Padding = { top: 0, right: 0, bottom: 0, left: 0 }
   //
+  updateTimes = 0
 
   constructor(ctx: NativeRenderContext) {
     super(ctx)
